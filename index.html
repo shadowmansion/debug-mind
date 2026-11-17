@@ -1,0 +1,3000 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeBug — Debug your mind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f11;
+      --bg-strong: #141416;
+      --panel: #18181c;
+      --panel-soft: #1d1d22;
+      --line: rgba(255, 158, 68, 0.16);
+      --line-strong: rgba(255, 158, 68, 0.3);
+      --text: #f3eee9;
+      --muted: #a7a09a;
+      --accent: #ff7b29;
+      --accent-light: #ff9e44;
+      --accent-soft: rgba(255, 123, 41, 0.12);
+      --amber: #ffb56b;
+      --red: #ff7d8d;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(255, 123, 41, 0.1), transparent 30%),
+        linear-gradient(180deg, #0f0f11 0%, #141416 100%);
+      color: var(--text);
+      font-family: "Inter", sans-serif;
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px 24px 72px;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.85fr) minmax(280px, 1fr);
+      align-items: start;
+      gap: 24px;
+    }
+
+    .main-column,
+    .sidebar {
+      min-width: 0;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 24px;
+    }
+
+    .warning-bar {
+      background: rgba(27, 25, 24, 0.92);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #d4d9dc;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 24px 0 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand-mark {
+      margin: 0;
+      color: var(--accent-light);
+      font-family: "JetBrains Mono", monospace;
+      font-size: clamp(2rem, 5vw, 2.7rem);
+      font-weight: 700;
+      letter-spacing: -0.08em;
+      line-height: 1;
+    }
+
+    .slogan {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .post-form {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: clamp(18px, 2.5vw, 26px);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .post-form label {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--accent-light);
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+    }
+
+    .mood-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .mood-pill {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      line-height: 1;
+      padding: 11px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      min-height: 42px;
+    }
+
+    .mood-pill:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .mood-pill.is-active {
+      background: var(--pill-bg, var(--accent-soft));
+      border-color: var(--pill-color, var(--accent));
+      box-shadow: 0 0 18px rgba(255, 123, 41, 0.18);
+      color: var(--pill-color, var(--accent-light));
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      background: #111113;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: var(--radius-md);
+      padding: 14px 15px;
+      font-family: "Inter", sans-serif;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      margin-bottom: 18px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: none;
+      border-color: rgba(255, 158, 68, 0.6);
+      box-shadow: 0 0 0 3px rgba(255, 123, 41, 0.1), 0 0 18px rgba(255, 123, 41, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 0.94rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .primary-button {
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      color: #1b1009;
+      box-shadow: 0 8px 22px rgba(255, 123, 41, 0.2);
+    }
+
+    .secondary-button {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .feed {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--card-accent, var(--accent));
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      animation: fadeUp 0.28s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.02em;
+      color: var(--tag-color, var(--accent-light));
+      white-space: nowrap;
+    }
+
+    .meta {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .card-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.65;
+      word-break: break-word;
+    }
+
+    .card-track {
+      margin-top: 12px;
+    }
+
+    .track-readout,
+    .track-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .track-link {
+      text-decoration: none;
+      background: var(--accent-soft);
+      border-color: var(--line-strong);
+      color: var(--accent-light);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .track-link:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 123, 41, 0.2);
+    }
+
+    .track-link::before {
+      content: "♫";
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    .widget {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .widget-title {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .profile-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+    }
+
+    .profile-avatar {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line-strong);
+      font-size: 1.35rem;
+    }
+
+    .profile-name {
+      min-width: 0;
+      color: var(--text);
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .profile-subtitle,
+    .pulse-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .profile-input {
+      margin-bottom: 10px;
+    }
+
+    .random-name-button {
+      width: 100%;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 10px 12px;
+    }
+
+    .avatar-picker {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .avatar-option {
+      padding: 8px 2px;
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .avatar-option.is-active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(255, 123, 41, 0.18);
+    }
+
+    .pulse-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .pulse-stat {
+      min-width: 0;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+    }
+
+    .pulse-value {
+      display: block;
+      margin-top: 6px;
+      color: var(--accent-light);
+      font-size: 1.05rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .card-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .card-author-avatar {
+      font-size: 1rem;
+    }
+
+    .comments {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .comments-title {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .comment-toggle {
+      margin-top: 12px;
+      padding: 10px 13px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line-strong);
+      color: var(--accent-light);
+      font-size: 0.8rem;
+    }
+
+    .comment {
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .comment-author {
+      margin-right: 6px;
+      color: var(--accent-light);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .comment-compose {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .comment-compose[hidden] {
+      display: none;
+    }
+
+    .comment-input {
+      min-width: 0;
+      margin: 0;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+
+    .comment-submit {
+      flex: 0 0 auto;
+      padding: 10px 13px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line-strong);
+      color: var(--accent-light);
+      font-size: 0.8rem;
+    }
+
+    .empty-feed {
+      padding: 24px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-lg);
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+      .app-grid {
+        grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .app-shell {
+        padding: 18px 14px 48px;
+      }
+
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .slogan {
+        letter-spacing: 0.08em;
+      }
+
+      .mood-picker {
+        gap: 8px;
+      }
+
+      .mood-pill {
+        flex: 1 1 calc(50% - 8px);
+        text-align: center;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .primary-button,
+      .secondary-button {
+        width: 100%;
+      }
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .meta {
+        white-space: normal;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .comment-compose {
+        flex-direction: column;
+      }
+    }
+
+    :root {
+      --bg: #181513;
+      --bg-strong: #211d1a;
+      --panel: #211d1a;
+      --panel-soft: #29231f;
+      --line: rgba(235, 215, 195, 0.08);
+      --line-strong: rgba(217, 155, 102, 0.32);
+      --text: #e8e0d5;
+      --muted: #9e9387;
+      --accent: #d99b66;
+      --accent-light: #e8b17f;
+      --accent-soft: rgba(217, 155, 102, 0.12);
+      --shadow: 0 16px 38px rgba(0, 0, 0, 0.2);
+    }
+
+    body {
+      position: relative;
+      isolation: isolate;
+      background: #181513;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background-image: var(--glow-background, none);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      -webkit-mask-image: linear-gradient(#000, transparent 96%);
+      mask-image: linear-gradient(#000, transparent 96%);
+    }
+
+    .ambient-glow.is-visible {
+      opacity: 1;
+    }
+
+    .mixer-hint-status {
+      min-height: 1.2em;
+      margin: -7px 0 10px;
+      color: var(--accent-light);
+      font-size: 0.72rem;
+    }
+
+    .mood-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 0 0 12px;
+    }
+
+    .mood-tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: var(--tag-color, var(--accent-light));
+      font: 0.66rem "JetBrains Mono", monospace;
+    }
+
+    .comment-track-input {
+      min-width: 0;
+      margin: 0;
+      padding: 9px 11px;
+      font-size: 0.8rem;
+    }
+
+    .comment-compose {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .comment-compose .comment-input {
+      grid-column: 1 / -1;
+    }
+
+    .comment-track-link {
+      display: inline-flex;
+      align-items: center;
+      margin: 7px 5px 0 0;
+      padding: 6px 9px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: rgba(217, 155, 102, 0.08);
+      color: var(--accent-light);
+      font-size: 0.72rem;
+      text-decoration: none;
+    }
+
+    .comment-link {
+      color: var(--accent-light);
+      text-decoration: underline;
+      text-decoration-color: rgba(217, 155, 102, 0.45);
+      overflow-wrap: anywhere;
+    }
+
+    .comment-link:hover,
+    .comment-track-link:hover {
+      text-decoration-color: currentColor;
+      background: rgba(217, 155, 102, 0.14);
+    }
+
+    .comment-track-wrap {
+      display: block;
+      margin-top: 5px;
+    }
+
+    .comment-warning {
+      grid-column: 1 / -1;
+      min-height: 1.2em;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .app-shell {
+      max-width: 1600px;
+      padding: 28px clamp(16px, 3vw, 48px) 48px;
+    }
+
+    .warning-bar {
+      display: none;
+    }
+
+    .topbar {
+      align-items: center;
+      margin: 0;
+      padding: 4px 0 18px;
+      border-bottom-color: var(--line);
+    }
+
+    .brand-mark {
+      color: var(--accent);
+      font-size: 1.65rem;
+    }
+
+    .slogan {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+    }
+
+    .page-intro {
+      margin: 28px 0 26px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1.2;
+      font-weight: 500;
+      letter-spacing: -0.045em;
+    }
+
+    .page-subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .app-grid {
+      grid-template-columns: minmax(270px, 32fr) minmax(360px, 42fr) minmax(260px, 26fr);
+      gap: 18px;
+    }
+
+    .main-column {
+      display: contents;
+    }
+
+    .post-form {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0;
+      padding: 20px;
+      background: rgba(33, 29, 26, 0.94);
+      border-color: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .feed {
+      grid-column: 2;
+      grid-row: 1;
+      align-content: start;
+    }
+
+    .sidebar {
+      grid-column: 3;
+      grid-row: 1;
+      position: static;
+    }
+
+    .widget,
+    .post-form,
+    .card {
+      background: #211d1a;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      border-left: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .widget-title {
+      font-size: 0.94rem;
+    }
+
+    .section-kicker,
+    .mixer-label,
+    .intensity-output,
+    .meta,
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .mixer-heading {
+      margin: 0 0 5px;
+      font-size: 1rem;
+    }
+
+    .mixer-hint {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
+    .mixer-channel {
+      --channel-color: var(--accent);
+      margin: 0 0 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.015);
+      transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .mixer-channel.is-active {
+      border-color: color-mix(in srgb, var(--channel-color), transparent 48%);
+      background: color-mix(in srgb, var(--channel-color), transparent 94%);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--channel-color), transparent 90%);
+    }
+
+    .mixer-channel[data-mood="Выгорел"] { --channel-color: #c17a51; }
+    .mixer-channel[data-mood="Тревожно"] { --channel-color: #6f8da8; }
+    .mixer-channel[data-mood="Туман в голове"] { --channel-color: #9b9a98; }
+    .mixer-channel[data-mood="Одиноко"] { --channel-color: #9a7cac; }
+    .mixer-channel[data-mood="Полон сил"] { --channel-color: #7d9a7e; }
+    .mixer-channel[data-mood="Грустно"] { --channel-color: #6f9295; }
+    .mixer-channel[data-mood="Раздражён"] { --channel-color: #a66068; }
+    .mixer-channel[data-mood="Спокойно"] { --channel-color: #a18b60; }
+
+    .mixer-channel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mixer-label {
+      font-size: 0.73rem;
+      color: var(--text);
+    }
+
+    .channel-select {
+      padding: 6px 9px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .mixer-channel.is-active .channel-select {
+      color: var(--channel-color);
+      border-color: var(--channel-color);
+    }
+
+    .mixer-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mixer-range {
+      width: 100%;
+      height: 4px;
+      margin: 0;
+      padding: 0;
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--channel-color) 0%, var(--channel-color) var(--range-fill, 70%), rgba(255,255,255,0.12) var(--range-fill, 70%), rgba(255,255,255,0.12) 100%);
+      cursor: pointer;
+    }
+
+    .mixer-range:focus {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .mixer-range:focus-visible::-webkit-slider-thumb {
+      outline: 2px solid var(--text);
+      outline-offset: 3px;
+    }
+
+    .mixer-range::-webkit-slider-thumb {
+      width: 14px;
+      height: 14px;
+      appearance: none;
+      border: 2px solid #211d1a;
+      border-radius: 50%;
+      background: var(--channel-color);
+      box-shadow: 0 0 0 1px var(--channel-color), 0 0 10px color-mix(in srgb, var(--channel-color), transparent 45%);
+    }
+
+    .mixer-range::-moz-range-thumb {
+      width: 10px;
+      height: 10px;
+      border: 2px solid #211d1a;
+      border-radius: 50%;
+      background: var(--channel-color);
+      box-shadow: 0 0 0 1px var(--channel-color);
+    }
+
+    .intensity-output {
+      min-width: 34px;
+      color: var(--muted);
+      font-size: 0.65rem;
+      text-align: right;
+    }
+
+    .post-form > label {
+      margin: 18px 0 9px;
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .post-form textarea,
+    .post-form input,
+    .profile-input,
+    .comment-input {
+      background: #191614;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .post-form textarea {
+      min-height: 126px;
+      margin-bottom: 12px;
+    }
+
+    .post-form input {
+      margin-bottom: 4px;
+    }
+
+    .form-actions {
+      display: grid;
+      gap: 9px;
+    }
+
+    .primary-button {
+      background: var(--accent);
+      color: #181513;
+      box-shadow: 0 7px 20px rgba(217, 155, 102, 0.16);
+    }
+
+    .primary-button:hover,
+    .channel-select:hover,
+    .comment-toggle:hover,
+    .comment-submit:hover {
+      box-shadow: 0 0 16px rgba(217, 155, 102, 0.17);
+    }
+
+    .secondary-button,
+    .random-name-button {
+      background: rgba(235, 215, 195, 0.035);
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    .widget {
+      padding: 17px;
+    }
+
+    .profile-preview,
+    .pulse-stat,
+    .comment {
+      background: rgba(235, 215, 195, 0.025);
+      border-color: var(--line);
+    }
+
+    .profile-avatar {
+      background: rgba(217, 155, 102, 0.08);
+      border-color: var(--line-strong);
+    }
+
+    .avatar-option.is-active,
+    .comment-toggle,
+    .comment-submit {
+      background: rgba(217, 155, 102, 0.1);
+      border-color: var(--line-strong);
+      color: var(--accent-light);
+      box-shadow: none;
+    }
+
+    .pulse-value {
+      color: var(--accent-light);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .pulse-indicator {
+      width: 100%;
+      height: 76px;
+      margin: 2px 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background:
+        radial-gradient(ellipse at 50% 110%, var(--pulse-color, rgba(217,155,102,0.2)), transparent 67%),
+        rgba(255,255,255,0.015);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pulse-indicator::after {
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      right: 8%;
+      height: 1px;
+      content: "";
+      background: linear-gradient(90deg, transparent, var(--pulse-color, var(--accent)), transparent);
+      opacity: 0.65;
+    }
+
+    .card-header {
+      margin-bottom: 11px;
+    }
+
+    .tag {
+      border-color: var(--line);
+      color: var(--accent-light);
+    }
+
+    .meta {
+      font-size: 0.65rem;
+    }
+
+    .card-author {
+      margin-bottom: 12px;
+    }
+
+    .card-text {
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .track-link,
+    .track-readout {
+      border-color: var(--line-strong);
+      background: rgba(217, 155, 102, 0.07);
+      color: var(--accent-light);
+    }
+
+    .comments {
+      border-top-color: var(--line);
+    }
+
+    .comment-author {
+      color: var(--accent-light);
+    }
+
+    .comment-toggle,
+    .comment-submit {
+      font-weight: 600;
+    }
+
+    .empty-feed {
+      border-color: var(--line-strong);
+      line-height: 1.7;
+    }
+
+    .site-footer {
+      margin-top: 30px;
+      padding: 18px 0 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    .topbar {
+      flex-wrap: wrap;
+    }
+
+    .night-player {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 7px 12px;
+      margin-left: auto;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(33, 29, 26, 0.78);
+    }
+
+    .night-player-title {
+      color: var(--accent-light);
+      font: 0.67rem "JetBrains Mono", monospace;
+      white-space: nowrap;
+    }
+
+    .night-player-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .sound-mode {
+      padding: 6px 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.65rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .sound-mode.is-active {
+      border-color: var(--line-strong);
+      background: var(--accent-soft);
+      color: var(--accent-light);
+    }
+
+    .volume-control {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 0.65rem;
+    }
+
+    .volume-control input {
+      width: 88px;
+      height: 4px;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--accent);
+    }
+
+    .audio-status {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 0.63rem;
+    }
+
+    .feed-column {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .feed {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .feed-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+    }
+
+    .feed-tabs {
+      display: flex;
+      min-width: 0;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(33, 29, 26, 0.72);
+    }
+
+    .feed-tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 8px 9px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.69rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .feed-tab.is-active {
+      background: rgba(235, 215, 195, 0.06);
+      color: var(--text);
+    }
+
+    .waiting-tab.has-unanswered {
+      border-color: rgba(217, 155, 102, 0.48);
+      box-shadow: 0 0 12px rgba(217, 155, 102, 0.08);
+    }
+
+    .waiting-count {
+      min-width: 18px;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(217, 155, 102, 0.12);
+      color: var(--accent-light);
+      font: 0.62rem "JetBrains Mono", monospace;
+      text-align: center;
+    }
+
+    .mood-filter {
+      width: auto;
+      min-width: 112px;
+      max-width: 145px;
+      margin: 0;
+      padding: 9px 26px 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #211d1a;
+      color: var(--text);
+      font-size: 0.7rem;
+    }
+
+    .feed-empty {
+      padding: 24px 16px;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .economy-summary {
+      margin: 0 0 15px;
+    }
+
+    .rank-progress-track {
+      height: 5px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: rgba(235, 215, 195, 0.09);
+    }
+
+    .rank-progress-bar {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 0.35s ease;
+    }
+
+    .rank-progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 7px;
+      color: var(--muted);
+      font: 0.62rem "JetBrains Mono", monospace;
+    }
+
+    .rank-progress-meta strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .daily-task-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .daily-task {
+      display: grid;
+      grid-template-columns: 19px minmax(0, 1fr);
+      gap: 9px;
+      align-items: start;
+      color: var(--text);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .task-check {
+      display: grid;
+      width: 18px;
+      height: 18px;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      color: transparent;
+      font-size: 0.68rem;
+    }
+
+    .daily-task.is-complete {
+      color: var(--muted);
+    }
+
+    .daily-task.is-complete .task-check {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #181513;
+    }
+
+    .task-copy strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--accent-light);
+      font: 0.64rem "JetBrains Mono", monospace;
+    }
+
+    .daily-task.is-complete .task-copy strong {
+      color: var(--muted);
+    }
+
+    .comment-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .reaction-button {
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: rgba(235, 215, 195, 0.025);
+      color: var(--muted);
+      font-size: 0.64rem;
+      font-weight: 500;
+    }
+
+    .reaction-button:hover:not(:disabled) {
+      border-color: var(--line-strong);
+      color: var(--accent-light);
+    }
+
+    .reaction-button:disabled {
+      cursor: default;
+      opacity: 0.56;
+      transform: none;
+    }
+
+    .comment.is-accepted {
+      border: 1px solid rgba(217, 155, 102, 0.48);
+      background: rgba(217, 155, 102, 0.055);
+    }
+
+    .accepted-badge {
+      display: inline-flex;
+      margin: 0 0 8px;
+      padding: 4px 7px;
+      border: 1px solid rgba(217, 155, 102, 0.36);
+      border-radius: 999px;
+      color: var(--accent-light);
+      font: 0.61rem "JetBrains Mono", monospace;
+    }
+
+    .fix-author-only {
+      color: var(--muted);
+      font-size: 0.64rem;
+    }
+
+    @media (max-width: 1080px) {
+      .app-grid {
+        grid-template-columns: minmax(250px, 0.85fr) minmax(320px, 1.15fr);
+      }
+
+      .main-column {
+        display: contents;
+      }
+
+      .post-form {
+        grid-column: 1;
+      }
+
+      .feed-column {
+        grid-column: 2;
+      }
+
+      .sidebar {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 20px 14px 36px;
+      }
+
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .post-form,
+      .feed-column,
+      .sidebar {
+        grid-column: 1;
+      }
+
+      .post-form { grid-row: 1; }
+      .feed-column { grid-row: 2; }
+      .sidebar {
+        grid-row: 3;
+        grid-template-columns: 1fr;
+      }
+
+      .page-intro {
+        margin: 24px 0 20px;
+      }
+
+      .topbar {
+        align-items: center;
+        flex-direction: row;
+      }
+
+      .slogan {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+      }
+
+      .night-player {
+        grid-template-columns: 1fr;
+        width: 100%;
+        margin-left: 0;
+      }
+
+      .night-player-controls {
+        justify-content: start;
+      }
+
+      .volume-control,
+      .audio-status {
+        grid-column: 1;
+      }
+
+      .feed-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .feed-tabs {
+        overflow-x: auto;
+      }
+
+      .mood-filter {
+        width: 100%;
+        max-width: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app-shell {
+        padding-bottom: calc(90px + env(safe-area-inset-bottom));
+      }
+
+      .topbar {
+        position: relative;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 2px 0 12px;
+      }
+
+      .brand-mark {
+        font-size: 1.45rem;
+      }
+
+      .slogan {
+        display: none;
+      }
+
+      .mobile-audio-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 36px;
+        margin-left: auto;
+        padding: 7px 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(33, 29, 26, 0.9);
+        color: var(--text);
+        font: 600 0.75rem "Inter", sans-serif;
+        cursor: pointer;
+      }
+
+      .mobile-audio-indicator {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0;
+        box-shadow: 0 0 10px var(--accent);
+        transition: opacity 0.2s ease;
+      }
+
+      .mobile-audio-toggle.is-playing .mobile-audio-indicator {
+        opacity: 1;
+      }
+
+      .night-player {
+        flex: 1 0 100%;
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 7px;
+        max-height: 0;
+        margin: 0;
+        padding: 0 11px;
+        overflow: hidden;
+        border-width: 0;
+        border-color: transparent;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: max-height 0.28s ease, margin 0.28s ease, padding 0.28s ease, opacity 0.2s ease, border-color 0.2s ease, visibility 0s linear 0.28s;
+      }
+
+      .night-player.is-mobile-open {
+        max-height: 180px;
+        margin-top: 2px;
+        padding: 9px 11px;
+        border-width: 1px;
+        border-color: var(--line);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition-delay: 0s;
+      }
+
+      .night-player-controls {
+        flex-wrap: wrap;
+      }
+
+      .volume-control,
+      .audio-status {
+        grid-column: 1;
+      }
+
+      .page-intro {
+        margin: 15px 0 16px;
+      }
+
+      .page-title {
+        font-size: clamp(1.3rem, 5vw, 1.8rem);
+        line-height: 1.18;
+      }
+
+      .page-subtitle {
+        margin-top: 6px;
+        font-size: 0.82rem;
+      }
+
+      .app-grid {
+        display: block;
+      }
+
+      .main-column,
+      .sidebar {
+        display: contents;
+      }
+
+      .mobile-panel-mixer,
+      .mobile-panel-feed,
+      .mobile-panel-profile,
+      .mobile-panel-pulse,
+      .mobile-panel-tasks {
+        display: none !important;
+      }
+
+      body.mobile-tab-feed .mobile-panel-feed,
+      body.mobile-tab-mixer .mobile-panel-mixer,
+      body.mobile-tab-profile .mobile-panel-profile,
+      body.mobile-tab-activity .mobile-panel-pulse,
+      body.mobile-tab-activity .mobile-panel-tasks,
+      body.mobile-tab-activity .mobile-panel-warning {
+        display: block !important;
+      }
+
+      body.mobile-tab-mixer .mobile-panel-mixer {
+        margin-bottom: 0;
+      }
+
+      body.mobile-tab-profile .mobile-panel-profile,
+      body.mobile-tab-activity .mobile-panel-pulse,
+      body.mobile-tab-activity .mobile-panel-tasks {
+        margin-bottom: 12px;
+      }
+
+      .mobile-panel-warning {
+        display: none !important;
+        margin-top: 14px;
+        padding-bottom: 8px;
+      }
+
+      .mobile-tab-bar {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-around;
+        gap: 4px;
+        padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+        border-top: 1px solid rgba(235, 215, 195, 0.12);
+        background: rgba(33, 29, 26, 0.9);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .mobile-tab-button {
+        display: flex;
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 56px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        padding: 4px 2px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--muted);
+        font: 500 0.68rem "Inter", sans-serif;
+        cursor: pointer;
+      }
+
+      .mobile-tab-button.is-active {
+        color: var(--accent);
+      }
+
+      .mobile-tab-icon {
+        font-size: 1.12rem;
+        line-height: 1;
+      }
+    }
+  </style>
+</head>
+<body class="mobile-tab-feed">
+  <div class="ambient-glow" id="ambient-glow-back" aria-hidden="true"></div>
+  <div class="ambient-glow is-visible" id="ambient-glow-front" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <h1 class="brand-mark">DeBug_</h1>
+      <p class="slogan">DEBUG YOUR MIND.</p>
+      <button type="button" class="mobile-audio-toggle" id="mobile-audio-toggle" aria-controls="night-player" aria-expanded="false" hidden>
+        🎧 Эфир <span class="mobile-audio-indicator" aria-hidden="true"></span>
+      </button>
+      <section class="night-player" id="night-player" aria-label="Ночной эфир">
+        <span class="night-player-title">Ночной эфир</span>
+        <div class="night-player-controls">
+          <button type="button" class="sound-mode is-active" data-sound="silence">Тишина</button>
+          <button type="button" class="sound-mode" data-sound="rain">Дождь</button>
+          <button type="button" class="sound-mode" data-sound="warm">Тёплый фон</button>
+        </div>
+        <label class="volume-control" for="ambient-volume">
+          <span>Громкость</span>
+          <input type="range" id="ambient-volume" min="0" max="100" value="24" aria-label="Громкость фонового звука">
+        </label>
+        <span class="audio-status" id="audio-status" role="status" aria-live="polite"></span>
+      </section>
+    </header>
+
+    <section class="page-intro">
+      <h2 class="page-title">Как ощущается этот момент?</h2>
+      <p class="page-subtitle">Настрой свой канал. Здесь можно быть настоящим.</p>
+    </section>
+
+    <div class="app-grid">
+      <main class="main-column">
+        <form class="post-form mobile-panel-mixer" id="post-form">
+          <div class="section-kicker">Микшер состояния</div>
+          <h2 class="mixer-heading">Твоё настроение сейчас</h2>
+          <p class="mixer-hint">Выбери до 3 каналов и настрой их уровень.</p>
+          <p class="mixer-hint-status" id="mixer-hint" role="status" aria-live="polite"></p>
+
+          <div class="mixer-channel is-active" data-mood="Выгорел">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🔥 Выгорел</span>
+              <button class="channel-select" type="button" data-select-mood="Выгорел">Активно</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Выгорел">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Тревожно">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">⚡ Тревожно</span>
+              <button class="channel-select" type="button" data-select-mood="Тревожно">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Тревожно">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Туман в голове">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🌫️ Туман в голове</span>
+              <button class="channel-select" type="button" data-select-mood="Туман в голове">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Туман в голове">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Одиноко">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🌑 Одиноко</span>
+              <button class="channel-select" type="button" data-select-mood="Одиноко">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Одиноко">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Полон сил">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🔋 Полон сил</span>
+              <button class="channel-select" type="button" data-select-mood="Полон сил">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Полон сил">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Грустно">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🌧️ Грустно</span>
+              <button class="channel-select" type="button" data-select-mood="Грустно">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Грустно">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Раздражён">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">💢 Раздражён</span>
+              <button class="channel-select" type="button" data-select-mood="Раздражён">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Раздражён">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Спокойно">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">☕ Спокойно</span>
+              <button class="channel-select" type="button" data-select-mood="Спокойно">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Спокойно">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <input type="hidden" id="mood" value="Выгорел">
+          <input type="hidden" id="intensity" value="70">
+
+          <label for="message">Что сейчас на душе?</label>
+          <textarea id="message" placeholder="Напиши честно..."></textarea>
+
+          <label for="track">Трек для этого момента · необязательно</label>
+          <input type="text" id="track" placeholder="Название или ссылка">
+
+          <div class="form-actions">
+            <button type="submit" class="primary-button">▶ Поделиться багом</button>
+            <button type="button" class="secondary-button" onclick="clearFeed()">Очистить ленту</button>
+          </div>
+        </form>
+
+        <section class="feed-column mobile-panel-feed" aria-label="Лента мыслей">
+          <div class="feed-toolbar">
+            <div class="feed-tabs" role="tablist" aria-label="Фильтр ленты">
+              <button type="button" class="feed-tab is-active" data-feed-tab="all">Все мысли</button>
+              <button type="button" class="feed-tab waiting-tab" data-feed-tab="waiting">
+                Ждут ответа <span class="waiting-count" id="waiting-count">0</span>
+              </button>
+              <button type="button" class="feed-tab" data-feed-tab="tracks">С треками</button>
+            </div>
+            <label class="mood-filter-wrap" for="mood-filter">
+              <span class="visually-hidden">Фильтр по состоянию</span>
+              <select id="mood-filter" class="mood-filter">
+                <option value="all">Все состояния</option>
+                <option value="Выгорел">🔥 Выгорел</option>
+                <option value="Тревожно">⚡ Тревожно</option>
+                <option value="Туман в голове">🌫️ Туман в голове</option>
+                <option value="Одиноко">🌑 Одиноко</option>
+                <option value="Полон сил">🔋 Полон сил</option>
+                <option value="Грустно">🌧️ Грустно</option>
+                <option value="Раздражён">💢 Раздражён</option>
+                <option value="Спокойно">☕ Спокойно</option>
+              </select>
+            </label>
+          </div>
+          <div id="feed" class="feed" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <aside class="sidebar">
+        <section class="widget mobile-panel-profile" aria-labelledby="profile-title">
+          <h2 class="widget-title" id="profile-title">Твой профиль</h2>
+          <div class="profile-preview">
+            <div class="profile-avatar" id="profile-avatar-preview" aria-hidden="true">🌙</div>
+            <div>
+              <div class="profile-name" id="profile-name-preview">Тихий космос</div>
+              <div class="profile-subtitle" id="profile-rank">Новичок</div>
+            </div>
+          </div>
+          <div class="economy-summary">
+            <div class="rank-progress-track" role="progressbar" aria-label="Прогресс до следующего звания" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span class="rank-progress-bar" id="rank-progress-bar"></span>
+            </div>
+            <div class="rank-progress-meta">
+              <span id="rank-progress-text">0 / 100 ДБ</span>
+              <span>Помог людям: <strong id="helped-count">0</strong></span>
+            </div>
+          </div>
+          <label for="profile-name">Никнейм</label>
+          <input class="profile-input" type="text" id="profile-name" maxlength="24" autocomplete="nickname" placeholder="Например, Тихий космос">
+          <button type="button" class="random-name-button" id="random-name">Случайный ник</button>
+          <div class="pulse-label">Выбери аватар</div>
+          <div class="avatar-picker" id="avatar-picker" role="group" aria-label="Выбор аватара">
+            <button type="button" class="avatar-option" data-avatar="🌙" aria-label="Аватар: луна">🌙</button>
+            <button type="button" class="avatar-option" data-avatar="🪐" aria-label="Аватар: планета">🪐</button>
+            <button type="button" class="avatar-option" data-avatar="🦊" aria-label="Аватар: лиса">🦊</button>
+            <button type="button" class="avatar-option" data-avatar="🍄" aria-label="Аватар: гриб">🍄</button>
+            <button type="button" class="avatar-option" data-avatar="🐈" aria-label="Аватар: кот">🐈</button>
+            <button type="button" class="avatar-option" data-avatar="🌻" aria-label="Аватар: подсолнух">🌻</button>
+          </div>
+        </section>
+
+        <section class="widget mobile-panel-pulse" aria-labelledby="pulse-title">
+          <h2 class="widget-title" id="pulse-title">Пульс сообщества</h2>
+          <div class="pulse-indicator" id="pulse-indicator" aria-hidden="true"></div>
+          <div class="pulse-stats">
+            <div class="pulse-stat">
+              <span class="pulse-label">Карточек</span>
+              <strong class="pulse-value" id="pulse-count">0</strong>
+            </div>
+            <div class="pulse-stat">
+              <span class="pulse-label">Чаще всего</span>
+              <strong class="pulse-value" id="pulse-mood">Пока пусто</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="widget mobile-panel-tasks" aria-labelledby="daily-title">
+          <h2 class="widget-title" id="daily-title">Задачи на сегодня</h2>
+          <ul class="daily-task-list">
+            <li class="daily-task" data-task="share">
+              <span class="task-check" aria-hidden="true">✓</span>
+              <span class="task-copy">Поделиться своим состоянием в ленте <strong>+5 ДБ</strong></span>
+            </li>
+            <li class="daily-task" data-task="waiting-fix">
+              <span class="task-check" aria-hidden="true">✓</span>
+              <span class="task-copy">Подкинуть фикс посту из вкладки «Ждут ответа» <strong>+7 ДБ</strong></span>
+            </li>
+            <li class="daily-task" data-task="track">
+              <span class="task-check" aria-hidden="true">✓</span>
+              <span class="task-copy">Прикрепить трек к посту или фиксу <strong>+3 ДБ</strong></span>
+            </li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="site-footer mobile-panel-warning">
+      DeBug — пространство взаимной поддержки, а не медицинский сервис. Если тебе критически плохо, обратись к специалисту или на горячую линию помощи.
+    </footer>
+  </div>
+  <nav class="mobile-tab-bar" aria-label="Основная навигация" hidden>
+    <button type="button" class="mobile-tab-button is-active" data-mobile-tab="feed" aria-current="page">
+      <span class="mobile-tab-icon" aria-hidden="true">📻</span>
+      <span>Лента</span>
+    </button>
+    <button type="button" class="mobile-tab-button" data-mobile-tab="mixer">
+      <span class="mobile-tab-icon" aria-hidden="true">🎛️</span>
+      <span>Микшер</span>
+    </button>
+    <button type="button" class="mobile-tab-button" data-mobile-tab="activity">
+      <span class="mobile-tab-icon" aria-hidden="true">⚡</span>
+      <span>Активность</span>
+    </button>
+    <button type="button" class="mobile-tab-button" data-mobile-tab="profile">
+      <span class="mobile-tab-icon" aria-hidden="true">👤</span>
+      <span>Профиль</span>
+    </button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'debug-feed';
+    const PROFILE_KEY = 'debug-profile';
+    const ECONOMY_KEY = 'debug-economy';
+    const AVATARS = ['🌙', '🪐', '🦊', '🍄', '🐈', '🌻'];
+    const RANDOM_NAMES = ['Тихий космос', 'Рыжий импульс', 'Мягкий пиксель', 'Лунный странник', 'Тёплый сигнал', 'Добрый баг'];
+    const DEFAULT_PROFILE = { name: 'Тихий космос', avatar: '🌙' };
+    const MOOD_GLOWS = {
+      'Выгорел': '#3b2318',
+      'Тревожно': '#192636',
+      'Туман в голове': '#26272b',
+      'Одиноко': '#281e33',
+      'Полон сил': '#1b2e25',
+      'Грустно': '#172b30',
+      'Раздражён': '#361b22',
+      'Спокойно': '#332918'
+    };
+    let visibleGlowId = 'front';
+    let hintTimer;
+    let cardNumber = 1;
+    let activeFeedTab = 'all';
+    let activeMoodFilter = 'all';
+    let audioContext = null;
+    let masterGain = null;
+    let ambientSources = [];
+    let activeSoundMode = 'silence';
+    const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
+
+    function createId(prefix) {
+      return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    function switchMobileTab(tab) {
+      if (!mobileLayoutQuery.matches || !['feed', 'mixer', 'activity', 'profile'].includes(tab)) return;
+
+      document.body.classList.remove('mobile-tab-feed', 'mobile-tab-mixer', 'mobile-tab-activity', 'mobile-tab-profile');
+      document.body.classList.add(`mobile-tab-${tab}`);
+      document.querySelectorAll('.mobile-tab-button').forEach((button) => {
+        const selected = button.dataset.mobileTab === tab;
+        button.classList.toggle('is-active', selected);
+        if (selected) {
+          button.setAttribute('aria-current', 'page');
+        } else {
+          button.removeAttribute('aria-current');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateMobileControlsVisibility() {
+      const isMobile = mobileLayoutQuery.matches;
+      document.querySelector('.mobile-tab-bar').hidden = !isMobile;
+      document.getElementById('mobile-audio-toggle').hidden = !isMobile;
+      if (!isMobile) {
+        document.getElementById('night-player').classList.remove('is-mobile-open');
+        document.getElementById('mobile-audio-toggle').setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function getLocalDateKey() {
+      const date = new Date();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${date.getFullYear()}-${month}-${day}`;
+    }
+
+    function getEconomyState() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(ECONOMY_KEY) || 'null');
+        return stored && typeof stored === 'object' && stored.users && typeof stored.users === 'object'
+          ? stored
+          : { users: {} };
+      } catch (error) {
+        return { users: {} };
+      }
+    }
+
+    function ensureEconomyUser(state, profileId) {
+      if (!state.users[profileId] || typeof state.users[profileId] !== 'object') {
+        state.users[profileId] = {
+          db: 0,
+          helped: 0,
+          daily: { date: getLocalDateKey(), postRewarded: false, fixCount: 0, tasks: {} }
+        };
+      }
+
+      const user = state.users[profileId];
+      user.db = Number.isFinite(Number(user.db)) ? Number(user.db) : 0;
+      user.helped = Number.isFinite(Number(user.helped)) ? Number(user.helped) : 0;
+      if (!user.daily || user.daily.date !== getLocalDateKey()) {
+        user.daily = { date: getLocalDateKey(), postRewarded: false, fixCount: 0, tasks: {} };
+      } else {
+        user.daily.fixCount = Math.max(0, Number(user.daily.fixCount) || 0);
+        user.daily.tasks = user.daily.tasks && typeof user.daily.tasks === 'object' ? user.daily.tasks : {};
+      }
+      return user;
+    }
+
+    function saveEconomyState(state) {
+      localStorage.setItem(ECONOMY_KEY, JSON.stringify(state));
+    }
+
+    function getEconomyUser(profileId) {
+      const state = getEconomyState();
+      const user = ensureEconomyUser(state, profileId);
+      saveEconomyState(state);
+      return user;
+    }
+
+    function awardDb(profileId, amount, helped = 0) {
+      if (!profileId || !Number.isFinite(amount) || amount <= 0) return;
+      const state = getEconomyState();
+      const user = ensureEconomyUser(state, profileId);
+      user.db = Math.round((user.db + amount) * 100) / 100;
+      user.helped += helped;
+      saveEconomyState(state);
+      refreshEconomyWidgets();
+    }
+
+    function completeDailyTask(profileId, taskId, reward) {
+      const state = getEconomyState();
+      const user = ensureEconomyUser(state, profileId);
+      if (user.daily.tasks[taskId]) {
+        saveEconomyState(state);
+        return false;
+      }
+
+      user.daily.tasks[taskId] = true;
+      user.db = Math.round((user.db + reward) * 100) / 100;
+      saveEconomyState(state);
+      refreshEconomyWidgets();
+      return true;
+    }
+
+    function awardDailyPost(profileId) {
+      const state = getEconomyState();
+      const user = ensureEconomyUser(state, profileId);
+      if (!user.daily.postRewarded) {
+        user.daily.postRewarded = true;
+        user.db += 5;
+        saveEconomyState(state);
+        refreshEconomyWidgets();
+      }
+      completeDailyTask(profileId, 'share', 5);
+    }
+
+    function awardDailyFix(profileId) {
+      const state = getEconomyState();
+      const user = ensureEconomyUser(state, profileId);
+      if (user.daily.fixCount < 5) {
+        user.daily.fixCount += 1;
+        user.db += 3;
+        saveEconomyState(state);
+        refreshEconomyWidgets();
+      }
+    }
+
+    function setMixerHint(message) {
+      const hint = document.getElementById('mixer-hint');
+      hint.textContent = message;
+      window.clearTimeout(hintTimer);
+      if (message) {
+        hintTimer = window.setTimeout(() => {
+          hint.textContent = '';
+        }, 2800);
+      }
+    }
+
+    function getActiveChannels() {
+      return [...document.querySelectorAll('.mixer-channel.is-active')];
+    }
+
+    function renderAmbientBackground() {
+      const activeChannels = getActiveChannels();
+      const positions = ['18% 8%', '50% 4%', '82% 12%'];
+      const gradients = activeChannels.map((channel, index) => {
+        const mood = channel.dataset.mood;
+        const intensity = Number(channel.querySelector('.mixer-range').value);
+        const hex = MOOD_GLOWS[mood];
+        const red = parseInt(hex.slice(1, 3), 16);
+        const green = parseInt(hex.slice(3, 5), 16);
+        const blue = parseInt(hex.slice(5, 7), 16);
+        const strength = (0.22 + intensity / 100 * 0.42).toFixed(2);
+        const radius = Math.round(25 + intensity * 0.35);
+        return `radial-gradient(ellipse ${radius}% ${Math.round(radius * 0.72)}% at ${positions[index]}, rgba(${red}, ${green}, ${blue}, ${strength}) 0%, transparent 100%)`;
+      });
+
+      const targetId = visibleGlowId === 'front' ? 'back' : 'front';
+      const target = document.getElementById(`ambient-glow-${targetId}`);
+      const current = document.getElementById(`ambient-glow-${visibleGlowId}`);
+      target.style.setProperty('--glow-background', gradients.length ? gradients.join(', ') : 'none');
+      target.classList.add('is-visible');
+      current.classList.remove('is-visible');
+      visibleGlowId = targetId;
+    }
+
+    function syncMixer() {
+      const activeChannels = getActiveChannels();
+      const primary = activeChannels[0];
+      document.querySelectorAll('.mixer-channel').forEach((channel) => {
+        const isActive = channel.classList.contains('is-active');
+        const button = channel.querySelector('.channel-select');
+        button.textContent = isActive ? 'Активно' : 'Выбрать';
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+      if (primary) {
+        document.getElementById('mood').value = primary.dataset.mood;
+        document.getElementById('intensity').value = primary.querySelector('.mixer-range').value;
+      }
+      renderAmbientBackground();
+    }
+
+    function toggleMoodChannel(mood) {
+      const channel = document.querySelector(`.mixer-channel[data-mood="${mood}"]`);
+      if (!channel) return;
+      if (channel.classList.contains('is-active')) {
+        if (getActiveChannels().length === 1) {
+          setMixerHint('Оставь хотя бы одно состояние активным.');
+          return;
+        }
+        channel.classList.remove('is-active');
+        setMixerHint('');
+        syncMixer();
+        return;
+      }
+
+      if (getActiveChannels().length >= 3) {
+        setMixerHint('Можно выбрать до 3 состояний');
+        return;
+      }
+      channel.classList.add('is-active');
+      setMixerHint('');
+      syncMixer();
+    }
+
+    document.querySelectorAll('.mixer-channel').forEach((channel) => {
+      const mood = channel.dataset.mood;
+      const range = channel.querySelector('.mixer-range');
+      const output = channel.querySelector('.intensity-output');
+
+      const updateIntensityDisplay = () => {
+        const intensity = Number(range.value);
+        output.value = `${intensity}%`;
+        output.textContent = `${intensity}%`;
+        range.style.setProperty('--range-fill', `${intensity}%`);
+      };
+
+      range.addEventListener('input', () => {
+        updateIntensityDisplay();
+        if (!channel.classList.contains('is-active')) {
+          if (getActiveChannels().length >= 3) {
+            setMixerHint('Можно выбрать до 3 состояний');
+            return;
+          }
+          channel.classList.add('is-active');
+        }
+        setMixerHint('');
+        syncMixer();
+      });
+      channel.querySelector('.channel-select').addEventListener('click', () => {
+        toggleMoodChannel(mood);
+      });
+      updateIntensityDisplay();
+    });
+
+    document.getElementById('post-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      createCard();
+    });
+
+    document.querySelectorAll('.feed-tab').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFeedTab = button.dataset.feedTab;
+        document.querySelectorAll('.feed-tab').forEach((tab) => {
+          const selected = tab === button;
+          tab.classList.toggle('is-active', selected);
+          tab.setAttribute('aria-selected', String(selected));
+        });
+        renderFeed();
+      });
+    });
+
+    document.getElementById('mood-filter').addEventListener('change', (event) => {
+      activeMoodFilter = event.target.value;
+      renderFeed();
+    });
+
+    function getProfile() {
+      let profile;
+      try {
+        const stored = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+        profile = stored && typeof stored === 'object' ? {
+          name: typeof stored.name === 'string' && stored.name.trim() ? stored.name.trim() : DEFAULT_PROFILE.name,
+          avatar: AVATARS.includes(stored.avatar) ? stored.avatar : DEFAULT_PROFILE.avatar,
+          id: typeof stored.id === 'string' && stored.id ? stored.id : createId('profile')
+        } : { ...DEFAULT_PROFILE, id: createId('profile') };
+      } catch (error) {
+        profile = { ...DEFAULT_PROFILE, id: createId('profile') };
+      }
+      if (localStorage.getItem(PROFILE_KEY) === null) saveProfile(profile);
+      else {
+        try {
+          const stored = JSON.parse(localStorage.getItem(PROFILE_KEY));
+          if (!stored || stored.id !== profile.id) saveProfile(profile);
+        } catch (error) {
+          saveProfile(profile);
+        }
+      }
+      return profile;
+    }
+
+    function saveProfile(profile) {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function updateProfileUI() {
+      const profile = getProfile();
+      document.getElementById('profile-name').value = profile.name;
+      document.getElementById('profile-name-preview').textContent = profile.name;
+      document.getElementById('profile-avatar-preview').textContent = profile.avatar;
+
+      document.querySelectorAll('.avatar-option').forEach((button) => {
+        const selected = button.dataset.avatar === profile.avatar;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      refreshEconomyWidgets();
+    }
+
+    function updateProfileName(value) {
+      const profile = getProfile();
+      profile.name = value.trim().slice(0, 24) || DEFAULT_PROFILE.name;
+      saveProfile(profile);
+      document.getElementById('profile-name-preview').textContent = profile.name;
+    }
+
+    function refreshEconomyWidgets() {
+      const profile = getProfile();
+      const user = getEconomyUser(profile.id);
+      const ranks = [
+        { name: 'Новичок', min: 0, next: 100 },
+        { name: 'Свой человек', min: 100, next: 500 },
+        { name: 'Фиксер', min: 500, next: 1500 },
+        { name: 'Хранитель эфира', min: 1500, next: null }
+      ];
+      const rank = [...ranks].reverse().find((item) => user.db >= item.min) || ranks[0];
+      const progress = rank.next === null
+        ? 100
+        : Math.min(100, Math.max(0, ((user.db - rank.min) / (rank.next - rank.min)) * 100));
+      document.getElementById('profile-rank').textContent = rank.name;
+      document.getElementById('rank-progress-bar').style.width = `${progress}%`;
+      const progressTrack = document.querySelector('.rank-progress-track');
+      progressTrack.setAttribute('aria-valuenow', String(Math.round(progress)));
+      document.getElementById('rank-progress-text').textContent =
+        rank.next === null ? `${user.db} ДБ · максимальный ранг` : `${user.db} / ${rank.next} ДБ`;
+      document.getElementById('helped-count').textContent = String(user.helped);
+
+      document.querySelectorAll('.daily-task').forEach((task) => {
+        task.classList.toggle('is-complete', Boolean(user.daily.tasks[task.dataset.task]));
+      });
+    }
+
+    document.getElementById('profile-name').addEventListener('input', (event) => {
+      updateProfileName(event.target.value);
+    });
+
+    document.getElementById('random-name').addEventListener('click', () => {
+      const currentName = document.getElementById('profile-name-preview').textContent;
+      const candidates = RANDOM_NAMES.filter((name) => name !== currentName);
+      const name = candidates[Math.floor(Math.random() * candidates.length)];
+      document.getElementById('profile-name').value = name;
+      updateProfileName(name);
+    });
+
+    document.querySelectorAll('.avatar-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        const profile = getProfile();
+        profile.avatar = button.dataset.avatar;
+        saveProfile(profile);
+        updateProfileUI();
+      });
+    });
+
+    function getStoredCards() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const cards = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(cards)) return [];
+
+        const profile = getProfile();
+        let migrated = false;
+        cards.forEach((card) => {
+          if (!card.authorId) {
+            card.authorId = card.author === profile.name ? profile.id : `legacy-post-${card.id}`;
+            migrated = true;
+          }
+          if (!Array.isArray(card.comments)) {
+            card.comments = [];
+            migrated = true;
+          }
+          card.comments.forEach((comment) => {
+            if (!comment.id) {
+              comment.id = createId('comment');
+              migrated = true;
+            }
+            if (!comment.authorId) {
+              comment.authorId = comment.author === profile.name ? profile.id : `legacy-comment-${comment.id}`;
+              migrated = true;
+            }
+            if (!Array.isArray(comment.likedBy)) {
+              comment.likedBy = [];
+              migrated = true;
+            }
+            if (typeof comment.accepted !== 'boolean') {
+              comment.accepted = false;
+              migrated = true;
+            }
+          });
+        });
+        if (migrated) saveCards(cards);
+        return cards;
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCards(cards) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    }
+
+    function renderTrack(trackValue) {
+      const normalized = trackValue.trim();
+      if (!normalized) return null;
+
+      let trackUrl;
+      try {
+        trackUrl = new URL(/^www\./i.test(normalized) ? `https://${normalized}` : normalized);
+      } catch (error) {
+        trackUrl = null;
+      }
+
+      if (trackUrl && ['http:', 'https:'].includes(trackUrl.protocol)) {
+        const link = document.createElement('a');
+        link.className = 'track-link';
+        link.href = trackUrl.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Открыть трек';
+        return link;
+      }
+
+      const readout = document.createElement('div');
+      readout.className = 'track-readout';
+      readout.textContent = `🎵 ${normalized}`;
+      return readout;
+    }
+
+    function buildCard(cardData) {
+      const { mood, message, track, now, id } = cardData;
+      const cardMoods = getCardMoods(cardData);
+      const profileName = typeof cardData.author === 'string' ? cardData.author : `Аноним #${id}`;
+      const profileAvatar = AVATARS.includes(cardData.avatar) ? cardData.avatar : '🌙';
+      const comments = Array.isArray(cardData.comments) ? cardData.comments.slice() : [];
+      const viewer = getProfile();
+      const postAuthorId = cardData.authorId || (cardData.author === viewer.name ? viewer.id : '');
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.setProperty('--card-accent', getTagAccent(cardMoods[0].mood));
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+
+      const tagList = document.createElement('div');
+      tagList.className = 'mood-tags';
+      cardMoods.forEach((cardMood) => {
+        const tag = document.createElement('span');
+        tag.className = 'mood-tag';
+        tag.textContent = `${getMoodIcon(cardMood.mood)} ${cardMood.mood} • ${cardMood.intensity}%`;
+        tag.style.setProperty('--tag-color', getTagAccent(cardMood.mood));
+        tagList.appendChild(tag);
+      });
+
+      const meta = document.createElement('span');
+      meta.className = 'meta';
+      meta.textContent = now;
+
+      header.appendChild(meta);
+
+      const author = document.createElement('div');
+      author.className = 'card-author';
+      const authorAvatar = document.createElement('span');
+      authorAvatar.className = 'card-author-avatar';
+      authorAvatar.textContent = profileAvatar;
+      const authorName = document.createElement('span');
+      authorName.textContent = profileName;
+      author.append(authorAvatar, authorName);
+
+      const text = document.createElement('p');
+      text.className = 'card-text';
+      text.textContent = message;
+
+      card.append(header, tagList);
+      card.appendChild(author);
+      card.appendChild(text);
+
+      if (track) {
+        const trackBlock = document.createElement('div');
+        trackBlock.className = 'card-track';
+        const trackMarkup = renderTrack(track);
+        if (trackMarkup) {
+          trackBlock.appendChild(trackMarkup);
+          card.appendChild(trackBlock);
+        }
+      }
+
+      const commentsSection = document.createElement('section');
+      commentsSection.className = 'comments';
+      const commentsTitle = document.createElement('h3');
+      commentsTitle.className = 'comments-title';
+      commentsTitle.textContent = `Поддержка · ${comments.length}`;
+
+      const commentList = document.createElement('div');
+      commentList.className = 'comment-list';
+      comments.sort((left, right) => Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)));
+      comments.forEach((comment) => {
+        const item = document.createElement('div');
+        item.className = 'comment';
+        item.classList.toggle('is-accepted', Boolean(comment.accepted));
+        const commentAuthor = document.createElement('span');
+        commentAuthor.className = 'comment-author';
+        commentAuthor.textContent = `${AVATARS.includes(comment.avatar) ? comment.avatar : '🌙'} ${comment.author || 'Аноним'}:`;
+        const commentText = document.createElement('span');
+        appendCommentText(commentText, comment.text || '');
+        item.append(commentAuthor, commentText);
+        if (comment.accepted) {
+          const acceptedBadge = document.createElement('span');
+          acceptedBadge.className = 'accepted-badge';
+          acceptedBadge.textContent = 'Рабочий фикс';
+          item.appendChild(acceptedBadge);
+        }
+        if (comment.track) {
+          const trackWrap = document.createElement('span');
+          trackWrap.className = 'comment-track-wrap';
+          const commentTrack = renderCommentTrack(comment.track);
+          if (commentTrack) trackWrap.appendChild(commentTrack);
+          item.appendChild(trackWrap);
+        }
+
+        const commentAuthorId = comment.authorId ||
+          (comment.author === viewer.name ? viewer.id : '');
+        const reactionActions = document.createElement('div');
+        reactionActions.className = 'comment-actions';
+        if (postAuthorId === viewer.id && commentAuthorId !== viewer.id) {
+          const acceptedButton = document.createElement('button');
+          acceptedButton.type = 'button';
+          acceptedButton.className = 'reaction-button';
+          acceptedButton.textContent = comment.accepted ? '✨ Фикс сработал' : '✨ Фикс сработал';
+          acceptedButton.disabled = Boolean(comment.accepted);
+          acceptedButton.setAttribute('aria-pressed', String(Boolean(comment.accepted)));
+          acceptedButton.addEventListener('click', () => {
+            reactToComment(id, comment.id, 'accepted');
+          });
+          reactionActions.appendChild(acceptedButton);
+        }
+        if (commentAuthorId && commentAuthorId !== viewer.id) {
+          const likedBy = Array.isArray(comment.likedBy) ? comment.likedBy : [];
+          const hasLiked = likedBy.includes(viewer.id);
+          const helpfulButton = document.createElement('button');
+          helpfulButton.type = 'button';
+          helpfulButton.className = 'reaction-button';
+          helpfulButton.textContent = `👍 Тоже помогло (${likedBy.length})`;
+          helpfulButton.disabled = hasLiked;
+          helpfulButton.setAttribute('aria-pressed', String(hasLiked));
+          helpfulButton.addEventListener('click', () => {
+            reactToComment(id, comment.id, 'helpful');
+          });
+          reactionActions.appendChild(helpfulButton);
+        }
+        if (reactionActions.childElementCount) item.appendChild(reactionActions);
+        commentList.appendChild(item);
+      });
+
+      const commentForm = document.createElement('form');
+      commentForm.className = 'comment-compose';
+      commentForm.id = `comment-compose-${id}`;
+      commentForm.hidden = true;
+      const commentInput = document.createElement('input');
+      commentInput.className = 'comment-input';
+      commentInput.type = 'text';
+      commentInput.maxLength = 500;
+      commentInput.placeholder = 'Поддержать или посоветовать трек...';
+      commentInput.setAttribute('aria-label', 'Комментарий к карточке');
+      const commentTrackInput = document.createElement('input');
+      commentTrackInput.className = 'comment-track-input';
+      commentTrackInput.type = 'text';
+      commentTrackInput.maxLength = 300;
+      commentTrackInput.placeholder = 'Название трека или https://ссылка';
+      commentTrackInput.setAttribute('aria-label', 'Название трека или ссылка');
+      const commentButton = document.createElement('button');
+      commentButton.className = 'comment-submit';
+      commentButton.type = 'submit';
+      commentButton.textContent = 'Отправить';
+
+      const commentToggle = document.createElement('button');
+      commentToggle.className = 'comment-toggle';
+      commentToggle.type = 'button';
+      commentToggle.textContent = 'Подкинуть фикс (поддержать)';
+      commentToggle.setAttribute('aria-expanded', 'false');
+      commentToggle.setAttribute('aria-controls', commentForm.id);
+      commentToggle.addEventListener('click', () => {
+        commentForm.hidden = !commentForm.hidden;
+        commentToggle.setAttribute('aria-expanded', String(!commentForm.hidden));
+        if (!commentForm.hidden) commentInput.focus();
+      });
+
+      commentForm.append(commentInput, commentTrackInput, commentButton);
+      commentForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        addComment(id, commentInput.value, commentTrackInput.value);
+      });
+
+      commentsSection.append(commentsTitle, commentList, commentToggle, commentForm);
+      card.appendChild(commentsSection);
+      return card;
+    }
+
+    function reactToComment(cardId, commentId, reaction) {
+      const cards = getStoredCards();
+      const card = cards.find((item) => item.id === cardId);
+      const comment = card && card.comments.find((item) => item.id === commentId);
+      if (!card || !comment) return;
+
+      const viewer = getProfile();
+      const postAuthorId = card.authorId || (card.author === viewer.name ? viewer.id : '');
+      const commentAuthorId = comment.authorId ||
+        (comment.author === viewer.name ? viewer.id : '');
+
+      if (reaction === 'accepted') {
+        if (postAuthorId !== viewer.id || commentAuthorId === viewer.id || comment.accepted) return;
+        comment.accepted = true;
+        comment.acceptedBy = viewer.id;
+        saveCards(cards);
+        awardDb(commentAuthorId, 5, 1);
+      } else {
+        if (!commentAuthorId || commentAuthorId === viewer.id) return;
+        if (!Array.isArray(comment.likedBy)) comment.likedBy = [];
+        if (comment.likedBy.includes(viewer.id)) return;
+        comment.likedBy.push(viewer.id);
+        saveCards(cards);
+        awardDb(commentAuthorId, 0.5);
+      }
+
+      renderFeed();
+    }
+
+    function getCardMoods(cardData) {
+      if (Array.isArray(cardData.moods) && cardData.moods.length) {
+        const storedMoods = cardData.moods
+          .filter((item) => item && MOOD_GLOWS[item.mood])
+          .slice(0, 3)
+          .map((item) => ({
+            mood: item.mood,
+            intensity: Math.min(100, Math.max(10, Number(item.intensity) || 70))
+          }));
+        if (storedMoods.length) return storedMoods;
+      }
+
+      const legacyMood = MOOD_GLOWS[cardData.mood] ? cardData.mood : 'Выгорел';
+      return [{
+        mood: legacyMood,
+        intensity: Math.min(100, Math.max(10, Number(cardData.intensity) || 70))
+      }];
+    }
+
+    function createSafeLink(url, className, label) {
+      let parsedUrl;
+      try {
+        parsedUrl = new URL(url);
+      } catch (error) {
+        return null;
+      }
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) return null;
+
+      const link = document.createElement('a');
+      link.className = className;
+      link.href = parsedUrl.href;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = label;
+      return link;
+    }
+
+    function appendCommentText(container, value) {
+      const urlPattern = /https?:\/\/[^\s<>"']+/gi;
+      let cursor = 0;
+      let match;
+
+      while ((match = urlPattern.exec(value)) !== null) {
+        container.appendChild(document.createTextNode(value.slice(cursor, match.index)));
+        const url = match[0].replace(/[.,!?;:)\]]+$/, '');
+        const link = createSafeLink(url, 'comment-track-link', '🎵 Открыть трек');
+        if (link) {
+          container.appendChild(link);
+          container.appendChild(document.createTextNode(match[0].slice(url.length)));
+        } else {
+          container.appendChild(document.createTextNode(match[0]));
+        }
+        cursor = match.index + match[0].length;
+      }
+
+      container.appendChild(document.createTextNode(value.slice(cursor)));
+    }
+
+    function renderCommentTrack(trackValue) {
+      const normalized = trackValue.trim();
+      if (!normalized) return null;
+      if (/^https?:\/\//i.test(normalized)) {
+        return createSafeLink(normalized, 'comment-track-link', '🎵 Открыть трек');
+      }
+      const title = document.createElement('span');
+      title.className = 'track-readout';
+      title.textContent = `🎵 ${normalized}`;
+      return title;
+    }
+
+    function getTagAccent(mood) {
+      const palette = {
+        'Выгорел': '#c17a51',
+        'Тревожно': '#6f8da8',
+        'Туман в голове': '#9b9a98',
+        'Одиноко': '#9a7cac',
+        'Полон сил': '#7d9a7e',
+        'Грустно': '#6f9295',
+        'Раздражён': '#a66068',
+        'Спокойно': '#a18b60'
+      };
+
+      return palette[mood] || '#d99b66';
+    }
+
+    function getMoodIcon(mood) {
+      const icons = {
+        'Выгорел': '🔥',
+        'Тревожно': '⚡',
+        'Туман в голове': '🌫️',
+        'Одиноко': '🌑',
+        'Полон сил': '🔋',
+        'Грустно': '🌧️',
+        'Раздражён': '💢',
+        'Спокойно': '☕'
+      };
+
+      return icons[mood] || '☕';
+    }
+
+    function updatePulse() {
+      const cards = getStoredCards();
+      const counts = cards.reduce((totals, card) => {
+        getCardMoods(card).forEach(({ mood }) => {
+          totals[mood] = (totals[mood] || 0) + 1;
+        });
+        return totals;
+      }, {});
+      const mostCommonMood = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+      document.getElementById('pulse-count').textContent = String(cards.length);
+      document.getElementById('pulse-mood').textContent = mostCommonMood ? mostCommonMood[0] : 'Пока пусто';
+      const pulseColor = mostCommonMood ? getTagAccent(mostCommonMood[0]) : '#d99b66';
+      document.getElementById('pulse-indicator').style.setProperty('--pulse-color', pulseColor);
+      const waitingCount = cards.filter((card) =>
+        !Array.isArray(card.comments) || card.comments.length === 0
+      ).length;
+      document.getElementById('waiting-count').textContent = String(waitingCount);
+      document.querySelector('.waiting-tab').classList.toggle('has-unanswered', waitingCount > 0);
+    }
+
+    function renderStoredCards() {
+      const storedCards = getStoredCards();
+      cardNumber = storedCards.reduce((nextId, card) => Math.max(nextId, Number(card.id) || 0), 0) + 1;
+      renderFeed();
+    }
+
+    function addComment(cardId, value, trackValue) {
+      const text = value.trim();
+      const track = trackValue.trim();
+      if (!text && !track) return;
+
+      const cards = getStoredCards();
+      const card = cards.find((item) => item.id === cardId);
+      if (!card) return;
+
+      const profile = getProfile();
+      if (!Array.isArray(card.comments)) card.comments = [];
+      const isWaitingFix = activeFeedTab === 'waiting' && card.comments.length === 0;
+      card.comments.push({
+        id: createId('comment'),
+        author: profile.name,
+        authorId: profile.id,
+        avatar: profile.avatar,
+        text,
+        track,
+        likedBy: [],
+        accepted: false,
+        now: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      saveCards(cards);
+      awardDailyFix(profile.id);
+      if (isWaitingFix) completeDailyTask(profile.id, 'waiting-fix', 7);
+      if (track) completeDailyTask(profile.id, 'track', 3);
+      renderFeed();
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('feed');
+      feed.replaceChildren();
+      const cards = getStoredCards();
+      const visibleCards = cards.filter((card) => {
+        const comments = Array.isArray(card.comments) ? card.comments : [];
+        if (activeFeedTab === 'waiting' && comments.length > 0) return false;
+        if (activeFeedTab === 'tracks' && !String(card.track || '').trim()) return false;
+        if (activeMoodFilter !== 'all' && !getCardMoods(card).some((item) => item.mood === activeMoodFilter)) return false;
+        return true;
+      });
+
+      visibleCards.forEach((cardData) => feed.appendChild(buildCard(cardData)));
+      if (!visibleCards.length) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'feed-empty';
+        emptyState.textContent = cards.length
+          ? 'По этому фильтру пока ничего нет.'
+          : 'Здесь появятся мысли сообщества. Поделись первой.';
+        feed.appendChild(emptyState);
+      }
+      updatePulse();
+    }
+
+    function createCard() {
+      const selectedMoods = getActiveChannels().map((channel) => ({
+        mood: channel.dataset.mood,
+        intensity: Number(channel.querySelector('.mixer-range').value)
+      }));
+      if (!selectedMoods.length) {
+        setMixerHint('Выбери хотя бы одно состояние.');
+        return;
+      }
+
+      const mood = selectedMoods[0].mood;
+      const intensity = selectedMoods[0].intensity;
+      const message = document.getElementById('message').value.trim();
+      const track = document.getElementById('track').value.trim();
+
+      if (message === "") {
+        alert("Напиши хотя бы пару слов о своём состоянии.");
+        return;
+      }
+
+      const dangerWords = ["суицид", "покончить с собой", "не хочу жить", "убить себя"];
+      const normalizedMessage = message
+        .toLowerCase()
+        .replace(/[\s\p{P}\p{S}]+/gu, ' ')
+        .trim();
+
+      for (const word of dangerWords) {
+        if (normalizedMessage.includes(word)) {
+          alert("Похоже, тебе сейчас очень тяжело. Пожалуйста, не оставайся с этим один — обратись на круглосуточную горячую линию психологической помощи или к врачу.");
+          return;
+        }
+      }
+
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const profile = getProfile();
+      const cardData = {
+        id: cardNumber,
+        mood,
+        intensity,
+        moods: selectedMoods,
+        message,
+        track,
+        now,
+        author: profile.name,
+        authorId: profile.id,
+        avatar: profile.avatar,
+        comments: []
+      };
+
+      const cards = getStoredCards();
+      cards.unshift(cardData);
+      saveCards(cards);
+
+      cardNumber += 1;
+      awardDailyPost(profile.id);
+      if (track) completeDailyTask(profile.id, 'track', 3);
+
+      document.getElementById('message').value = "";
+      document.getElementById('track').value = "";
+      if (mobileLayoutQuery.matches) {
+        activeFeedTab = 'all';
+        activeMoodFilter = 'all';
+        document.querySelectorAll('.feed-tab').forEach((button) => {
+          const selected = button.dataset.feedTab === 'all';
+          button.classList.toggle('is-active', selected);
+          button.setAttribute('aria-selected', String(selected));
+        });
+        document.getElementById('mood-filter').value = 'all';
+      }
+      renderFeed();
+      if (mobileLayoutQuery.matches) switchMobileTab('feed');
+    }
+
+    function clearFeed() {
+      localStorage.removeItem(STORAGE_KEY);
+      cardNumber = 1;
+      renderFeed();
+    }
+
+    function updateSoundModeButtons(mode) {
+      document.querySelectorAll('.sound-mode').forEach((button) => {
+        const selected = button.dataset.sound === mode;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      const mobileToggle = document.getElementById('mobile-audio-toggle');
+      mobileToggle.classList.toggle('is-playing', mode === 'rain' || mode === 'warm');
+    }
+
+    function stopAmbientSources() {
+      if (!audioContext) return;
+      const now = audioContext.currentTime;
+      ambientSources.forEach(({ source, gain }) => {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setTargetAtTime(0, now, 0.12);
+        source.onended = () => {
+          source.disconnect();
+          gain.disconnect();
+        };
+        source.stop(now + 0.5);
+      });
+      ambientSources = [];
+    }
+
+    async function setAmbientSound(mode) {
+      activeSoundMode = mode;
+      updateSoundModeButtons(mode);
+      const status = document.getElementById('audio-status');
+
+      if (mode === 'silence') {
+        stopAmbientSources();
+        status.textContent = 'Фоновый звук выключен';
+        return;
+      }
+
+      const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextConstructor) {
+        status.textContent = 'Web Audio API не поддерживается этим браузером';
+        updateSoundModeButtons('silence');
+        activeSoundMode = 'silence';
+        return;
+      }
+
+      try {
+        if (!audioContext) {
+          audioContext = new AudioContextConstructor();
+          masterGain = audioContext.createGain();
+          masterGain.connect(audioContext.destination);
+        }
+        await audioContext.resume();
+      } catch (error) {
+        status.textContent = 'Не удалось запустить звук. Проверь разрешение браузера.';
+        updateSoundModeButtons('silence');
+        activeSoundMode = 'silence';
+        return;
+      }
+
+      stopAmbientSources();
+      const now = audioContext.currentTime;
+      const volume = Number(document.getElementById('ambient-volume').value) / 100;
+      masterGain.gain.setTargetAtTime(volume * 0.35, now, 0.08);
+
+      if (mode === 'rain') {
+        const bufferLength = audioContext.sampleRate * 2;
+        const noiseBuffer = audioContext.createBuffer(1, bufferLength, audioContext.sampleRate);
+        const samples = noiseBuffer.getChannelData(0);
+        for (let index = 0; index < samples.length; index += 1) {
+          samples[index] = (Math.random() * 2 - 1) * 0.55;
+        }
+
+        const source = audioContext.createBufferSource();
+        const filter = audioContext.createBiquadFilter();
+        const gain = audioContext.createGain();
+        source.buffer = noiseBuffer;
+        source.loop = true;
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1050, now);
+        filter.Q.setValueAtTime(0.35, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.setTargetAtTime(0.2, now, 0.7);
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        source.start();
+        ambientSources.push({ source, gain });
+      } else if (mode === 'warm') {
+        [55, 82.4].forEach((frequency, index) => {
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(frequency, now);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.setTargetAtTime(index === 0 ? 0.13 : 0.055, now, 1.2);
+          oscillator.connect(gain);
+          gain.connect(masterGain);
+          oscillator.start();
+          ambientSources.push({ source: oscillator, gain });
+        });
+      }
+
+      status.textContent = mode === 'rain' ? 'Идёт тихий дождь' : 'Звучит тёплый фон';
+    }
+
+    document.querySelectorAll('.sound-mode').forEach((button) => {
+      button.addEventListener('click', () => {
+        setAmbientSound(button.dataset.sound);
+      });
+    });
+
+    document.getElementById('mobile-audio-toggle').addEventListener('click', () => {
+      const player = document.getElementById('night-player');
+      const isOpen = player.classList.toggle('is-mobile-open');
+      document.getElementById('mobile-audio-toggle').setAttribute('aria-expanded', String(isOpen));
+    });
+
+    document.querySelectorAll('.mobile-tab-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        switchMobileTab(button.dataset.mobileTab);
+      });
+    });
+
+    updateMobileControlsVisibility();
+    if (typeof mobileLayoutQuery.addEventListener === 'function') {
+      mobileLayoutQuery.addEventListener('change', updateMobileControlsVisibility);
+    } else {
+      mobileLayoutQuery.addListener(updateMobileControlsVisibility);
+    }
+
+    document.getElementById('ambient-volume').addEventListener('input', (event) => {
+      if (masterGain && audioContext) {
+        masterGain.gain.setTargetAtTime(
+          (Number(event.target.value) / 100) * 0.35,
+          audioContext.currentTime,
+          0.06
+        );
+      }
+    });
+
+    window.addEventListener('pagehide', stopAmbientSources);
+
+    updateProfileUI();
+    syncMixer();
+    renderStoredCards();
+  </script>
+</body>
+</html>
