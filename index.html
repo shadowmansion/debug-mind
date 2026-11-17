@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DeBug — Debug your mind</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1255,6 +1256,12 @@
       text-align: center;
     }
 
+    .feed-error {
+      margin-bottom: 12px;
+      border-style: solid;
+      border-color: var(--line-strong);
+    }
+
     .economy-summary {
       margin: 0 0 15px;
     }
@@ -1814,7 +1821,7 @@
 
           <div class="form-actions">
             <button type="submit" class="primary-button">▶ Поделиться багом</button>
-            <button type="button" class="secondary-button" onclick="clearFeed()">Очистить ленту</button>
+            <button type="button" class="secondary-button" id="refresh-feed">🔄 Обновить эфир</button>
           </div>
         </form>
 
@@ -1938,9 +1945,17 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'debug-feed';
     const PROFILE_KEY = 'debug-profile';
     const ECONOMY_KEY = 'debug-economy';
+    const OWNED_POSTS_KEY = 'debug-owned-posts';
+    const OWNED_FIXES_KEY = 'debug-owned-fixes';
+    const LIKED_FIXES_KEY = 'debug-liked-fixes';
+    const REACTION_PROGRESS_KEY = 'debug-reaction-progress';
+    const SUPABASE_URL = 'https://epdrbxbdqxcyikgzflfn.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_HNjC0qEXNF1THvHJxPfloQ_Uu98GOWm';
+    const supabaseClient = window.supabase && typeof window.supabase.createClient === 'function'
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      : null;
     const AVATARS = ['🌙', '🪐', '🦊', '🍄', '🐈', '🌻'];
     const RANDOM_NAMES = ['Тихий космос', 'Рыжий импульс', 'Мягкий пиксель', 'Лунный странник', 'Тёплый сигнал', 'Добрый баг'];
     const DEFAULT_PROFILE = { name: 'Тихий космос', avatar: '🌙' };
@@ -1956,9 +1971,13 @@
     };
     let visibleGlowId = 'front';
     let hintTimer;
-    let cardNumber = 1;
     let activeFeedTab = 'all';
     let activeMoodFilter = 'all';
+    let feedCards = [];
+    let feedLoading = true;
+    let feedError = '';
+    let feedRefreshInProgress = false;
+    let feedRefreshQueued = false;
     let audioContext = null;
     let masterGain = null;
     let ambientSources = [];
@@ -2202,9 +2221,22 @@
       updateIntensityDisplay();
     });
 
-    document.getElementById('post-form').addEventListener('submit', (event) => {
+    document.getElementById('post-form').addEventListener('submit', async (event) => {
       event.preventDefault();
-      createCard();
+      const submitButton = document.querySelector('#post-form button[type="submit"]');
+      submitButton.disabled = true;
+      try {
+        await createCard();
+      } catch (error) {
+        console.error('Не удалось опубликовать пост:', error);
+        setMixerHint(`Не удалось опубликовать пост: ${error.message || 'ошибка Supabase.'}`);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    document.getElementById('refresh-feed').addEventListener('click', () => {
+      refreshFeed(true);
     });
 
     document.querySelectorAll('.feed-tab').forEach((button) => {
@@ -2320,51 +2352,183 @@
       });
     });
 
-    function getStoredCards() {
+    function readLocalIdList(key) {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const cards = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(cards)) return [];
-
-        const profile = getProfile();
-        let migrated = false;
-        cards.forEach((card) => {
-          if (!card.authorId) {
-            card.authorId = card.author === profile.name ? profile.id : `legacy-post-${card.id}`;
-            migrated = true;
-          }
-          if (!Array.isArray(card.comments)) {
-            card.comments = [];
-            migrated = true;
-          }
-          card.comments.forEach((comment) => {
-            if (!comment.id) {
-              comment.id = createId('comment');
-              migrated = true;
-            }
-            if (!comment.authorId) {
-              comment.authorId = comment.author === profile.name ? profile.id : `legacy-comment-${comment.id}`;
-              migrated = true;
-            }
-            if (!Array.isArray(comment.likedBy)) {
-              comment.likedBy = [];
-              migrated = true;
-            }
-            if (typeof comment.accepted !== 'boolean') {
-              comment.accepted = false;
-              migrated = true;
-            }
-          });
-        });
-        if (migrated) saveCards(cards);
-        return cards;
+        const values = JSON.parse(localStorage.getItem(key) || '[]');
+        return Array.isArray(values) ? values.map(String) : [];
       } catch (error) {
         return [];
       }
     }
 
-    function saveCards(cards) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    function rememberLocalId(key, id) {
+      const ids = readLocalIdList(key);
+      const normalizedId = String(id);
+      if (!ids.includes(normalizedId)) {
+        ids.push(normalizedId);
+        localStorage.setItem(key, JSON.stringify(ids));
+      }
+    }
+
+    function readReactionProgress() {
+      try {
+        const progress = JSON.parse(localStorage.getItem(REACTION_PROGRESS_KEY) || '{}');
+        return progress && typeof progress === 'object' && !Array.isArray(progress) ? progress : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function formatTimestamp(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? ''
+        : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function mapSupabaseFix(fix, viewer) {
+      const id = String(fix.id);
+      const isOwned = readLocalIdList(OWNED_FIXES_KEY).includes(id);
+      return {
+        id,
+        author: fix.author_name || 'Аноним',
+        authorId: isOwned ? viewer.id : `remote-fix-${id}`,
+        avatar: fix.author_avatar,
+        text: fix.message || '',
+        track: fix.track || '',
+        accepted: Boolean(fix.is_working),
+        helpfulCount: Math.max(0, Number(fix.helpful_count) || 0),
+        now: formatTimestamp(fix.created_at),
+        createdAt: fix.created_at
+      };
+    }
+
+    function mapSupabasePost(post, fixes, viewer) {
+      const id = String(post.id);
+      const moods = Array.isArray(post.moods) ? post.moods : [];
+      return {
+        id,
+        mood: moods[0] && (moods[0].mood || moods[0].name || moods[0].title),
+        intensity: moods[0] && (moods[0].intensity || moods[0].percentage || moods[0].percent),
+        moods,
+        message: post.message || '',
+        track: post.track || '',
+        now: formatTimestamp(post.created_at),
+        createdAt: post.created_at,
+        author: post.author_name || 'Аноним',
+        authorId: readLocalIdList(OWNED_POSTS_KEY).includes(id) ? viewer.id : `remote-post-${id}`,
+        avatar: post.author_avatar,
+        comments: fixes.map((fix) => mapSupabaseFix(fix, viewer))
+      };
+    }
+
+    function getStoredCards() {
+      return feedCards;
+    }
+
+    function syncLocalReactionRewards(cards) {
+      const ownedFixIds = new Set(readLocalIdList(OWNED_FIXES_KEY));
+      if (!ownedFixIds.size) return;
+
+      const profile = getProfile();
+      const progress = readReactionProgress();
+      let changed = false;
+      cards.forEach((card) => {
+        card.comments.forEach((comment) => {
+          const id = String(comment.id);
+          if (!ownedFixIds.has(id)) return;
+          const previous = progress[id] && typeof progress[id] === 'object' ? progress[id] : {};
+          const previousCount = Math.max(0, Number(previous.helpfulCount) || 0);
+          const currentCount = Math.max(0, Number(comment.helpfulCount) || 0);
+          if (currentCount > previousCount) {
+            awardDb(profile.id, (currentCount - previousCount) * 0.5);
+            changed = true;
+          }
+          if (comment.accepted && !previous.isWorking) {
+            awardDb(profile.id, 5, 1);
+            changed = true;
+          }
+          progress[id] = {
+            helpfulCount: Math.max(previousCount, currentCount),
+            isWorking: Boolean(previous.isWorking || comment.accepted)
+          };
+        });
+      });
+      if (changed) localStorage.setItem(REACTION_PROGRESS_KEY, JSON.stringify(progress));
+    }
+
+    async function refreshFeed(showLoading) {
+      if (feedRefreshInProgress) {
+        feedRefreshQueued = true;
+        return;
+      }
+      feedRefreshInProgress = true;
+      const refreshButton = document.getElementById('refresh-feed');
+      if (refreshButton) {
+        refreshButton.disabled = true;
+        if (showLoading) refreshButton.textContent = '⏳ Обновляем эфир...';
+      }
+      if (!feedCards.length && showLoading) {
+        feedLoading = true;
+        renderFeed();
+      }
+
+      try {
+        if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+        const { data: posts, error: postsError } = await supabaseClient
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (postsError) throw postsError;
+
+        const postRows = Array.isArray(posts) ? posts : [];
+        let fixes = [];
+        if (postRows.length) {
+          const { data: fixRows, error: fixesError } = await supabaseClient
+            .from('fixes')
+            .select('*')
+            .in('post_id', postRows.map((post) => post.id))
+            .order('created_at', { ascending: true });
+          if (fixesError) throw fixesError;
+          fixes = Array.isArray(fixRows) ? fixRows : [];
+        }
+
+        const fixesByPost = new Map();
+        fixes.forEach((fix) => {
+          const key = String(fix.post_id);
+          const group = fixesByPost.get(key) || [];
+          group.push(fix);
+          fixesByPost.set(key, group);
+        });
+
+        const viewer = getProfile();
+        feedCards = postRows.map((post) => {
+          const postFixes = fixesByPost.get(String(post.id)) || [];
+          postFixes.sort((left, right) =>
+            Number(Boolean(right.is_working)) - Number(Boolean(left.is_working)) ||
+            new Date(left.created_at).getTime() - new Date(right.created_at).getTime()
+          );
+          return mapSupabasePost(post, postFixes, viewer);
+        });
+        syncLocalReactionRewards(feedCards);
+        feedLoading = false;
+        feedError = '';
+      } catch (error) {
+        feedLoading = false;
+        feedError = error && error.message ? error.message : 'Неизвестная ошибка Supabase.';
+        console.error('Не удалось обновить эфир:', error);
+      } finally {
+        feedRefreshInProgress = false;
+        if (refreshButton) {
+          refreshButton.disabled = false;
+          refreshButton.textContent = '🔄 Обновить эфир';
+        }
+        renderFeed();
+        if (feedRefreshQueued) {
+          feedRefreshQueued = false;
+          window.setTimeout(() => refreshFeed(false), 0);
+        }
+      }
     }
 
     function renderTrack(trackValue) {
@@ -2460,7 +2624,10 @@
 
       const commentList = document.createElement('div');
       commentList.className = 'comment-list';
-      comments.sort((left, right) => Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)));
+      comments.sort((left, right) =>
+        Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      );
       comments.forEach((comment) => {
         const item = document.createElement('div');
         item.className = 'comment';
@@ -2496,22 +2663,35 @@
           acceptedButton.textContent = comment.accepted ? '✨ Фикс сработал' : '✨ Фикс сработал';
           acceptedButton.disabled = Boolean(comment.accepted);
           acceptedButton.setAttribute('aria-pressed', String(Boolean(comment.accepted)));
-          acceptedButton.addEventListener('click', () => {
-            reactToComment(id, comment.id, 'accepted');
+          acceptedButton.addEventListener('click', async () => {
+            acceptedButton.disabled = true;
+            try {
+              await reactToComment(id, comment.id, 'accepted');
+            } catch (error) {
+              console.error('Не удалось подтвердить фикс:', error);
+              feedError = `Не удалось подтвердить фикс: ${error.message || 'ошибка Supabase.'}`;
+              renderFeed();
+            }
           });
           reactionActions.appendChild(acceptedButton);
         }
         if (commentAuthorId && commentAuthorId !== viewer.id) {
-          const likedBy = Array.isArray(comment.likedBy) ? comment.likedBy : [];
-          const hasLiked = likedBy.includes(viewer.id);
+          const hasLiked = readLocalIdList(LIKED_FIXES_KEY).includes(String(comment.id));
           const helpfulButton = document.createElement('button');
           helpfulButton.type = 'button';
           helpfulButton.className = 'reaction-button';
-          helpfulButton.textContent = `👍 Тоже помогло (${likedBy.length})`;
+          helpfulButton.textContent = `👍 Тоже помогло (${comment.helpfulCount || 0})`;
           helpfulButton.disabled = hasLiked;
           helpfulButton.setAttribute('aria-pressed', String(hasLiked));
-          helpfulButton.addEventListener('click', () => {
-            reactToComment(id, comment.id, 'helpful');
+          helpfulButton.addEventListener('click', async () => {
+            helpfulButton.disabled = true;
+            try {
+              await reactToComment(id, comment.id, 'helpful');
+            } catch (error) {
+              console.error('Не удалось отметить фикс:', error);
+              feedError = `Не удалось отметить фикс: ${error.message || 'ошибка Supabase.'}`;
+              renderFeed();
+            }
           });
           reactionActions.appendChild(helpfulButton);
         }
@@ -2539,6 +2719,10 @@
       commentButton.className = 'comment-submit';
       commentButton.type = 'submit';
       commentButton.textContent = 'Отправить';
+      const commentWarning = document.createElement('span');
+      commentWarning.className = 'comment-warning';
+      commentWarning.setAttribute('role', 'status');
+      commentWarning.setAttribute('aria-live', 'polite');
 
       const commentToggle = document.createElement('button');
       commentToggle.className = 'comment-toggle';
@@ -2552,10 +2736,20 @@
         if (!commentForm.hidden) commentInput.focus();
       });
 
-      commentForm.append(commentInput, commentTrackInput, commentButton);
-      commentForm.addEventListener('submit', (event) => {
+      commentForm.append(commentInput, commentTrackInput, commentButton, commentWarning);
+      commentForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        addComment(id, commentInput.value, commentTrackInput.value);
+        commentButton.disabled = true;
+        commentWarning.textContent = '';
+        try {
+          const added = await addComment(id, commentInput.value, commentTrackInput.value);
+          if (added) commentForm.reset();
+        } catch (error) {
+          console.error('Не удалось отправить фикс:', error);
+          commentWarning.textContent = `Не удалось отправить фикс: ${error.message || 'ошибка Supabase.'}`;
+        } finally {
+          commentButton.disabled = false;
+        }
       });
 
       commentsSection.append(commentsTitle, commentList, commentToggle, commentForm);
@@ -2563,38 +2757,88 @@
       return card;
     }
 
-    function reactToComment(cardId, commentId, reaction) {
+    async function reactToComment(cardId, commentId, reaction) {
       const cards = getStoredCards();
-      const card = cards.find((item) => item.id === cardId);
+      const card = cards.find((item) => String(item.id) === String(cardId));
       const comment = card && card.comments.find((item) => item.id === commentId);
       if (!card || !comment) return;
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
       const viewer = getProfile();
-      const postAuthorId = card.authorId || (card.author === viewer.name ? viewer.id : '');
-      const commentAuthorId = comment.authorId ||
-        (comment.author === viewer.name ? viewer.id : '');
-
       if (reaction === 'accepted') {
-        if (postAuthorId !== viewer.id || commentAuthorId === viewer.id || comment.accepted) return;
+        if (card.authorId !== viewer.id || comment.authorId === viewer.id || comment.accepted) return;
+        const { data: current, error: readError } = await supabaseClient
+          .from('fixes')
+          .select('is_working')
+          .eq('id', comment.id)
+          .eq('post_id', card.id)
+          .single();
+        if (readError) throw readError;
+        if (current.is_working) {
+          await refreshFeed(false);
+          return;
+        }
+        let updateQuery = supabaseClient
+          .from('fixes')
+          .update({ is_working: true })
+          .eq('id', comment.id)
+          .eq('post_id', card.id);
+        updateQuery = current.is_working === null
+          ? updateQuery.is('is_working', null)
+          : updateQuery.eq('is_working', false);
+        const { data, error } = await updateQuery
+          .select('id');
+        if (error) throw error;
+        if (!Array.isArray(data) || !data.length) {
+          await refreshFeed(false);
+          return;
+        }
         comment.accepted = true;
-        comment.acceptedBy = viewer.id;
-        saveCards(cards);
-        awardDb(commentAuthorId, 5, 1);
+        renderFeed();
+        await refreshFeed(false);
       } else {
-        if (!commentAuthorId || commentAuthorId === viewer.id) return;
-        if (!Array.isArray(comment.likedBy)) comment.likedBy = [];
-        if (comment.likedBy.includes(viewer.id)) return;
-        comment.likedBy.push(viewer.id);
-        saveCards(cards);
-        awardDb(commentAuthorId, 0.5);
-      }
+        if (comment.authorId === viewer.id || readLocalIdList(LIKED_FIXES_KEY).includes(String(comment.id))) return;
+        if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
-      renderFeed();
+        let updatedCount = null;
+        for (let attempt = 0; attempt < 3 && updatedCount === null; attempt += 1) {
+          const { data: current, error: readError } = await supabaseClient
+            .from('fixes')
+            .select('helpful_count')
+            .eq('id', comment.id)
+            .eq('post_id', card.id)
+            .single();
+          if (readError) throw readError;
+          const currentCount = Math.max(0, Number(current.helpful_count) || 0);
+          let updateQuery = supabaseClient
+            .from('fixes')
+            .update({ helpful_count: currentCount + 1 })
+            .eq('id', comment.id)
+            .eq('post_id', card.id);
+          updateQuery = current.helpful_count === null
+            ? updateQuery.is('helpful_count', null)
+            : updateQuery.eq('helpful_count', current.helpful_count);
+          const { data: updated, error: updateError } = await updateQuery.select('helpful_count');
+          if (updateError) throw updateError;
+          if (Array.isArray(updated) && updated.length) {
+            updatedCount = Number(updated[0].helpful_count) || currentCount + 1;
+          }
+        }
+        if (updatedCount === null) throw new Error('Фикс только что изменился. Обнови эфир и попробуй снова.');
+        rememberLocalId(LIKED_FIXES_KEY, comment.id);
+        comment.helpfulCount = updatedCount;
+        renderFeed();
+        await refreshFeed(false);
+      }
     }
 
     function getCardMoods(cardData) {
       if (Array.isArray(cardData.moods) && cardData.moods.length) {
         const storedMoods = cardData.moods
+          .map((item) => ({
+            mood: item && (item.mood || item.name || item.title),
+            intensity: item && (item.intensity ?? item.percentage ?? item.percent)
+          }))
           .filter((item) => item && MOOD_GLOWS[item.mood])
           .slice(0, 3)
           .map((item) => ({
@@ -2712,46 +2956,79 @@
       document.querySelector('.waiting-tab').classList.toggle('has-unanswered', waitingCount > 0);
     }
 
-    function renderStoredCards() {
-      const storedCards = getStoredCards();
-      cardNumber = storedCards.reduce((nextId, card) => Math.max(nextId, Number(card.id) || 0), 0) + 1;
-      renderFeed();
-    }
-
-    function addComment(cardId, value, trackValue) {
+    async function addComment(cardId, value, trackValue) {
       const text = value.trim();
       const track = trackValue.trim();
-      if (!text && !track) return;
+      if (!text && !track) return false;
 
       const cards = getStoredCards();
-      const card = cards.find((item) => item.id === cardId);
-      if (!card) return;
+      const card = cards.find((item) => String(item.id) === String(cardId));
+      if (!card) return false;
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
       const profile = getProfile();
-      if (!Array.isArray(card.comments)) card.comments = [];
       const isWaitingFix = activeFeedTab === 'waiting' && card.comments.length === 0;
-      card.comments.push({
-        id: createId('comment'),
-        author: profile.name,
-        authorId: profile.id,
-        avatar: profile.avatar,
-        text,
-        track,
-        likedBy: [],
-        accepted: false,
-        now: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-      saveCards(cards);
+      const { data, error } = await supabaseClient
+        .from('fixes')
+        .insert({
+          post_id: card.id,
+          author_name: profile.name,
+          author_avatar: profile.avatar,
+          message: text,
+          track,
+          is_working: false,
+          helpful_count: 0
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Supabase не вернула созданный фикс.');
+
+      rememberLocalId(OWNED_FIXES_KEY, data.id);
+      card.comments.push(mapSupabaseFix(data, profile));
+      card.comments.sort((left, right) =>
+        Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      );
       awardDailyFix(profile.id);
       if (isWaitingFix) completeDailyTask(profile.id, 'waiting-fix', 7);
       if (track) completeDailyTask(profile.id, 'track', 3);
       renderFeed();
+      await refreshFeed(false);
+      return true;
     }
 
     function renderFeed() {
       const feed = document.getElementById('feed');
       feed.replaceChildren();
       const cards = getStoredCards();
+
+      if (feedLoading) {
+        const loading = document.createElement('div');
+        loading.className = 'feed-empty';
+        loading.setAttribute('role', 'status');
+        loading.setAttribute('aria-live', 'polite');
+        loading.textContent = 'Загружаем эфир...';
+        feed.appendChild(loading);
+        updatePulse();
+        return;
+      }
+
+      if (feedError) {
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'feed-empty feed-error';
+        errorMessage.setAttribute('role', 'status');
+        errorMessage.textContent = `Не удалось обновить эфир: ${feedError}`;
+        const retryButton = document.createElement('button');
+        retryButton.type = 'button';
+        retryButton.className = 'secondary-button';
+        retryButton.textContent = 'Попробовать снова';
+        retryButton.addEventListener('click', () => refreshFeed(true));
+        errorMessage.appendChild(document.createElement('br'));
+        errorMessage.appendChild(retryButton);
+        feed.appendChild(errorMessage);
+      }
+
       const visibleCards = cards.filter((card) => {
         const comments = Array.isArray(card.comments) ? card.comments : [];
         if (activeFeedTab === 'waiting' && comments.length > 0) return false;
@@ -2761,7 +3038,7 @@
       });
 
       visibleCards.forEach((cardData) => feed.appendChild(buildCard(cardData)));
-      if (!visibleCards.length) {
+      if (!visibleCards.length && !feedError) {
         const emptyState = document.createElement('div');
         emptyState.className = 'feed-empty';
         emptyState.textContent = cards.length
@@ -2772,7 +3049,7 @@
       updatePulse();
     }
 
-    function createCard() {
+    async function createCard() {
       const selectedMoods = getActiveChannels().map((channel) => ({
         mood: channel.dataset.mood,
         intensity: Number(channel.querySelector('.mixer-range').value)
@@ -2782,8 +3059,6 @@
         return;
       }
 
-      const mood = selectedMoods[0].mood;
-      const intensity = selectedMoods[0].intensity;
       const message = document.getElementById('message').value.trim();
       const track = document.getElementById('track').value.trim();
 
@@ -2805,27 +3080,33 @@
         }
       }
 
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+
       const profile = getProfile();
-      const cardData = {
-        id: cardNumber,
-        mood,
-        intensity,
-        moods: selectedMoods,
-        message,
-        track,
-        now,
-        author: profile.name,
-        authorId: profile.id,
-        avatar: profile.avatar,
-        comments: []
-      };
+      const moods = selectedMoods.map(({ mood, intensity }) => ({
+        name: mood,
+        emoji: getMoodIcon(mood),
+        color: getTagAccent(mood),
+        percentage: intensity
+      }));
+      const { data, error } = await supabaseClient
+        .from('posts')
+        .insert({
+          author_name: profile.name,
+          author_avatar: profile.avatar,
+          moods,
+          message,
+          track
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Supabase не вернула созданный пост.');
 
-      const cards = getStoredCards();
-      cards.unshift(cardData);
-      saveCards(cards);
-
-      cardNumber += 1;
+      rememberLocalId(OWNED_POSTS_KEY, data.id);
+      const newCard = mapSupabasePost(data, [], profile);
+      feedCards = [newCard, ...feedCards.filter((card) => String(card.id) !== String(newCard.id))];
+      feedError = '';
       awardDailyPost(profile.id);
       if (track) completeDailyTask(profile.id, 'track', 3);
 
@@ -2843,12 +3124,7 @@
       }
       renderFeed();
       if (mobileLayoutQuery.matches) switchMobileTab('feed');
-    }
-
-    function clearFeed() {
-      localStorage.removeItem(STORAGE_KEY);
-      cardNumber = 1;
-      renderFeed();
+      await refreshFeed(false);
     }
 
     function updateSoundModeButtons(mode) {
@@ -2994,7 +3270,8 @@
 
     updateProfileUI();
     syncMixer();
-    renderStoredCards();
+    refreshFeed(true);
+    window.setInterval(() => refreshFeed(false), 15000);
   </script>
 </body>
 </html>
