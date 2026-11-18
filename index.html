@@ -1678,8 +1678,617 @@
       }
 
       .mobile-tab-icon {
-        font-size: 1.12rem;
-        line-height: 1;
+          display: grid;
+          width: 22px;
+          height: 22px;
+          place-items: center;
+          line-height: 1;
+        }
+
+        .mobile-tab-icon svg {
+          display: block;
+          width: 22px;
+          height: 22px;
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 1.75;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+      }
+    }
+
+    body {
+      background: #181513;
+      transition: background 0.7s ease;
+    }
+
+    .ambient-glow {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .widget,
+    .post-form,
+    .card {
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(217, 155, 102, 0.035);
+    }
+
+    .profile-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .profile-actions button,
+    .avatar-config-button {
+      padding: 9px 10px;
+      font-size: 0.72rem;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 13px;
+    }
+
+    .profile-stat {
+      padding: 9px 7px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.62rem;
+      text-align: center;
+    }
+
+    .profile-stat strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--accent-light);
+      font: 0.85rem "JetBrains Mono", monospace;
+    }
+
+    .my-posts {
+      display: grid;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .my-posts-title {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .my-post-link {
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 0.68rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .publish-as {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 0 2px;
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .avatar-render {
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: var(--avatar-size, 30px);
+      height: var(--avatar-size, 30px);
+      border-radius: 50%;
+      background: var(--avatar-bg, linear-gradient(135deg,#4b3427,#211d1a));
+      color: #f3e8db;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    .avatar-render svg {
+      width: 52%;
+      height: 52%;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .avatar-render[data-frame="ring"] { box-shadow: 0 0 0 1px rgba(232,177,127,.8); }
+    .avatar-render[data-frame="orbit"] { box-shadow: 0 0 0 1px rgba(232,177,127,.8), 0 0 0 4px rgba(232,177,127,.18), 0 0 0 5px rgba(232,177,127,.48); }
+    .avatar-render[data-frame="dotted"] { outline: 1px dashed rgba(232,177,127,.8); outline-offset: 3px; }
+    .avatar-render[data-frame="glow"] { box-shadow: 0 0 18px var(--avatar-glow, rgba(217,155,102,.6)); }
+    .avatar-render.is-legacy {
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(145deg, rgba(217,155,102,.22), rgba(33,29,26,.95));
+      font-size: calc(var(--avatar-size, 30px) * .55);
+    }
+
+    .onboarding-overlay,
+    .avatar-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(12, 10, 9, 0.58);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .onboarding-overlay[hidden],
+    .avatar-overlay[hidden] { display: none; }
+
+    .onboarding-modal,
+    .avatar-modal {
+      width: min(660px, 100%);
+      max-height: min(92vh, 900px);
+      overflow-y: auto;
+      padding: clamp(18px, 4vw, 30px);
+      border: 1px solid var(--line-strong);
+      border-radius: 20px;
+      background: #211d1a;
+      box-shadow: 0 24px 80px rgba(0,0,0,.55);
+    }
+
+    .onboarding-modal h2,
+    .avatar-modal h2 {
+      margin: 0;
+      color: var(--accent-light);
+      font-size: clamp(1.25rem, 5vw, 1.7rem);
+    }
+
+    .onboarding-copy {
+      margin: 10px 0 18px;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.65;
+    }
+
+    .onboarding-section,
+    .avatar-field {
+      margin: 14px 0;
+    }
+
+    .onboarding-section > label,
+    .avatar-field > label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--text);
+      font-size: .76rem;
+      font-weight: 600;
+    }
+
+    .onboarding-name-row {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+    }
+
+    .onboarding-name-row input { margin: 0; }
+    .onboarding-name-row button { padding: 10px; font-size: .72rem; }
+
+    .avatar-builder {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar-builder-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+    }
+
+    .avatar-builder select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #191614;
+      color: var(--text);
+      font: .68rem "Inter", sans-serif;
+    }
+
+    .avatar-builder-preview {
+      display: grid;
+      width: 68px;
+      height: 68px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .mood-preview {
+      display: grid;
+      gap: 9px;
+    }
+
+    .mood-preview-row {
+      display: grid;
+      grid-template-columns: minmax(90px, 1fr) minmax(100px, 2fr) 38px;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .7rem;
+    }
+
+    .mood-preview-row input { margin: 0; accent-color: var(--accent); }
+    .sound-opt-in { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: .78rem; }
+    .sound-opt-in input { width: auto; margin: 0; accent-color: var(--accent); }
+    .onboarding-actions { display: grid; gap: 8px; margin-top: 17px; }
+
+    .pinned-card {
+      grid-column: 1 / -1;
+      padding: 16px;
+      border-color: rgba(217,155,102,.3);
+      background: linear-gradient(145deg, rgba(217,155,102,.055), #211d1a 52%);
+    }
+
+    .pinned-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--accent-light);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .pinned-heading button {
+      padding: 6px 9px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .68rem;
+    }
+
+    .pinned-body {
+      margin-top: 12px;
+      color: var(--text);
+      font-size: .8rem;
+      line-height: 1.65;
+    }
+
+    .pinned-body p { margin: 7px 0; }
+    .pinned-body ul { margin: 8px 0; padding-left: 19px; color: var(--muted); }
+    .pinned-fix-form { display: grid; gap: 8px; margin-top: 12px; }
+    .pinned-fix-form[hidden] { display: none; }
+    .pinned-fix-form textarea { min-height: 76px; margin: 0; }
+    .pinned-notice { min-height: 1.2em; color: var(--accent-light); font-size: .72rem; }
+    .pinned-sample { margin-top: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); font-size: .75rem; }
+    .rank-label { color: var(--accent-light); font-size: .72rem; }
+
+    @media (max-width: 540px) {
+      .onboarding-overlay, .avatar-overlay { padding: 10px; }
+      .onboarding-modal, .avatar-modal { max-height: 94vh; padding: 18px; border-radius: 16px; }
+      .avatar-builder { grid-template-columns: 1fr; }
+      .avatar-builder-preview { width: 58px; height: 58px; justify-self: center; grid-row: 1; }
+      .avatar-builder-controls { grid-template-columns: 1fr; }
+      .onboarding-name-row { grid-template-columns: 1fr; }
+      .onboarding-name-row button { width: 100%; }
+      .profile-stats { gap: 5px; }
+      .profile-stat { font-size: .57rem; }
+    }
+
+    @media (max-width: 768px) {
+      .app-shell {
+        padding: 0 14px calc(96px + env(safe-area-inset-bottom));
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        margin: 0 -14px;
+        padding: 9px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(24, 21, 19, 0.82);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .brand-mark {
+        font-size: 1.35rem;
+        letter-spacing: -0.07em;
+      }
+
+      .mobile-audio-toggle {
+        min-height: 38px;
+        padding: 7px 12px;
+        border-color: rgba(217, 155, 102, 0.3);
+        background: rgba(33, 29, 26, 0.72);
+        transition: all 0.2s ease;
+      }
+
+      .mobile-audio-toggle svg {
+        width: 19px;
+        height: 19px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .mobile-audio-toggle.is-playing {
+        color: var(--accent-light);
+        border-color: rgba(232, 177, 127, 0.56);
+        box-shadow: 0 0 16px rgba(217, 155, 102, 0.12);
+      }
+
+      .mobile-audio-toggle.is-playing .mobile-audio-indicator {
+        opacity: 1;
+        animation: audioPulse 1.8s ease-in-out infinite;
+      }
+
+      @keyframes audioPulse {
+        0%, 100% { transform: scale(0.82); opacity: 0.62; }
+        50% { transform: scale(1.12); opacity: 1; }
+      }
+
+      .page-intro {
+        margin: 18px 0 16px;
+      }
+
+      .page-title {
+        font-size: clamp(24px, 6.2vw, 26px);
+        line-height: 1.16;
+      }
+
+      .feed-toolbar {
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .feed-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        gap: 4px;
+        overflow: visible;
+        padding: 4px;
+      }
+
+      .feed-tab {
+        min-height: 38px;
+        padding: 7px 4px;
+        font-size: 0.62rem;
+        line-height: 1.2;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .waiting-tab {
+        flex-wrap: wrap;
+      }
+
+      .mood-filter {
+        min-height: 42px;
+        font-size: 0.78rem;
+      }
+
+      .feed {
+        gap: 12px;
+      }
+
+      .card,
+      .pinned-card {
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 17px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.17), inset 0 1px 0 rgba(217, 155, 102, 0.035);
+      }
+
+      .comments {
+        margin-top: 14px;
+        padding-top: 13px;
+      }
+
+      .comment {
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.055);
+        border-radius: 13px;
+        line-height: 1.55;
+      }
+
+      .comment-compose {
+        gap: 9px;
+      }
+
+      .post-form {
+        padding: 18px 16px;
+        border-radius: 17px;
+      }
+
+      .mixer-channel {
+        padding: 13px;
+        border-radius: 14px;
+      }
+
+      .mixer-channel-top {
+        align-items: center;
+        margin-bottom: 9px;
+      }
+
+      .mixer-label {
+        font-size: 0.76rem;
+      }
+
+      .mixer-control {
+        gap: 12px;
+      }
+
+      .mixer-range {
+        width: 100%;
+        height: 22px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background-size: 100% 6px;
+        background-position: center;
+        background-repeat: no-repeat;
+        touch-action: pan-y;
+      }
+
+      .post-form .mixer-range {
+        background: linear-gradient(
+          to right,
+          var(--channel-color) 0%,
+          var(--channel-color) var(--range-fill, 70%),
+          rgba(255, 255, 255, 0.12) var(--range-fill, 70%),
+          rgba(255, 255, 255, 0.12) 100%
+        );
+        background-size: 100% 6px;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      .mixer-range::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        border-width: 3px;
+        box-shadow: 0 0 0 1px var(--channel-color), 0 2px 8px rgba(0, 0, 0, 0.42), 0 0 13px color-mix(in srgb, var(--channel-color), transparent 38%);
+      }
+
+      .mixer-range::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-width: 3px;
+        box-shadow: 0 0 0 1px var(--channel-color), 0 2px 8px rgba(0, 0, 0, 0.42);
+      }
+
+      .intensity-output {
+        min-width: 42px;
+        padding: 5px 7px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--text);
+        font-size: 0.67rem;
+        text-align: center;
+      }
+
+      .post-form button[type="submit"] {
+        width: 100%;
+        min-height: 48px;
+        font-size: 0.92rem;
+      }
+
+      input[type="text"],
+      input:not([type]),
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+
+      .comment-input,
+      .comment-track-input {
+        min-height: 46px;
+      }
+
+      .mobile-tab-bar {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-around;
+        gap: 4px;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(24, 21, 19, 0.86);
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+
+      .mobile-tab-button {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 58px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 3px;
+        border-radius: 14px;
+        color: var(--muted);
+        font: 500 0.67rem "Inter", sans-serif;
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+      }
+
+      .mobile-tab-button::before {
+        position: absolute;
+        z-index: -1;
+        inset: 3px 8px;
+        border-radius: 13px;
+        background: radial-gradient(ellipse at center, rgba(217, 155, 102, 0.14), rgba(217, 155, 102, 0.035) 72%);
+        content: "";
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .mobile-tab-button::after {
+        position: absolute;
+        top: 3px;
+        width: 16px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--accent-light);
+        content: "";
+        opacity: 0;
+        transform: scaleX(0.5);
+        transition: all 0.2s ease;
+      }
+
+      .mobile-tab-button.is-active {
+        color: var(--accent-light);
+        text-shadow: 0 0 13px rgba(232, 177, 127, 0.22);
+      }
+
+      .mobile-tab-button.is-active::before,
+      .mobile-tab-button.is-active::after {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+
+      .mobile-tab-button:active {
+        transform: scale(0.94);
+      }
+
+      .mobile-tab-button.is-active .mobile-tab-icon svg {
+        filter: drop-shadow(0 0 5px rgba(232, 177, 127, 0.26));
+      }
+
+      .mobile-panel-feed,
+      .mobile-panel-mixer,
+      .mobile-panel-profile,
+      .mobile-panel-pulse,
+      .mobile-panel-tasks {
+        animation: mobilePanelIn 0.26s ease both;
+      }
+
+      @keyframes mobilePanelIn {
+        from { opacity: 0; transform: translateY(7px); }
+        to { opacity: 1; transform: translateY(0); }
       }
     }
   </style>
@@ -1687,12 +2296,71 @@
 <body class="mobile-tab-feed">
   <div class="ambient-glow" id="ambient-glow-back" aria-hidden="true"></div>
   <div class="ambient-glow is-visible" id="ambient-glow-front" aria-hidden="true"></div>
+  <div class="onboarding-overlay" id="onboarding-overlay" hidden>
+    <section class="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <h2 id="onboarding-title">Добро пожаловать в DeBug_</h2>
+      <p class="onboarding-copy">Тихое анонимное пространство для взаимной поддержки. Без регистрации, паролей и осуждения — просто настройся на свой текущий вайб и заходи в эфир</p>
+      <div class="onboarding-section">
+        <label for="onboarding-name">Твой позывной</label>
+        <div class="onboarding-name-row">
+          <input id="onboarding-name" maxlength="24" autocomplete="nickname" placeholder="Например, тихий_маяк">
+          <button type="button" class="secondary-button" id="onboarding-random-name">🎲 Случайный ник</button>
+        </div>
+      </div>
+      <div class="onboarding-section">
+        <label>Собери аватар</label>
+        <div class="avatar-builder" data-avatar-builder="onboarding">
+          <div class="avatar-builder-controls">
+            <select data-avatar-icon aria-label="Символ аватара"></select>
+            <select data-avatar-bg aria-label="Фон аватара"></select>
+            <select data-avatar-frame aria-label="Рамка аватара"></select>
+          </div>
+          <div class="avatar-builder-preview" data-avatar-preview></div>
+        </div>
+        <button type="button" class="secondary-button avatar-config-button" data-avatar-random="onboarding">🎲 Собрать случайно</button>
+      </div>
+      <div class="onboarding-section">
+        <label>Настрой состояние — фон за окном откликнется</label>
+        <div class="mood-preview" id="onboarding-moods"></div>
+      </div>
+      <div class="onboarding-section">
+        <label class="sound-opt-in"><input type="checkbox" id="onboarding-rain"> Включить звук дождя</label>
+      </div>
+      <div class="onboarding-actions">
+        <button type="button" class="primary-button" id="enter-air">Войти в эфир</button>
+      </div>
+    </section>
+  </div>
+  <div class="avatar-overlay" id="avatar-overlay" hidden>
+    <section class="avatar-modal" role="dialog" aria-modal="true" aria-labelledby="avatar-modal-title">
+      <h2 id="avatar-modal-title">Настроить аватар</h2>
+      <p class="onboarding-copy">Выбери символ, цвет и ауру — или доверься случаю.</p>
+      <div class="avatar-builder" data-avatar-builder="profile">
+        <div class="avatar-builder-controls">
+          <select data-avatar-icon aria-label="Символ аватара"></select>
+          <select data-avatar-bg aria-label="Фон аватара"></select>
+          <select data-avatar-frame aria-label="Рамка аватара"></select>
+        </div>
+        <div class="avatar-builder-preview" data-avatar-preview></div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="secondary-button avatar-config-button" data-avatar-random="profile">🎲 Собрать случайно</button>
+        <button type="button" class="primary-button" id="save-profile-avatar">Сохранить аватар</button>
+        <button type="button" class="secondary-button" id="close-avatar-editor">Закрыть</button>
+      </div>
+    </section>
+  </div>
   <div class="app-shell">
     <header class="topbar">
       <h1 class="brand-mark">DeBug_</h1>
       <p class="slogan">DEBUG YOUR MIND.</p>
       <button type="button" class="mobile-audio-toggle" id="mobile-audio-toggle" aria-controls="night-player" aria-expanded="false" hidden>
-        🎧 Эфир <span class="mobile-audio-indicator" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 13v-2a8 8 0 0 1 16 0v2"/>
+          <rect x="3" y="12" width="4" height="8" rx="2"/>
+          <rect x="17" y="12" width="4" height="8" rx="2"/>
+        </svg>
+        Эфир <span class="mobile-audio-indicator" aria-hidden="true"></span>
       </button>
       <section class="night-player" id="night-player" aria-label="Ночной эфир">
         <span class="night-player-title">Ночной эфир</span>
@@ -1812,6 +2480,7 @@
 
           <input type="hidden" id="mood" value="Выгорел">
           <input type="hidden" id="intensity" value="70">
+          <div class="publish-as">Публикуешь как: <span id="publish-avatar"></span><strong id="publish-name"></strong></div>
 
           <label for="message">Что сейчас на душе?</label>
           <textarea id="message" placeholder="Напиши честно..."></textarea>
@@ -1857,10 +2526,10 @@
         <section class="widget mobile-panel-profile" aria-labelledby="profile-title">
           <h2 class="widget-title" id="profile-title">Твой профиль</h2>
           <div class="profile-preview">
-            <div class="profile-avatar" id="profile-avatar-preview" aria-hidden="true">🌙</div>
+            <div class="profile-avatar" id="profile-avatar-preview" aria-hidden="true"></div>
             <div>
               <div class="profile-name" id="profile-name-preview">Тихий космос</div>
-              <div class="profile-subtitle" id="profile-rank">Новичок</div>
+              <div class="profile-subtitle"><span id="profile-rank">Новичок</span> · <span id="profile-joined">В эфире с —</span></div>
             </div>
           </div>
           <div class="economy-summary">
@@ -1869,21 +2538,20 @@
             </div>
             <div class="rank-progress-meta">
               <span id="rank-progress-text">0 / 100 ДБ</span>
-              <span>Помог людям: <strong id="helped-count">0</strong></span>
+              <span><strong id="profile-db">0</strong> ДБ</span>
             </div>
           </div>
-          <label for="profile-name">Никнейм</label>
-          <input class="profile-input" type="text" id="profile-name" maxlength="24" autocomplete="nickname" placeholder="Например, Тихий космос">
-          <button type="button" class="random-name-button" id="random-name">Случайный ник</button>
-          <div class="pulse-label">Выбери аватар</div>
-          <div class="avatar-picker" id="avatar-picker" role="group" aria-label="Выбор аватара">
-            <button type="button" class="avatar-option" data-avatar="🌙" aria-label="Аватар: луна">🌙</button>
-            <button type="button" class="avatar-option" data-avatar="🪐" aria-label="Аватар: планета">🪐</button>
-            <button type="button" class="avatar-option" data-avatar="🦊" aria-label="Аватар: лиса">🦊</button>
-            <button type="button" class="avatar-option" data-avatar="🍄" aria-label="Аватар: гриб">🍄</button>
-            <button type="button" class="avatar-option" data-avatar="🐈" aria-label="Аватар: кот">🐈</button>
-            <button type="button" class="avatar-option" data-avatar="🌻" aria-label="Аватар: подсолнух">🌻</button>
+          <div class="profile-actions">
+            <button type="button" class="secondary-button" id="change-profile-name">Изменить ник</button>
+            <button type="button" class="secondary-button" id="random-name">🎲 Случайный ник</button>
           </div>
+          <button type="button" class="secondary-button avatar-config-button" id="open-avatar-editor">Настроить аватар</button>
+          <div class="profile-stats">
+            <div class="profile-stat">Мыслей<strong id="profile-post-count">0</strong></div>
+            <div class="profile-stat">Фиксов<strong id="profile-fix-count">0</strong></div>
+            <div class="profile-stat">Сработало<strong id="profile-helped-count">0</strong></div>
+          </div>
+          <div class="my-posts" id="my-posts"><p class="my-posts-title">Твои мысли в общей ленте</p></div>
         </section>
 
         <section class="widget mobile-panel-pulse" aria-labelledby="pulse-title">
@@ -1927,25 +2595,52 @@
   </div>
   <nav class="mobile-tab-bar" aria-label="Основная навигация" hidden>
     <button type="button" class="mobile-tab-button is-active" data-mobile-tab="feed" aria-current="page">
-      <span class="mobile-tab-icon" aria-hidden="true">📻</span>
+      <span class="mobile-tab-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 8.5a11 11 0 0 1 16 0"/>
+          <path d="M7 11.5a7 7 0 0 1 10 0"/>
+          <path d="M10 14.5a3 3 0 0 1 4 0"/>
+          <path d="M12 18v.01"/>
+        </svg>
+      </span>
       <span>Лента</span>
     </button>
     <button type="button" class="mobile-tab-button" data-mobile-tab="mixer">
-      <span class="mobile-tab-icon" aria-hidden="true">🎛️</span>
+      <span class="mobile-tab-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M6 4v16M12 4v16M18 4v16"/>
+          <circle cx="6" cy="9" r="2"/>
+          <circle cx="12" cy="15" r="2"/>
+          <circle cx="18" cy="8" r="2"/>
+        </svg>
+      </span>
       <span>Микшер</span>
     </button>
     <button type="button" class="mobile-tab-button" data-mobile-tab="activity">
-      <span class="mobile-tab-icon" aria-hidden="true">⚡</span>
+      <span class="mobile-tab-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 12h4l2.2-6 4.1 12 2.2-6H21"/>
+        </svg>
+      </span>
       <span>Активность</span>
     </button>
     <button type="button" class="mobile-tab-button" data-mobile-tab="profile">
-      <span class="mobile-tab-icon" aria-hidden="true">👤</span>
+      <span class="mobile-tab-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="9" r="3"/>
+          <path d="M6.5 18a6.5 6.5 0 0 1 11 0"/>
+        </svg>
+      </span>
       <span>Профиль</span>
     </button>
   </nav>
 
   <script>
     const PROFILE_KEY = 'debug-profile';
+    const PROFILE_INITIALIZED_KEY = 'debug_profile_initialized';
+    const WELCOME_FIX_KEY = 'debug-welcome-fix';
+    const WELCOME_REWARD_KEY = 'debug-welcome-fix-rewarded';
     const ECONOMY_KEY = 'debug-economy';
     const OWNED_POSTS_KEY = 'debug-owned-posts';
     const OWNED_FIXES_KEY = 'debug-owned-fixes';
@@ -1956,18 +2651,63 @@
     const supabaseClient = window.supabase && typeof window.supabase.createClient === 'function'
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
-    const AVATARS = ['🌙', '🪐', '🦊', '🍄', '🐈', '🌻'];
-    const RANDOM_NAMES = ['Тихий космос', 'Рыжий импульс', 'Мягкий пиксель', 'Лунный странник', 'Тёплый сигнал', 'Добрый баг'];
-    const DEFAULT_PROFILE = { name: 'Тихий космос', avatar: '🌙' };
+    const ICONS = {
+      moon: ['Полумесяц', '<path d="M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z"/>'],
+      vinyl: ['Пластинка', '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>'],
+      cassette: ['Кассета', '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><path d="M5 16h14"/>'],
+      rain: ['Капля дождя', '<path d="M12 3C9 7 6 10 6 14a6 6 0 0 0 12 0c0-4-3-7-6-11Z"/><path d="M9 15a3 3 0 0 0 3 3"/>'],
+      coffee: ['Чашка кофе', '<path d="M4 9h13v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z"/><path d="M17 11h2a2 2 0 0 1 0 4h-2M7 5v2m4-3v3m4-2v2"/>'],
+      headphones: ['Наушники', '<path d="M4 13v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="12" width="4" height="8" rx="2"/><rect x="17" y="12" width="4" height="8" rx="2"/>'],
+      sprout: ['Росток', '<path d="M12 21v-9"/><path d="M12 13C5 13 4 8 4 5c5 0 9 2 8 8ZM12 10c0-5 4-7 8-7 0 4-1 8-8 9"/>'],
+      star: ['Звезда', '<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/>'],
+      cloud: ['Облако', '<path d="M7 18h10a4 4 0 0 0 .4-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9Z"/>'],
+      wave: ['Волна', '<path d="M3 9c3-5 5 5 8 0s5 5 10 0M3 15c3-5 5 5 8 0s5 5 10 0"/>'],
+      fire: ['Огонь', '<path d="M12 22a7 7 0 0 0 7-7c0-4-3-6-4-10-2 2-2 4-2 5-2-2-3-4-3-7-4 4-6 8-5 12a7 7 0 0 0 7 7Z"/><path d="M12 22a3 3 0 0 0 3-3c0-2-2-3-3-5-2 2-3 3-3 5a3 3 0 0 0 3 3Z"/>'],
+      cat: ['Кот', '<path d="m5 9-1-5 5 2a9 9 0 0 1 6 0l5-2-1 5a8 8 0 1 1-14 0Z"/><path d="M9 13h.01M15 13h.01M10 17c1.3 1 2.7 1 4 0"/>'],
+      planet: ['Планета', '<circle cx="12" cy="12" r="6"/><path d="M3 14c2-3 12-6 17-4 4 2-2 7-8 9-5 2-9 1-9-1"/>'],
+      eye: ['Глаз', '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>'],
+      compass: ['Компас', '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>'],
+      feather: ['Перо', '<path d="M20 4C13 3 6 7 5 14c-.5 3 1 5 4 5 7-1 11-8 11-15Z"/><path d="M4 21c3-5 7-8 12-12M8 16l-1-4m5 0 3 1"/>'],
+      crystal: ['Кристалл', '<path d="m7 3 10 0 5 6-10 12L2 9Z"/><path d="m2 9 20 0M7 3l5 18 5-18"/>'],
+      lightning: ['Молния', '<path d="M13 2 4 14h7l-1 8 10-13h-7Z"/>'],
+      ghost: ['Призрак', '<path d="M5 20V11a7 7 0 1 1 14 0v9l-3-2-4 2-4-2Z"/><path d="M9 11h.01M15 11h.01"/>'],
+      note: ['Нота', '<path d="M14 4v12.5a3.5 3.5 0 1 1-2-3.2V7l8-2v9.5a3.5 3.5 0 1 1-2-3.2V3Z"/>'],
+      heart: ['Сердце', '<path d="M20.8 8.8c0 5-8.8 11-8.8 11s-8.8-6-8.8-11A4.8 4.8 0 0 1 12 6a4.8 4.8 0 0 1 8.8 2.8Z"/>'],
+      shield: ['Щит', '<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>'],
+      terminal: ['Терминал', '<path d="m4 7 5 5-5 5m7 0h9"/>'],
+      sun: ['Солнце', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>']
+    };
+    const AVATAR_BACKGROUNDS = {
+      graphite: ['Кофейный графит', 'linear-gradient(145deg,#665044,#211d1a)'],
+      amber: ['Тёплый янтарь', 'linear-gradient(145deg,#9a6439,#38251d)'],
+      indigo: ['Ночной индиго', 'linear-gradient(145deg,#555276,#252330)'],
+      moss: ['Хвойный мох', 'linear-gradient(145deg,#52634d,#232b23)'],
+      terra: ['Терракота', 'linear-gradient(145deg,#9a5d4b,#392522)'],
+      plum: ['Пыльная слива', 'linear-gradient(145deg,#76586f,#30232e)'],
+      sage: ['Туманный шалфей', 'linear-gradient(145deg,#718274,#303832)'],
+      wine: ['Глубокий бордо', 'linear-gradient(145deg,#75434c,#301d23)'],
+      steel: ['Стальной синий', 'linear-gradient(145deg,#526b79,#202a31)'],
+      sand: ['Песочный', 'linear-gradient(145deg,#9a8261,#383025)']
+    };
+    const AVATAR_FRAMES = {
+      none: 'Без рамки',
+      ring: 'Тонкое кольцо',
+      orbit: 'Двойная орбита',
+      dotted: 'Пунктирный контур',
+      glow: 'Мягкое свечение'
+    };
+    const RANDOM_ADJECTIVES = ['тихий','сонный','ламповый','ночной','тёплый','туманный','вечерний','дальний','уставший','мягкий','медленный','рыжий','лунный','чайный','пыльный','северный','бережный','странный','уютный','сумрачный','ироничный','винтажный','мокрый','свободный','спокойный','маленький','редкий','запасной','невыспавшийся','космический','шумный','светлый','хрупкий','домашний','дождливый','невидимый','потерянный','честный','последний','аналоговый'];
+    const RANDOM_NOUNS = ['маяк','кот','шум','пилигрим','дождь','сигнал','чай','берег','космонавт','пиксель','космос','радио','фонарь','странник','баг','спутник','терминал','плед','трамвай','океан','плейлист','ветер','комета','чердак','эфир','гриб','сон','кактус','провод','автобус','снег','прохожий','дельфин','будильник','компас','сосед','буфер','архив','экран','кофе'];
+    const DEFAULT_PROFILE = { name: 'тихий_маяк', avatar: 'av:graphite:moon:none' };
     const MOOD_GLOWS = {
-      'Выгорел': '#3b2318',
-      'Тревожно': '#192636',
-      'Туман в голове': '#26272b',
-      'Одиноко': '#281e33',
-      'Полон сил': '#1b2e25',
-      'Грустно': '#172b30',
-      'Раздражён': '#361b22',
-      'Спокойно': '#332918'
+      'Выгорел': '#8a5738',
+      'Тревожно': '#587da0',
+      'Туман в голове': '#858587',
+      'Одиноко': '#806095',
+      'Полон сил': '#638765',
+      'Грустно': '#5c858a',
+      'Раздражён': '#a45362',
+      'Спокойно': '#a08451'
     };
     let visibleGlowId = 'front';
     let hintTimer;
@@ -1982,10 +2722,104 @@
     let masterGain = null;
     let ambientSources = [];
     let activeSoundMode = 'silence';
+    let pinnedCollapsed = false;
     const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
 
     function createId(prefix) {
       return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function generateRandomName() {
+      return `${randomItem(RANDOM_ADJECTIVES)}_${randomItem(RANDOM_NOUNS)}`;
+    }
+
+    function parseAvatar(value) {
+      if (typeof value !== 'string') return null;
+      const match = /^av:([a-z]+):([a-z]+):([a-z]+)$/.exec(value);
+      if (!match || !AVATAR_BACKGROUNDS[match[1]] || !ICONS[match[2]] || !AVATAR_FRAMES[match[3]]) return null;
+      return { bg: match[1], icon: match[2], frame: match[3] };
+    }
+
+    function renderAvatar(avatarValue, size) {
+      const avatar = document.createElement('span');
+      avatar.className = 'avatar-render';
+      avatar.style.setProperty('--avatar-size', `${Math.max(20, Number(size) || 30)}px`);
+      const parsed = parseAvatar(avatarValue);
+      if (!parsed) {
+        avatar.classList.add('is-legacy');
+        avatar.textContent = typeof avatarValue === 'string' && avatarValue ? avatarValue : '🌙';
+        avatar.setAttribute('aria-label', 'Анонимный аватар');
+        return avatar;
+      }
+
+      avatar.dataset.frame = parsed.frame;
+      avatar.style.setProperty('--avatar-bg', AVATAR_BACKGROUNDS[parsed.bg][1]);
+      avatar.style.setProperty('--avatar-glow', AVATAR_BACKGROUNDS[parsed.bg][1].includes('linear-gradient')
+        ? 'rgba(217,155,102,.48)' : 'rgba(217,155,102,.48)');
+      avatar.setAttribute('aria-label', `Аватар: ${ICONS[parsed.icon][0]}`);
+      avatar.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[parsed.icon][1]}</svg>`;
+      return avatar;
+    }
+
+    function serializeAvatar(builder) {
+      return `av:${builder.querySelector('[data-avatar-bg]').value}:${builder.querySelector('[data-avatar-icon]').value}:${builder.querySelector('[data-avatar-frame]').value}`;
+    }
+
+    function fillAvatarBuilder(builder, avatarValue) {
+      const current = parseAvatar(avatarValue) || { bg: 'graphite', icon: 'moon', frame: 'none' };
+      const selectData = [
+        ['[data-avatar-icon]', Object.entries(ICONS).map(([id, item]) => [id, item[0]]), current.icon],
+        ['[data-avatar-bg]', Object.entries(AVATAR_BACKGROUNDS).map(([id, item]) => [id, item[0]]), current.bg],
+        ['[data-avatar-frame]', Object.entries(AVATAR_FRAMES), current.frame]
+      ];
+      selectData.forEach(([selector, options, selected]) => {
+        const select = builder.querySelector(selector);
+        select.replaceChildren();
+        options.forEach(([value, label]) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = label;
+          select.appendChild(option);
+        });
+        select.value = selected;
+      });
+      updateAvatarBuilderPreview(builder);
+    }
+
+    function updateAvatarBuilderPreview(builder) {
+      const preview = builder.querySelector('[data-avatar-preview]');
+      preview.replaceChildren(renderAvatar(serializeAvatar(builder), 46));
+    }
+
+    function initializeAvatarBuilders() {
+      document.querySelectorAll('[data-avatar-builder]').forEach((builder) => {
+        fillAvatarBuilder(builder, DEFAULT_PROFILE.avatar);
+        builder.querySelectorAll('select').forEach((select) => {
+          select.addEventListener('change', () => updateAvatarBuilderPreview(builder));
+        });
+      });
+      document.querySelectorAll('[data-avatar-random]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const builder = document.querySelector(`[data-avatar-builder="${button.dataset.avatarRandom}"]`);
+          builder.querySelector('[data-avatar-bg]').value = randomItem(Object.keys(AVATAR_BACKGROUNDS));
+          builder.querySelector('[data-avatar-icon]').value = randomItem(Object.keys(ICONS));
+          builder.querySelector('[data-avatar-frame]').value = randomItem(Object.keys(AVATAR_FRAMES));
+          updateAvatarBuilderPreview(builder);
+        });
+      });
+    }
+
+    function setBuilderAvatar(builder, avatarValue) {
+      const parsed = parseAvatar(avatarValue);
+      if (!parsed) return;
+      builder.querySelector('[data-avatar-bg]').value = parsed.bg;
+      builder.querySelector('[data-avatar-icon]').value = parsed.icon;
+      builder.querySelector('[data-avatar-frame]').value = parsed.frame;
+      updateAvatarBuilderPreview(builder);
     }
 
     function switchMobileTab(tab) {
@@ -2129,19 +2963,32 @@
     }
 
     function renderAmbientBackground() {
-      const activeChannels = getActiveChannels();
+      const onboardingVisible = !document.getElementById('onboarding-overlay').hidden;
+      const activeChannels = onboardingVisible
+        ? [...document.querySelectorAll('.onboarding-mood-range')]
+        : getActiveChannels().map((channel) => ({
+          dataset: { mood: channel.dataset.mood },
+          querySelector: () => channel.querySelector('.mixer-range')
+        }));
       const positions = ['18% 8%', '50% 4%', '82% 12%'];
-      const gradients = activeChannels.map((channel, index) => {
-        const mood = channel.dataset.mood;
-        const intensity = Number(channel.querySelector('.mixer-range').value);
+      const colors = activeChannels.map((channel, index) => {
+        const mood = channel.dataset.mood || channel.dataset.onboardingMood;
+        const intensity = Number(channel.value || channel.querySelector('.mixer-range').value);
         const hex = MOOD_GLOWS[mood];
         const red = parseInt(hex.slice(1, 3), 16);
         const green = parseInt(hex.slice(3, 5), 16);
         const blue = parseInt(hex.slice(5, 7), 16);
-        const strength = (0.22 + intensity / 100 * 0.42).toFixed(2);
+        const strength = (0.16 + intensity / 100 * 0.06).toFixed(2);
         const radius = Math.round(25 + intensity * 0.35);
-        return `radial-gradient(ellipse ${radius}% ${Math.round(radius * 0.72)}% at ${positions[index]}, rgba(${red}, ${green}, ${blue}, ${strength}) 0%, transparent 100%)`;
+        return { red, green, blue, strength, radius, index };
       });
+      const gradients = colors.map(({ red, green, blue, strength, radius, index }) =>
+        `radial-gradient(ellipse ${radius}% ${Math.round(radius * 0.72)}% at ${positions[index]}, rgba(${red}, ${green}, ${blue}, ${strength}) 0%, transparent 100%)`
+      );
+      if (colors.length) {
+        const strongest = colors[0];
+        gradients.push(`radial-gradient(ellipse 42% 34% at 92% 96%, rgba(${strongest.red}, ${strongest.green}, ${strongest.blue}, 0.10) 0%, transparent 100%)`);
+      }
 
       const targetId = visibleGlowId === 'front' ? 'back' : 'front';
       const target = document.getElementById(`ambient-glow-${targetId}`);
@@ -2165,6 +3012,12 @@
         document.getElementById('mood').value = primary.dataset.mood;
         document.getElementById('intensity').value = primary.querySelector('.mixer-range').value;
       }
+      const profile = getProfile();
+      profile.moods = activeChannels.map((channel) => ({
+        mood: channel.dataset.mood,
+        intensity: Number(channel.querySelector('.mixer-range').value)
+      }));
+      saveProfile(profile);
       renderAmbientBackground();
     }
 
@@ -2221,6 +3074,103 @@
       updateIntensityDisplay();
     });
 
+    function setupOnboardingMoodControls() {
+      const container = document.getElementById('onboarding-moods');
+      const defaultMoods = [
+        { mood: 'Спокойно', intensity: 58 },
+        { mood: 'Тревожно', intensity: 32 },
+        { mood: 'Грустно', intensity: 18 }
+      ];
+      defaultMoods.forEach(({ mood, intensity }) => {
+        const row = document.createElement('label');
+        row.className = 'mood-preview-row';
+        const name = document.createElement('span');
+        name.textContent = `${getMoodIcon(mood)} ${mood}`;
+        const range = document.createElement('input');
+        range.type = 'range';
+        range.min = '10';
+        range.max = '100';
+        range.value = String(intensity);
+        range.className = 'onboarding-mood-range';
+        range.dataset.mood = mood;
+        range.setAttribute('aria-label', `Интенсивность состояния ${mood}`);
+        const output = document.createElement('output');
+        output.textContent = `${intensity}%`;
+        range.addEventListener('input', () => {
+          output.textContent = `${range.value}%`;
+          renderAmbientBackground();
+        });
+        row.append(name, range, output);
+        container.appendChild(row);
+      });
+    }
+
+    function readOnboardingMoods() {
+      return [...document.querySelectorAll('.onboarding-mood-range')].map((range) => ({
+        mood: range.dataset.mood,
+        intensity: Number(range.value)
+      }));
+    }
+
+    function applyMoodSettings(moods) {
+      const normalized = (Array.isArray(moods) ? moods : [])
+        .filter((item) => item && MOOD_GLOWS[item.mood])
+        .slice(0, 3);
+      document.querySelectorAll('.mixer-channel').forEach((channel) => {
+        const mood = channel.dataset.mood;
+        const saved = normalized.find((item) => item.mood === mood);
+        const range = channel.querySelector('.mixer-range');
+        if (saved) {
+          channel.classList.add('is-active');
+          range.value = String(Math.min(100, Math.max(10, Number(saved.intensity) || 70)));
+        } else {
+          channel.classList.remove('is-active');
+        }
+        const intensity = Number(range.value);
+        const output = channel.querySelector('.intensity-output');
+        output.value = `${intensity}%`;
+        output.textContent = `${intensity}%`;
+        range.style.setProperty('--range-fill', `${intensity}%`);
+      });
+      if (!getActiveChannels().length) {
+        document.querySelector('.mixer-channel').classList.add('is-active');
+      }
+      syncMixer();
+    }
+
+    function initializeOnboarding() {
+      initializeAvatarBuilders();
+      setupOnboardingMoodControls();
+      const profile = getProfile();
+      document.getElementById('onboarding-name').value = profile.name;
+      setBuilderAvatar(document.querySelector('[data-avatar-builder="onboarding"]'), profile.avatar);
+      document.getElementById('onboarding-random-name').addEventListener('click', () => {
+        document.getElementById('onboarding-name').value = generateRandomName();
+      });
+      document.getElementById('enter-air').addEventListener('click', () => {
+        const updatedProfile = getProfile();
+        updatedProfile.name = document.getElementById('onboarding-name').value.trim().slice(0, 24) || generateRandomName();
+        updatedProfile.avatar = serializeAvatar(document.querySelector('[data-avatar-builder="onboarding"]'));
+        updatedProfile.joinedAt = updatedProfile.joinedAt || new Date().toISOString();
+        updatedProfile.moods = readOnboardingMoods();
+        saveProfile(updatedProfile);
+        localStorage.setItem(PROFILE_INITIALIZED_KEY, 'true');
+        document.getElementById('onboarding-overlay').hidden = true;
+        applyMoodSettings(updatedProfile.moods);
+        updateProfileUI();
+        if (document.getElementById('onboarding-rain').checked) setAmbientSound('rain');
+      });
+
+      const isInitialized = localStorage.getItem(PROFILE_INITIALIZED_KEY) === 'true';
+      if (isInitialized) {
+        document.getElementById('onboarding-overlay').hidden = true;
+        applyMoodSettings(profile.moods);
+      } else {
+        document.getElementById('onboarding-overlay').hidden = false;
+        renderAmbientBackground();
+      }
+    }
+
     document.getElementById('post-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const submitButton = document.querySelector('#post-form button[type="submit"]');
@@ -2261,22 +3211,17 @@
       try {
         const stored = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
         profile = stored && typeof stored === 'object' ? {
-          name: typeof stored.name === 'string' && stored.name.trim() ? stored.name.trim() : DEFAULT_PROFILE.name,
-          avatar: AVATARS.includes(stored.avatar) ? stored.avatar : DEFAULT_PROFILE.avatar,
-          id: typeof stored.id === 'string' && stored.id ? stored.id : createId('profile')
-        } : { ...DEFAULT_PROFILE, id: createId('profile') };
+          name: typeof stored.name === 'string' && stored.name.trim() ? stored.name.trim().slice(0, 24) : DEFAULT_PROFILE.name,
+          avatar: typeof stored.avatar === 'string' && stored.avatar.trim() ? stored.avatar : DEFAULT_PROFILE.avatar,
+          id: typeof stored.id === 'string' && stored.id ? stored.id : createId('profile'),
+          joinedAt: typeof stored.joinedAt === 'string' ? stored.joinedAt : new Date().toISOString(),
+          rank: typeof stored.rank === 'string' ? stored.rank : 'Новичок',
+          moods: Array.isArray(stored.moods) ? stored.moods.slice(0, 3) : []
+        } : { ...DEFAULT_PROFILE, id: createId('profile'), joinedAt: new Date().toISOString(), rank: 'Новичок' };
       } catch (error) {
-        profile = { ...DEFAULT_PROFILE, id: createId('profile') };
+        profile = { ...DEFAULT_PROFILE, id: createId('profile'), joinedAt: new Date().toISOString(), rank: 'Новичок' };
       }
-      if (localStorage.getItem(PROFILE_KEY) === null) saveProfile(profile);
-      else {
-        try {
-          const stored = JSON.parse(localStorage.getItem(PROFILE_KEY));
-          if (!stored || stored.id !== profile.id) saveProfile(profile);
-        } catch (error) {
-          saveProfile(profile);
-        }
-      }
+      saveProfile(profile);
       return profile;
     }
 
@@ -2286,23 +3231,54 @@
 
     function updateProfileUI() {
       const profile = getProfile();
-      document.getElementById('profile-name').value = profile.name;
       document.getElementById('profile-name-preview').textContent = profile.name;
-      document.getElementById('profile-avatar-preview').textContent = profile.avatar;
-
-      document.querySelectorAll('.avatar-option').forEach((button) => {
-        const selected = button.dataset.avatar === profile.avatar;
-        button.classList.toggle('is-active', selected);
-        button.setAttribute('aria-pressed', String(selected));
-      });
+      const avatarPreview = document.getElementById('profile-avatar-preview');
+      avatarPreview.replaceChildren(renderAvatar(profile.avatar, 42));
+      document.getElementById('profile-joined').textContent =
+        `В эфире с ${new Date(profile.joinedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+      document.getElementById('publish-name').textContent = profile.name;
+      const publishAvatar = document.getElementById('publish-avatar');
+      publishAvatar.replaceChildren(renderAvatar(profile.avatar, 27));
       refreshEconomyWidgets();
+      refreshProfileStats();
     }
 
     function updateProfileName(value) {
       const profile = getProfile();
       profile.name = value.trim().slice(0, 24) || DEFAULT_PROFILE.name;
       saveProfile(profile);
-      document.getElementById('profile-name-preview').textContent = profile.name;
+      updateProfileUI();
+    }
+
+    function refreshProfileStats() {
+      const profile = getProfile();
+      const ownPosts = readLocalIdList(OWNED_POSTS_KEY);
+      const ownFixes = readLocalIdList(OWNED_FIXES_KEY);
+      const userCards = getStoredCards().filter((card) => ownPosts.includes(String(card.id)));
+      const fixedByUser = getStoredCards().reduce((total, card) => total + card.comments.filter((comment) =>
+        ownFixes.includes(String(comment.id)) && comment.accepted
+      ).length, 0);
+      document.getElementById('profile-post-count').textContent = String(ownPosts.length);
+      document.getElementById('profile-fix-count').textContent = String(ownFixes.length);
+      document.getElementById('profile-helped-count').textContent = String(fixedByUser);
+      const list = document.getElementById('my-posts');
+      list.replaceChildren();
+      const title = document.createElement('p');
+      title.className = 'my-posts-title';
+      title.textContent = 'Твои мысли в общей ленте';
+      list.appendChild(title);
+      userCards.slice(0, 5).forEach((card) => {
+        const entry = document.createElement('div');
+        entry.className = 'my-post-link';
+        entry.textContent = card.message.slice(0, 100) || 'Мысль без текста';
+        list.appendChild(entry);
+      });
+      if (!userCards.length) {
+        const empty = document.createElement('div');
+        empty.className = 'profile-subtitle';
+        empty.textContent = 'Пока мыслей нет';
+        list.appendChild(empty);
+      }
     }
 
     function refreshEconomyWidgets() {
@@ -2315,6 +3291,9 @@
         { name: 'Хранитель эфира', min: 1500, next: null }
       ];
       const rank = [...ranks].reverse().find((item) => user.db >= item.min) || ranks[0];
+      profile.rank = rank.name;
+      profile.db = user.db;
+      saveProfile(profile);
       const progress = rank.next === null
         ? 100
         : Math.min(100, Math.max(0, ((user.db - rank.min) / (rank.next - rank.min)) * 100));
@@ -2324,32 +3303,37 @@
       progressTrack.setAttribute('aria-valuenow', String(Math.round(progress)));
       document.getElementById('rank-progress-text').textContent =
         rank.next === null ? `${user.db} ДБ · максимальный ранг` : `${user.db} / ${rank.next} ДБ`;
-      document.getElementById('helped-count').textContent = String(user.helped);
+      document.getElementById('profile-db').textContent = String(user.db);
 
       document.querySelectorAll('.daily-task').forEach((task) => {
         task.classList.toggle('is-complete', Boolean(user.daily.tasks[task.dataset.task]));
       });
     }
 
-    document.getElementById('profile-name').addEventListener('input', (event) => {
-      updateProfileName(event.target.value);
-    });
-
     document.getElementById('random-name').addEventListener('click', () => {
-      const currentName = document.getElementById('profile-name-preview').textContent;
-      const candidates = RANDOM_NAMES.filter((name) => name !== currentName);
-      const name = candidates[Math.floor(Math.random() * candidates.length)];
-      document.getElementById('profile-name').value = name;
-      updateProfileName(name);
+      updateProfileName(generateRandomName());
     });
 
-    document.querySelectorAll('.avatar-option').forEach((button) => {
-      button.addEventListener('click', () => {
-        const profile = getProfile();
-        profile.avatar = button.dataset.avatar;
-        saveProfile(profile);
-        updateProfileUI();
-      });
+    document.getElementById('change-profile-name').addEventListener('click', () => {
+      const profile = getProfile();
+      const name = window.prompt('Выбери позывной', profile.name);
+      if (name !== null && name.trim()) updateProfileName(name);
+    });
+
+    document.getElementById('open-avatar-editor').addEventListener('click', () => {
+      setBuilderAvatar(document.querySelector('[data-avatar-builder="profile"]'), getProfile().avatar);
+      document.getElementById('avatar-overlay').hidden = false;
+    });
+    document.getElementById('close-avatar-editor').addEventListener('click', () => {
+      document.getElementById('avatar-overlay').hidden = true;
+    });
+    document.getElementById('save-profile-avatar').addEventListener('click', () => {
+      const builder = document.querySelector('[data-avatar-builder="profile"]');
+      const profile = getProfile();
+      profile.avatar = serializeAvatar(builder);
+      saveProfile(profile);
+      updateProfileUI();
+      document.getElementById('avatar-overlay').hidden = true;
     });
 
     function readLocalIdList(key) {
@@ -2562,7 +3546,6 @@
       const { mood, message, track, now, id } = cardData;
       const cardMoods = getCardMoods(cardData);
       const profileName = typeof cardData.author === 'string' ? cardData.author : `Аноним #${id}`;
-      const profileAvatar = AVATARS.includes(cardData.avatar) ? cardData.avatar : '🌙';
       const comments = Array.isArray(cardData.comments) ? cardData.comments.slice() : [];
       const viewer = getProfile();
       const postAuthorId = cardData.authorId || (cardData.author === viewer.name ? viewer.id : '');
@@ -2591,9 +3574,7 @@
 
       const author = document.createElement('div');
       author.className = 'card-author';
-      const authorAvatar = document.createElement('span');
-      authorAvatar.className = 'card-author-avatar';
-      authorAvatar.textContent = profileAvatar;
+      const authorAvatar = renderAvatar(cardData.avatar, 28);
       const authorName = document.createElement('span');
       authorName.textContent = profileName;
       author.append(authorAvatar, authorName);
@@ -2620,7 +3601,9 @@
       commentsSection.className = 'comments';
       const commentsTitle = document.createElement('h3');
       commentsTitle.className = 'comments-title';
-      commentsTitle.textContent = `Поддержка · ${comments.length}`;
+      commentsTitle.textContent = comments.length
+        ? `Фиксы (комментарии) · ${comments.length}`
+        : 'Фиксы (комментарии) · пока тихо';
 
       const commentList = document.createElement('div');
       commentList.className = 'comment-list';
@@ -2634,7 +3617,7 @@
         item.classList.toggle('is-accepted', Boolean(comment.accepted));
         const commentAuthor = document.createElement('span');
         commentAuthor.className = 'comment-author';
-        commentAuthor.textContent = `${AVATARS.includes(comment.avatar) ? comment.avatar : '🌙'} ${comment.author || 'Аноним'}:`;
+        commentAuthor.append(renderAvatar(comment.avatar, 22), document.createTextNode(` ${comment.author || 'Аноним'}: `));
         const commentText = document.createElement('span');
         appendCommentText(commentText, comment.text || '');
         item.append(commentAuthor, commentText);
@@ -2707,7 +3690,7 @@
       commentInput.className = 'comment-input';
       commentInput.type = 'text';
       commentInput.maxLength = 500;
-      commentInput.placeholder = 'Поддержать или посоветовать трек...';
+      commentInput.placeholder = 'Напиши слова поддержки, свой опыт или прикрепи трек...';
       commentInput.setAttribute('aria-label', 'Комментарий к карточке');
       const commentTrackInput = document.createElement('input');
       commentTrackInput.className = 'comment-track-input';
@@ -2718,7 +3701,7 @@
       const commentButton = document.createElement('button');
       commentButton.className = 'comment-submit';
       commentButton.type = 'submit';
-      commentButton.textContent = 'Отправить';
+      commentButton.textContent = 'Отправить фикс';
       const commentWarning = document.createElement('span');
       commentWarning.className = 'comment-warning';
       commentWarning.setAttribute('role', 'status');
@@ -2727,7 +3710,7 @@
       const commentToggle = document.createElement('button');
       commentToggle.className = 'comment-toggle';
       commentToggle.type = 'button';
-      commentToggle.textContent = 'Подкинуть фикс (поддержать)';
+      commentToggle.textContent = 'Оставить фикс (комментарий)';
       commentToggle.setAttribute('aria-expanded', 'false');
       commentToggle.setAttribute('aria-controls', commentForm.id);
       commentToggle.addEventListener('click', () => {
@@ -2956,6 +3939,105 @@
       document.querySelector('.waiting-tab').classList.toggle('has-unanswered', waitingCount > 0);
     }
 
+    function buildPinnedCard() {
+      const card = document.createElement('article');
+      card.className = 'card pinned-card';
+      const heading = document.createElement('div');
+      heading.className = 'pinned-heading';
+      const title = document.createElement('span');
+      title.textContent = '📌 Как тут всё устроено';
+      const collapse = document.createElement('button');
+      collapse.type = 'button';
+      collapse.textContent = pinnedCollapsed ? 'Развернуть' : 'Свернуть';
+      collapse.setAttribute('aria-expanded', String(!pinnedCollapsed));
+      heading.append(title, collapse);
+      const body = document.createElement('div');
+      body.className = 'pinned-body';
+      body.hidden = pinnedCollapsed;
+
+      const author = document.createElement('strong');
+      author.textContent = 'DeBug_';
+      const intro = document.createElement('p');
+      intro.append(author, document.createTextNode(' — коротко о пространстве:'));
+      const rules = document.createElement('ul');
+      [
+        'Здесь нет дизлайков и токсичных советов.',
+        'В микшере можно выставить своё состояние в процентах.',
+        'В комментариях — «фиксах» — делятся опытом, поддержкой или музыкой.',
+        'Если ответ правда помог, автор может нажать «Фикс сработал» — помощник получит ДеБаги (ДБ), а его уровень доверия вырастет.'
+      ].forEach((copy) => {
+        const item = document.createElement('li');
+        item.textContent = copy;
+        rules.appendChild(item);
+      });
+
+      const tryFix = document.createElement('button');
+      tryFix.type = 'button';
+      tryFix.className = 'comment-toggle';
+      tryFix.textContent = localStorage.getItem(WELCOME_REWARD_KEY) === 'true'
+        ? 'Попробовать оставить первый фикс'
+        : 'Попробовать оставить первый фикс (+5 ДБ)';
+      const form = document.createElement('form');
+      form.className = 'pinned-fix-form';
+      form.hidden = true;
+      const input = document.createElement('textarea');
+      input.maxLength = 500;
+      input.placeholder = 'Напиши короткий пример поддержки или опыта...';
+      input.setAttribute('aria-label', 'Пример первого фикса');
+      const send = document.createElement('button');
+      send.type = 'submit';
+      send.className = 'primary-button';
+      send.textContent = 'Сохранить пример';
+      const notice = document.createElement('div');
+      notice.className = 'pinned-notice';
+      notice.setAttribute('role', 'status');
+      notice.setAttribute('aria-live', 'polite');
+      form.append(input, send, notice);
+      const sample = localStorage.getItem(WELCOME_FIX_KEY);
+
+      collapse.addEventListener('click', () => {
+        pinnedCollapsed = !pinnedCollapsed;
+        renderFeed();
+      });
+      tryFix.addEventListener('click', () => {
+        form.hidden = !form.hidden;
+        tryFix.setAttribute('aria-expanded', String(!form.hidden));
+        if (!form.hidden) input.focus();
+      });
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = input.value.trim();
+        if (!value) {
+          notice.textContent = 'Напиши пару слов — пример останется только у тебя.';
+          return;
+        }
+        localStorage.setItem(WELCOME_FIX_KEY, value);
+        const profile = getProfile();
+        if (localStorage.getItem(WELCOME_REWARD_KEY) !== 'true') {
+          awardDb(profile.id, 5);
+          localStorage.setItem(WELCOME_REWARD_KEY, 'true');
+          notice.textContent = 'Пример сохранён локально. Начислено +5 ДБ — спасибо, что начал.';
+        } else {
+          notice.textContent = 'Пример сохранён локально. Приветственные ДБ уже получены.';
+        }
+        const noticeText = notice.textContent;
+        renderFeed();
+        window.setTimeout(() => {
+          const currentNotice = document.querySelector('#feed .pinned-notice');
+          if (currentNotice) currentNotice.textContent = noticeText;
+        }, 0);
+      });
+      body.append(intro, rules, tryFix, form);
+      if (sample) {
+        const saved = document.createElement('div');
+        saved.className = 'pinned-sample';
+        saved.textContent = `Твой пример фикса: ${sample}`;
+        body.insertBefore(saved, tryFix);
+      }
+      card.append(heading, body);
+      return card;
+    }
+
     async function addComment(cardId, value, trackValue) {
       const text = value.trim();
       const track = trackValue.trim();
@@ -3002,6 +4084,7 @@
       const feed = document.getElementById('feed');
       feed.replaceChildren();
       const cards = getStoredCards();
+      feed.appendChild(buildPinnedCard());
 
       if (feedLoading) {
         const loading = document.createElement('div');
@@ -3047,6 +4130,7 @@
         feed.appendChild(emptyState);
       }
       updatePulse();
+      refreshProfileStats();
     }
 
     async function createCard() {
@@ -3268,6 +4352,7 @@
 
     window.addEventListener('pagehide', stopAmbientSources);
 
+    initializeOnboarding();
     updateProfileUI();
     syncMixer();
     refreshFeed(true);
