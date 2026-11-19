@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#181513">
   <meta property="og:title" content="DeBug — Debug your mind">
   <meta property="og:description" content="Тихое анонимное пространство взаимной поддержки. Настрой свой канал и заходи в эфир.">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -268,6 +268,7 @@
     .card-meta-actions {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
@@ -294,6 +295,12 @@
       white-space: nowrap;
     }
 
+    .views-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .delete-button {
       padding: 0;
       border: 0;
@@ -315,6 +322,62 @@
       cursor: wait;
       opacity: 0.56;
       transform: none;
+    }
+
+    .edit-post-form {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .edit-post-form[hidden] {
+      display: none;
+    }
+
+    .edit-post-label {
+      color: var(--muted);
+      font-size: 0.73rem;
+    }
+
+    .edit-post-moods {
+      display: grid;
+      gap: 1px;
+    }
+
+    .edit-post-form .mixer-channel {
+      margin-bottom: 10px;
+    }
+
+    .edit-post-form textarea,
+    .edit-post-form input {
+      min-width: 0;
+      margin: 0;
+      background: #191614;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .edit-post-form textarea {
+      min-height: 100px;
+    }
+
+    .edit-post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .edit-post-warning {
+      min-height: 1.2em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
     }
 
     .card-text {
@@ -467,6 +530,32 @@
       font-size: 0.78rem;
     }
 
+    .profile-sync-status {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+
+    .profile-key-recovery {
+      display: grid;
+      gap: 7px;
+      margin: 8px 0 12px;
+    }
+
+    .profile-key-recovery[hidden] {
+      display: none;
+    }
+
+    .profile-key-recovery label {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .profile-key-recovery input {
+      margin: 0;
+    }
+
     .profile-input {
       margin-bottom: 10px;
     }
@@ -532,6 +621,37 @@
       color: var(--text);
       font-size: 0.78rem;
       font-weight: 600;
+    }
+
+    .user-profile-trigger {
+      cursor: pointer;
+      transition: color 0.18s ease;
+    }
+
+    .user-profile-trigger:focus-visible {
+      outline: 1px solid var(--accent-light);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    .user-profile-trigger:hover .user-profile-name {
+      color: var(--accent-light);
+    }
+
+    .user-profile-name {
+      transition: color 0.18s ease;
+    }
+
+    .comment-author.user-profile-trigger {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      font: inherit;
+      text-align: left;
     }
 
     .card-author-avatar {
@@ -1939,7 +2059,8 @@
     }
 
     .onboarding-overlay,
-    .avatar-overlay {
+    .avatar-overlay,
+    .user-profile-overlay {
       position: fixed;
       inset: 0;
       z-index: 2000;
@@ -1952,10 +2073,12 @@
     }
 
     .onboarding-overlay[hidden],
-    .avatar-overlay[hidden] { display: none; }
+    .avatar-overlay[hidden],
+    .user-profile-overlay[hidden] { display: none; }
 
     .onboarding-modal,
-    .avatar-modal {
+    .avatar-modal,
+    .user-profile-modal {
       width: min(660px, 100%);
       max-height: min(92vh, 900px);
       overflow-y: auto;
@@ -1967,10 +2090,111 @@
     }
 
     .onboarding-modal h2,
-    .avatar-modal h2 {
+    .avatar-modal h2,
+    .user-profile-modal h2 {
       margin: 0;
       color: var(--accent-light);
       font-size: clamp(1.25rem, 5vw, 1.7rem);
+    }
+
+    .user-profile-modal-header,
+    .user-profile-identity {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .user-profile-modal-header .secondary-button {
+      flex: 0 0 auto;
+      padding: 8px 11px;
+      font-size: 0.72rem;
+    }
+
+    .user-profile-identity {
+      justify-content: flex-start;
+      margin: 18px 0 10px;
+    }
+
+    .user-profile-identity h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .user-profile-joined {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .user-profile-owner {
+      margin: 8px 0;
+      color: var(--accent-light);
+      font-size: 0.72rem;
+    }
+
+    .user-profile-status {
+      min-height: 1.2em;
+      margin: 7px 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .user-profile-recent-title {
+      margin: 16px 0 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .user-profile-posts {
+      display: grid;
+      gap: 8px;
+    }
+
+    .user-profile-post {
+      display: grid;
+      gap: 7px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.025);
+      color: var(--text);
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    button.user-profile-post {
+      width: 100%;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.user-profile-post:hover {
+      border-color: var(--line-strong);
+      background: rgba(217, 155, 102, 0.07);
+      filter: none;
+    }
+
+    .user-profile-post:focus-visible {
+      outline: 1px solid var(--accent-light);
+      outline-offset: 2px;
+    }
+
+    .user-profile-post-date {
+      color: var(--muted);
+      font: 0.66rem "JetBrains Mono", monospace;
+    }
+
+    .user-profile-post-moods {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .user-profile-post-message {
+      line-height: 1.5;
+      white-space: pre-wrap;
     }
 
     .onboarding-copy {
@@ -2097,8 +2321,8 @@
     .rank-label { color: var(--accent-light); font-size: .72rem; }
 
     @media (max-width: 540px) {
-      .onboarding-overlay, .avatar-overlay { padding: 10px; }
-      .onboarding-modal, .avatar-modal { max-height: 94vh; padding: 18px; border-radius: 16px; }
+      .onboarding-overlay, .avatar-overlay, .user-profile-overlay { padding: 10px; }
+      .onboarding-modal, .avatar-modal, .user-profile-modal { max-height: 94vh; padding: 18px; border-radius: 16px; }
       .avatar-builder { grid-template-columns: 1fr; }
       .avatar-builder-preview { width: 58px; height: 58px; justify-self: center; grid-row: 1; }
       .avatar-builder-controls { grid-template-columns: 1fr; }
@@ -2431,6 +2655,7 @@
           <input id="onboarding-name" maxlength="24" autocomplete="nickname" placeholder="Например, тихий_маяк">
           <button type="button" class="secondary-button" id="onboarding-random-name">🎲 Случайный ник</button>
         </div>
+        <p class="profile-sync-status" id="onboarding-profile-error" role="status" aria-live="polite" hidden></p>
       </div>
       <div class="onboarding-section">
         <label>Собери аватар</label>
@@ -2468,11 +2693,36 @@
         </div>
         <div class="avatar-builder-preview" data-avatar-preview></div>
       </div>
+      <p class="profile-sync-status" id="avatar-profile-error" role="status" aria-live="polite" hidden></p>
       <div class="form-actions">
         <button type="button" class="secondary-button avatar-config-button" data-avatar-random="profile">🎲 Собрать случайно</button>
         <button type="button" class="primary-button" id="save-profile-avatar">Сохранить аватар</button>
         <button type="button" class="secondary-button" id="close-avatar-editor">Закрыть</button>
       </div>
+    </section>
+  </div>
+  <div class="avatar-overlay user-profile-overlay" id="user-profile-overlay" hidden>
+    <section class="avatar-modal user-profile-modal" role="dialog" aria-modal="true" aria-labelledby="user-profile-title">
+      <div class="user-profile-modal-header">
+        <h2 id="user-profile-title">Профиль пользователя</h2>
+        <button type="button" class="secondary-button" id="user-profile-close">Закрыть</button>
+      </div>
+      <div class="user-profile-identity">
+        <span id="user-profile-avatar"></span>
+        <div>
+          <h3 id="user-profile-name"></h3>
+          <p class="user-profile-joined" id="user-profile-joined">В эфире с ...</p>
+        </div>
+      </div>
+      <p class="user-profile-owner" id="user-profile-owner" hidden>Это твой профиль</p>
+      <p class="user-profile-status" id="user-profile-status" role="status" aria-live="polite"></p>
+      <div class="profile-stats user-profile-stats">
+        <div class="profile-stat">Мыслей<strong id="user-profile-post-count">—</strong></div>
+        <div class="profile-stat">Фиксов<strong id="user-profile-fix-count">—</strong></div>
+        <div class="profile-stat">Сработало<strong id="user-profile-helped-count">—</strong></div>
+      </div>
+      <h3 class="user-profile-recent-title">Последние мысли</h3>
+      <div class="user-profile-posts" id="user-profile-posts"></div>
     </section>
   </div>
   <div class="app-shell">
@@ -2670,7 +2920,17 @@
             <button type="button" class="secondary-button" id="change-profile-name">Изменить ник</button>
             <button type="button" class="secondary-button" id="random-name">🎲 Случайный ник</button>
           </div>
+          <p class="profile-sync-status" id="profile-sync-status" role="status" aria-live="polite" hidden></p>
           <button type="button" class="secondary-button avatar-config-button" id="open-avatar-editor">Настроить аватар</button>
+          <div class="profile-actions profile-key-actions">
+            <button type="button" class="secondary-button" id="copy-profile-key">Скопировать ключ</button>
+            <button type="button" class="secondary-button" id="toggle-profile-recovery" aria-expanded="false" aria-controls="profile-recovery-form">Восстановить по ключу</button>
+          </div>
+          <form class="profile-key-recovery" id="profile-recovery-form" hidden>
+            <label for="profile-recovery-key">Ключ профиля</label>
+            <input id="profile-recovery-key" type="password" maxlength="256" autocomplete="off" placeholder="Вставь ключ профиля">
+            <button type="submit" class="secondary-button" id="submit-profile-recovery">Восстановить</button>
+          </form>
           <div class="profile-stats">
             <div class="profile-stat">Мыслей<strong id="profile-post-count">0</strong></div>
             <div class="profile-stat">Фиксов<strong id="profile-fix-count">0</strong></div>
@@ -2771,6 +3031,7 @@
     const OWNED_FIXES_KEY = 'debug-owned-fixes';
     const POST_TOKENS_KEY = 'debug-post-tokens';
     const FIX_TOKENS_KEY = 'debug-fix-tokens';
+    const VIEWED_POSTS_KEY = 'debug-viewed-posts';
     const LIKED_FIXES_KEY = 'debug-liked-fixes';
     const REACTION_PROGRESS_KEY = 'debug-reaction-progress';
     const POST_COOLDOWN_KEY = 'debug-post-cooldown';
@@ -2829,6 +3090,7 @@
     const RANDOM_ADJECTIVES = ['тихий','сонный','ламповый','ночной','тёплый','туманный','вечерний','дальний','уставший','мягкий','медленный','рыжий','лунный','чайный','пыльный','северный','бережный','странный','уютный','сумрачный','ироничный','винтажный','мокрый','свободный','спокойный','маленький','редкий','запасной','невыспавшийся','космический','шумный','светлый','хрупкий','домашний','дождливый','невидимый','потерянный','честный','последний','аналоговый'];
     const RANDOM_NOUNS = ['маяк','кот','шум','пилигрим','дождь','сигнал','чай','берег','космонавт','пиксель','космос','радио','фонарь','странник','баг','спутник','терминал','плед','трамвай','океан','плейлист','ветер','комета','чердак','эфир','гриб','сон','кактус','провод','автобус','снег','прохожий','дельфин','будильник','компас','сосед','буфер','архив','экран','кофе'];
     const DEFAULT_PROFILE = { name: 'тихий_маяк', avatar: 'av:graphite:moon:none' };
+    const DANGER_WORDS = ['суицид', 'покончить с собой', 'не хочу жить', 'убить себя'];
     const MOOD_GLOWS = {
       'Выгорел': '#8a5738',
       'Тревожно': '#587da0',
@@ -2854,6 +3116,7 @@
     let feedNoticeTimer = null;
     let feedRefreshInProgress = false;
     let feedRefreshQueued = false;
+    let profileSyncQueue = Promise.resolve();
     let audioContext = null;
     let masterGain = null;
     let ambientSources = [];
@@ -2861,6 +3124,15 @@
     let pinnedCollapsed = false;
     let nextTrackPlayerId = 0;
     const expandedFixThreads = new Set();
+    const editPostDrafts = new Map();
+    const inMemoryViewedPostIds = new Set();
+    const localViewMinimums = new Map();
+    const pendingViewPostIds = new Set();
+    const postViewTimers = new Map();
+    let postViewObserver = null;
+    let userProfileRequestId = 0;
+    let userProfileReturnFocus = null;
+    let viewTrackingTimer = null;
     const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
 
     function escapeHTML(value) {
@@ -2918,6 +3190,14 @@
       }
     }
 
+    function containsDangerWords(value) {
+      const normalized = String(value || '')
+        .toLowerCase()
+        .replace(/[\s\p{P}\p{S}]+/gu, ' ')
+        .trim();
+      return DANGER_WORDS.some((word) => normalized.includes(word));
+    }
+
     function checkCooldown(key, seconds, notice) {
       const stored = readStorage(key);
       const lastSent = typeof stored === 'string' ? Number(stored) : NaN;
@@ -2965,8 +3245,7 @@
 
       avatar.dataset.frame = parsed.frame;
       avatar.style.setProperty('--avatar-bg', AVATAR_BACKGROUNDS[parsed.bg][1]);
-      avatar.style.setProperty('--avatar-glow', AVATAR_BACKGROUNDS[parsed.bg][1].includes('linear-gradient')
-        ? 'rgba(217,155,102,.48)' : 'rgba(217,155,102,.48)');
+      avatar.style.setProperty('--avatar-glow', 'rgba(217,155,102,.48)');
       avatar.setAttribute('aria-label', `Аватар: ${ICONS[parsed.icon][0]}`);
       avatar.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[parsed.icon][1]}</svg>`;
       return avatar;
@@ -3179,7 +3458,7 @@
     }
 
     function getActiveChannels() {
-      return [...document.querySelectorAll('.mixer-channel.is-active')];
+      return [...document.querySelectorAll('#post-form .mixer-channel.is-active')];
     }
 
     function renderAmbientBackground() {
@@ -3222,7 +3501,7 @@
     function syncMixer() {
       const activeChannels = getActiveChannels();
       const primary = activeChannels[0];
-      document.querySelectorAll('.mixer-channel').forEach((channel) => {
+      document.querySelectorAll('#post-form .mixer-channel').forEach((channel) => {
         const isActive = channel.classList.contains('is-active');
         const button = channel.querySelector('.channel-select');
         button.textContent = isActive ? 'Активно' : 'Выбрать';
@@ -3242,7 +3521,7 @@
     }
 
     function toggleMoodChannel(mood) {
-      const channel = document.querySelector(`.mixer-channel[data-mood="${mood}"]`);
+      const channel = document.querySelector(`#post-form .mixer-channel[data-mood="${mood}"]`);
       if (!channel) return;
       if (channel.classList.contains('is-active')) {
         if (getActiveChannels().length === 1) {
@@ -3366,25 +3645,58 @@
       setBuilderAvatar(document.querySelector('[data-avatar-builder="onboarding"]'), profile.avatar);
       document.getElementById('onboarding-random-name').addEventListener('click', () => {
         document.getElementById('onboarding-name').value = generateRandomName();
+        setProfileSyncStatus('onboarding-profile-error', '');
       });
-      document.getElementById('enter-air').addEventListener('click', () => {
-        const updatedProfile = getProfile();
-        updatedProfile.name = document.getElementById('onboarding-name').value.trim().slice(0, 24) || generateRandomName();
-        updatedProfile.avatar = serializeAvatar(document.querySelector('[data-avatar-builder="onboarding"]'));
-        updatedProfile.joinedAt = updatedProfile.joinedAt || new Date().toISOString();
-        updatedProfile.moods = readOnboardingMoods();
-        saveProfile(updatedProfile);
-        writeStorage(PROFILE_INITIALIZED_KEY, 'true');
-        document.getElementById('onboarding-overlay').hidden = true;
-        applyMoodSettings(updatedProfile.moods);
-        updateProfileUI();
-        if (document.getElementById('onboarding-rain').checked) setAmbientSound('rain');
+      document.getElementById('onboarding-name').addEventListener('input', () => {
+        setProfileSyncStatus('onboarding-profile-error', '');
+      });
+      document.getElementById('enter-air').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        if (button.disabled) return;
+        button.disabled = true;
+        setProfileSyncStatus('onboarding-profile-error', '');
+        try {
+          const desiredName = document.getElementById('onboarding-name').value.trim().slice(0, 24) ||
+            generateRandomName();
+          const desiredAvatar = serializeAvatar(document.querySelector('[data-avatar-builder="onboarding"]'));
+          const moods = readOnboardingMoods();
+          const syncedProfile = await syncProfileWithSupabase(
+            desiredName,
+            desiredAvatar,
+            { autoResolveConflict: false }
+          );
+          syncedProfile.joinedAt = syncedProfile.joinedAt || new Date().toISOString();
+          syncedProfile.moods = moods;
+          saveProfile(syncedProfile);
+          document.getElementById('onboarding-name').value = syncedProfile.name;
+          writeStorage(PROFILE_INITIALIZED_KEY, 'true');
+          document.getElementById('onboarding-overlay').hidden = true;
+          applyMoodSettings(syncedProfile.moods);
+          updateProfileUI();
+          await refreshFeed(false);
+          if (document.getElementById('onboarding-rain').checked) setAmbientSound('rain');
+        } catch (error) {
+          console.error('Не удалось войти в эфир:', error);
+          setProfileSyncStatus('onboarding-profile-error', profileSyncErrorMessage(error));
+        } finally {
+          button.disabled = false;
+        }
       });
 
       const isInitialized = readStorage(PROFILE_INITIALIZED_KEY) === 'true';
       if (isInitialized) {
         document.getElementById('onboarding-overlay').hidden = true;
         applyMoodSettings(profile.moods);
+        syncProfileWithSupabase(profile.name, profile.avatar, { autoResolveConflict: true })
+          .then(async () => {
+            setProfileSyncStatus('profile-sync-status', '');
+            updateProfileUI();
+            await refreshFeed(false);
+          })
+          .catch((error) => {
+            console.error('Не удалось синхронизировать профиль:', error);
+            setProfileSyncStatus('profile-sync-status', profileSyncErrorMessage(error));
+          });
       } else {
         document.getElementById('onboarding-overlay').hidden = false;
         renderAmbientBackground();
@@ -3444,19 +3756,126 @@
           avatar: typeof stored.avatar === 'string' && parseAvatar(stored.avatar) ? stored.avatar : DEFAULT_PROFILE.avatar,
           id: typeof stored.id === 'string' && /^profile-[a-z0-9-]{1,100}$/i.test(stored.id)
             ? stored.id : createId('profile'),
+          secretToken: typeof stored.secretToken === 'string' && stored.secretToken.trim()
+            ? stored.secretToken.trim() : generateDeleteToken(),
+          supabaseId: typeof stored.supabaseId === 'string' &&
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(stored.supabaseId)
+            ? stored.supabaseId : '',
           joinedAt: typeof stored.joinedAt === 'string' ? stored.joinedAt : new Date().toISOString(),
           rank: typeof stored.rank === 'string' ? stored.rank : 'Новичок',
           moods: Array.isArray(stored.moods) ? stored.moods.slice(0, 3) : []
-        } : { ...DEFAULT_PROFILE, id: createId('profile'), joinedAt: new Date().toISOString(), rank: 'Новичок' };
+        } : {
+          ...DEFAULT_PROFILE,
+          id: createId('profile'),
+          secretToken: generateDeleteToken(),
+          supabaseId: '',
+          joinedAt: new Date().toISOString(),
+          rank: 'Новичок'
+        };
       } catch (error) {
-        profile = { ...DEFAULT_PROFILE, id: createId('profile'), joinedAt: new Date().toISOString(), rank: 'Новичок' };
+        profile = {
+          ...DEFAULT_PROFILE,
+          id: createId('profile'),
+          secretToken: generateDeleteToken(),
+          supabaseId: '',
+          joinedAt: new Date().toISOString(),
+          rank: 'Новичок'
+        };
       }
       saveProfile(profile);
       return profile;
     }
 
     function saveProfile(profile) {
-      writeStorage(PROFILE_KEY, JSON.stringify(profile));
+      return writeStorage(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function isNicknameConflict(error) {
+      const description = [
+        error && error.code,
+        error && error.message,
+        error && error.details,
+        error && error.hint
+      ].filter(Boolean).join(' ').toLowerCase();
+      return /nickname|nick_name|никнейм|позывн/.test(description) &&
+        /(23505|unique|already|exist|taken|занят|занято|использ|duplicate)/.test(description);
+    }
+
+    function profileSyncErrorMessage(error) {
+      if (isNicknameConflict(error)) return 'Этот позывной уже занят. Выбери другой.';
+      return `Не удалось синхронизировать профиль: ${error && error.message ? error.message : 'ошибка Supabase.'}`;
+    }
+
+    function setProfileSyncStatus(elementId, message) {
+      const status = document.getElementById(elementId);
+      if (!status) return;
+      status.textContent = message || '';
+      status.hidden = !message;
+    }
+
+    async function syncProfileWithSupabaseNow(desiredName, desiredAvatar, options) {
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+      const currentProfile = getProfile();
+      const requestedName = options && options.preserveLatestName ? currentProfile.name : desiredName;
+      const requestedAvatar = options && options.preserveLatestAvatar ? currentProfile.avatar : desiredAvatar;
+      const nicknameValue = typeof requestedName === 'string' ? requestedName.trim().slice(0, 24) : '';
+      const avatar = typeof requestedAvatar === 'string' && parseAvatar(requestedAvatar) ? requestedAvatar : '';
+      if (!nicknameValue) throw new Error('Позывной не может быть пустым.');
+      if (!avatar) throw new Error('Выбран некорректный аватар.');
+
+      const profileToken = currentProfile.secretToken;
+      const autoResolveConflict = Boolean(options && options.autoResolveConflict);
+      const maxAttempts = autoResolveConflict ? 5 : 1;
+      let nickname = nicknameValue;
+      for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        const { data, error } = await supabaseClient.rpc('save_user_profile', {
+          p_token: profileToken,
+          p_nickname: nickname,
+          p_avatar: avatar
+        });
+        if (error) {
+          if (autoResolveConflict && attempt < maxAttempts - 1 && isNicknameConflict(error)) {
+            nickname = generateRandomName().slice(0, 24);
+            continue;
+          }
+          throw error;
+        }
+
+        const savedProfile = Array.isArray(data) ? data[0] : data;
+        if (!savedProfile || typeof savedProfile !== 'object' ||
+            typeof savedProfile.id !== 'string' ||
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedProfile.id)) {
+          throw new Error('Supabase вернула некорректный идентификатор профиля.');
+        }
+        const savedName = typeof savedProfile.nickname === 'string'
+          ? savedProfile.nickname.trim().slice(0, 24) : '';
+        if (!savedName) throw new Error('Supabase вернула пустой никнейм.');
+        const profile = getProfile();
+        profile.name = savedName;
+        profile.avatar = typeof savedProfile.avatar_url === 'string' &&
+          parseAvatar(savedProfile.avatar_url) ? savedProfile.avatar_url : avatar;
+        profile.supabaseId = savedProfile.id;
+        saveProfile(profile);
+        return profile;
+      }
+      throw new Error('Не удалось подобрать свободный позывной после нескольких попыток.');
+    }
+
+    function syncProfileWithSupabase(desiredName, desiredAvatar, options) {
+      const operation = profileSyncQueue.then(() =>
+        syncProfileWithSupabaseNow(desiredName, desiredAvatar, options || {})
+      );
+      profileSyncQueue = operation.then(() => undefined, () => undefined);
+      return operation;
+    }
+
+    async function ensureSupabaseProfile() {
+      let profile = getProfile();
+      if (profile.supabaseId) return profile;
+      await profileSyncQueue;
+      profile = getProfile();
+      if (profile.supabaseId) return profile;
+      return syncProfileWithSupabase(profile.name, profile.avatar, { autoResolveConflict: true });
     }
 
     function updateProfileUI() {
@@ -3473,25 +3892,40 @@
       refreshProfileStats();
     }
 
-    function updateProfileName(value) {
+    async function updateProfileName(value, options) {
       const profile = getProfile();
-      const normalized = value.trim();
+      const normalized = typeof value === 'string' ? value.trim() : '';
       if (normalized.length > 24) setMixerHint('Позывной может содержать не более 24 символов.');
-      profile.name = normalized.slice(0, 24) || DEFAULT_PROFILE.name;
-      saveProfile(profile);
+      await syncProfileWithSupabase(
+        normalized.slice(0, 24) || DEFAULT_PROFILE.name,
+        profile.avatar,
+        { ...(options || {}), preserveLatestAvatar: true }
+      );
+      setProfileSyncStatus('profile-sync-status', '');
       updateProfileUI();
+      await refreshFeed(false);
     }
 
     function refreshProfileStats() {
       const profile = getProfile();
-      const ownPosts = readLocalIdList(OWNED_POSTS_KEY);
-      const ownFixes = readLocalIdList(OWNED_FIXES_KEY);
-      const userCards = getStoredCards().filter((card) => ownPosts.includes(String(card.id)));
-      const fixedByUser = getStoredCards().reduce((total, card) => total + card.comments.filter((comment) =>
-        ownFixes.includes(String(comment.id)) && comment.accepted
+      const ownPosts = new Set(readLocalIdList(OWNED_POSTS_KEY));
+      const ownFixes = new Set(readLocalIdList(OWNED_FIXES_KEY));
+      const cards = getStoredCards();
+      cards.forEach((card) => {
+        if (profile.supabaseId && card.authorProfileId === profile.supabaseId) ownPosts.add(String(card.id));
+        card.comments.forEach((comment) => {
+          if (profile.supabaseId && comment.authorProfileId === profile.supabaseId) {
+            ownFixes.add(String(comment.id));
+          }
+        });
+      });
+      const userCards = cards.filter((card) => ownPosts.has(String(card.id)));
+      const fixedByUser = cards.reduce((total, card) => total + card.comments.filter((comment) =>
+        (ownFixes.has(String(comment.id)) ||
+          Boolean(profile.supabaseId && comment.authorProfileId === profile.supabaseId)) && comment.accepted
       ).length, 0);
-      document.getElementById('profile-post-count').textContent = String(ownPosts.length);
-      document.getElementById('profile-fix-count').textContent = String(ownFixes.length);
+      document.getElementById('profile-post-count').textContent = String(ownPosts.size);
+      document.getElementById('profile-fix-count').textContent = String(ownFixes.size);
       document.getElementById('profile-helped-count').textContent = String(fixedByUser);
       const list = document.getElementById('my-posts');
       list.replaceChildren();
@@ -3543,29 +3977,140 @@
     }
 
     document.getElementById('random-name').addEventListener('click', () => {
-      updateProfileName(generateRandomName());
+      updateProfileName(generateRandomName(), { autoResolveConflict: true })
+        .catch((error) => {
+          console.error('Не удалось изменить позывной:', error);
+          setProfileSyncStatus('profile-sync-status', profileSyncErrorMessage(error));
+        });
     });
 
     document.getElementById('change-profile-name').addEventListener('click', () => {
       const profile = getProfile();
       const name = window.prompt('Выбери позывной', profile.name);
-      if (name !== null && name.trim()) updateProfileName(name);
+      if (name !== null && name.trim()) {
+        updateProfileName(name, { autoResolveConflict: false })
+          .catch((error) => {
+            console.error('Не удалось изменить позывной:', error);
+            setProfileSyncStatus('profile-sync-status', profileSyncErrorMessage(error));
+          });
+      }
     });
 
     document.getElementById('open-avatar-editor').addEventListener('click', () => {
       setBuilderAvatar(document.querySelector('[data-avatar-builder="profile"]'), getProfile().avatar);
+      setProfileSyncStatus('avatar-profile-error', '');
       document.getElementById('avatar-overlay').hidden = false;
     });
     document.getElementById('close-avatar-editor').addEventListener('click', () => {
       document.getElementById('avatar-overlay').hidden = true;
     });
-    document.getElementById('save-profile-avatar').addEventListener('click', () => {
+    document.getElementById('save-profile-avatar').addEventListener('click', async (event) => {
       const builder = document.querySelector('[data-avatar-builder="profile"]');
       const profile = getProfile();
-      profile.avatar = serializeAvatar(builder);
-      saveProfile(profile);
-      updateProfileUI();
-      document.getElementById('avatar-overlay').hidden = true;
+      const button = event.currentTarget;
+      if (button.disabled) return;
+      button.disabled = true;
+      try {
+        await syncProfileWithSupabase(
+          profile.name,
+          serializeAvatar(builder),
+          { autoResolveConflict: false, preserveLatestName: true }
+        );
+        setProfileSyncStatus('avatar-profile-error', '');
+        setProfileSyncStatus('profile-sync-status', '');
+        updateProfileUI();
+        document.getElementById('avatar-overlay').hidden = true;
+        await refreshFeed(false);
+      } catch (error) {
+        console.error('Не удалось сохранить аватар:', error);
+        setProfileSyncStatus('avatar-profile-error', profileSyncErrorMessage(error));
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('copy-profile-key').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      if (button.disabled) return;
+      button.disabled = true;
+      try {
+        const profile = getProfile();
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(profile.secretToken);
+        } else if (typeof document.execCommand === 'function') {
+          const temporaryInput = document.createElement('textarea');
+          temporaryInput.value = profile.secretToken;
+          temporaryInput.setAttribute('readonly', '');
+          temporaryInput.style.position = 'fixed';
+          temporaryInput.style.opacity = '0';
+          document.body.appendChild(temporaryInput);
+          let copied = false;
+          try {
+            temporaryInput.select();
+            copied = document.execCommand('copy');
+          } finally {
+            temporaryInput.remove();
+          }
+          if (!copied) throw new Error('Буфер обмена недоступен в этом браузере.');
+        } else {
+          throw new Error('Буфер обмена недоступен в этом браузере.');
+        }
+        showFeedNotice('Ключ профиля скопирован. Храни его в надёжном месте.');
+      } catch (error) {
+        console.error('Не удалось скопировать ключ профиля:', error);
+        showFeedNotice(`Не удалось скопировать ключ: ${error.message || 'ошибка буфера обмена.'}`);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('toggle-profile-recovery').addEventListener('click', (event) => {
+      const button = event.currentTarget;
+      const form = document.getElementById('profile-recovery-form');
+      form.hidden = !form.hidden;
+      button.setAttribute('aria-expanded', String(!form.hidden));
+      if (!form.hidden) document.getElementById('profile-recovery-key').focus();
+    });
+
+    document.getElementById('profile-recovery-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const keyInput = document.getElementById('profile-recovery-key');
+      const submitButton = document.getElementById('submit-profile-recovery');
+      const key = keyInput.value.trim();
+      if (!key || key.length > keyInput.maxLength) {
+        setProfileSyncStatus('profile-sync-status', 'Введи корректный ключ профиля.');
+        return;
+      }
+      if (submitButton.disabled) return;
+      submitButton.disabled = true;
+      submitButton.setAttribute('aria-busy', 'true');
+      const previousProfile = getProfile();
+      try {
+        const recoveryProfile = { ...previousProfile, secretToken: key, supabaseId: '' };
+        if (!saveProfile(recoveryProfile)) {
+          throw new Error('Не удалось сохранить ключ в этом браузере.');
+        }
+        const restoredProfile = await syncProfileWithSupabase(
+          previousProfile.name,
+          previousProfile.avatar,
+          { autoResolveConflict: true }
+        );
+        setProfileSyncStatus('profile-sync-status', '');
+        updateProfileUI();
+        form.reset();
+        form.hidden = true;
+        document.getElementById('toggle-profile-recovery').setAttribute('aria-expanded', 'false');
+        showFeedNotice(`Профиль «${restoredProfile.name}» восстановлен.`);
+        await refreshFeed(false);
+      } catch (error) {
+        saveProfile(previousProfile);
+        console.error('Не удалось восстановить профиль:', error);
+        setProfileSyncStatus('profile-sync-status', profileSyncErrorMessage(error));
+      } finally {
+        submitButton.disabled = false;
+        submitButton.removeAttribute('aria-busy');
+      }
     });
 
     function readLocalIdList(key) {
@@ -3587,6 +4132,121 @@
         writeStorage(key, JSON.stringify(ids));
       }
     }
+
+    function updateVisibleViewCount(id, count) {
+      const card = [...document.querySelectorAll('#feed .card[data-post-id]')]
+        .find((item) => item.dataset.postId === id);
+      if (!card) return;
+      const countElement = card.querySelector('.views-count');
+      const indicator = card.querySelector('.views-indicator');
+      if (countElement) countElement.textContent = String(count);
+      if (indicator) indicator.setAttribute('aria-label', `${count} просмотров`);
+    }
+
+    async function flushPostViewBatch() {
+      viewTrackingTimer = null;
+      const ids = [...pendingViewPostIds];
+      pendingViewPostIds.clear();
+      if (!ids.length) return;
+
+      try {
+        if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+        const numericIds = ids.every((id) =>
+          /^\d+$/.test(id) && Number.isSafeInteger(Number(id))
+        );
+        const { error } = await supabaseClient.rpc('increment_post_views', {
+          post_ids: numericIds ? ids.map(Number) : ids
+        });
+        if (error) throw error;
+      } catch (error) {
+        console.error('Не удалось обновить просмотры:', error);
+        ids.forEach((id) => localViewMinimums.delete(id));
+        showFeedNotice(`Не удалось обновить счётчик просмотров: ${error.message || 'ошибка Supabase.'}`);
+        await refreshFeed(false);
+      }
+    }
+
+    function trackVisiblePostViews(cards) {
+      if (!Array.isArray(cards) || !cards.length) return;
+      const viewedIds = new Set([
+        ...readLocalIdList(VIEWED_POSTS_KEY),
+        ...inMemoryViewedPostIds
+      ]);
+      const newIds = [];
+      cards.forEach((card) => {
+        if (!card || card.id == null) return;
+        const id = String(card.id);
+        if (!id || viewedIds.has(id)) return;
+        viewedIds.add(id);
+        inMemoryViewedPostIds.add(id);
+        newIds.push(id);
+        pendingViewPostIds.add(id);
+        const feedCard = feedCards.find((item) => String(item.id) === id);
+        if (feedCard) {
+          feedCard.views = Math.max(0, Number(feedCard.views) || 0) + 1;
+          localViewMinimums.set(id, feedCard.views);
+          updateVisibleViewCount(id, feedCard.views);
+        }
+      });
+      if (!newIds.length) return;
+
+      const saved = writeStorage(VIEWED_POSTS_KEY, JSON.stringify([...viewedIds]));
+      if (viewTrackingTimer !== null) window.clearTimeout(viewTrackingTimer);
+      viewTrackingTimer = window.setTimeout(flushPostViewBatch, 800);
+      if (!saved) showFeedNotice('Не удалось сохранить отметку о просмотре в браузере.');
+    }
+
+    function clearPostViewTimer(element) {
+      const timer = postViewTimers.get(element);
+      if (timer !== undefined) {
+        window.clearTimeout(timer);
+        postViewTimers.delete(element);
+      }
+    }
+
+    function observeVisiblePostCards(recheck) {
+      if (typeof window.IntersectionObserver !== 'function') return;
+      if (!postViewObserver) {
+        postViewObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            const element = entry.target;
+            const id = element.dataset.postId;
+            if (!id) return;
+            const isVisible = !document.hidden && entry.isIntersecting && entry.intersectionRatio >= 0.5;
+            if (!isVisible) {
+              clearPostViewTimer(element);
+              return;
+            }
+            if (postViewTimers.has(element) ||
+                inMemoryViewedPostIds.has(id) ||
+                readLocalIdList(VIEWED_POSTS_KEY).includes(id)) return;
+
+            const timer = window.setTimeout(() => {
+              postViewTimers.delete(element);
+              if (!document.hidden && element.isConnected) {
+                const card = feedCards.find((item) => String(item.id) === id);
+                if (card) trackVisiblePostViews([card]);
+              }
+            }, 1000);
+            postViewTimers.set(element, timer);
+          });
+        }, { threshold: 0.5 });
+      }
+
+      document.querySelectorAll('#feed .card[data-post-id]').forEach((element) => {
+        if (recheck) postViewObserver.unobserve(element);
+        postViewObserver.observe(element);
+      });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        postViewTimers.forEach((timer) => window.clearTimeout(timer));
+        postViewTimers.clear();
+      } else {
+        observeVisiblePostCards(true);
+      }
+    });
 
     function removeLocalIds(key, idsToRemove) {
       const removing = new Set([...idsToRemove].map(String));
@@ -3644,7 +4304,7 @@
         const bytes = cryptoApi.getRandomValues(new Uint8Array(24));
         return [...bytes].map((value) => value.toString(16).padStart(2, '0')).join('');
       }
-      return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+      throw new Error('В этом браузере нет криптографического генератора случайных чисел.');
     }
 
     function collectCommentSubtreeIds(comments, rootId) {
@@ -3684,15 +4344,23 @@
         : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    function mapSupabaseFix(fix, viewer) {
+    function mapSupabaseFix(fix, viewer, profilesById) {
       const id = String(fix.id);
-      const isOwned = readLocalIdList(OWNED_FIXES_KEY).includes(id);
+      const authorProfileId = typeof fix.author_id === 'string' ? fix.author_id : '';
+      const authorProfile = authorProfileId && profilesById ? profilesById.get(authorProfileId) : null;
+      const isOwned = readLocalIdList(OWNED_FIXES_KEY).includes(id) ||
+        Boolean(viewer.supabaseId && authorProfileId === viewer.supabaseId);
+      const legacyAvatar = parseAvatar(fix.author_avatar) ? fix.author_avatar : DEFAULT_PROFILE.avatar;
       return {
         id,
         parentId: fix.parent_id == null ? null : String(fix.parent_id),
-        author: typeof fix.author_name === 'string' ? fix.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
+        authorProfileId,
+        author: authorProfile && typeof authorProfile.nickname === 'string' && authorProfile.nickname.trim()
+          ? authorProfile.nickname.trim().slice(0, 24)
+          : typeof fix.author_name === 'string' ? fix.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
         authorId: isOwned ? viewer.id : `remote-fix-${id}`,
-        avatar: parseAvatar(fix.author_avatar) ? fix.author_avatar : DEFAULT_PROFILE.avatar,
+        avatar: authorProfile && parseAvatar(authorProfile.avatar_url)
+          ? authorProfile.avatar_url : legacyAvatar,
         text: typeof fix.message === 'string' ? fix.message.slice(0, 2500) : '',
         track: typeof fix.track === 'string' && isSafeTrackValue(fix.track) ? fix.track.slice(0, 2048) : '',
         accepted: Boolean(fix.is_working),
@@ -3702,11 +4370,17 @@
       };
     }
 
-    function mapSupabasePost(post, fixes, viewer) {
+    function mapSupabasePost(post, fixes, viewer, profilesById) {
       const id = String(post.id);
       const moods = Array.isArray(post.moods) ? post.moods : [];
+      const authorProfileId = typeof post.author_id === 'string' ? post.author_id : '';
+      const authorProfile = authorProfileId && profilesById ? profilesById.get(authorProfileId) : null;
+      const isOwned = readLocalIdList(OWNED_POSTS_KEY).includes(id) ||
+        Boolean(viewer.supabaseId && authorProfileId === viewer.supabaseId);
+      const legacyAvatar = parseAvatar(post.author_avatar) ? post.author_avatar : DEFAULT_PROFILE.avatar;
       return {
         id,
+        authorProfileId,
         mood: moods[0] && (moods[0].mood || moods[0].name || moods[0].title),
         intensity: moods[0] && (moods[0].intensity || moods[0].percentage || moods[0].percent),
         moods,
@@ -3714,11 +4388,278 @@
         track: typeof post.track === 'string' && isSafeTrackValue(post.track) ? post.track.slice(0, 2048) : '',
         now: formatTimestamp(post.created_at),
         createdAt: post.created_at,
-        author: typeof post.author_name === 'string' ? post.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
-        authorId: readLocalIdList(OWNED_POSTS_KEY).includes(id) ? viewer.id : `remote-post-${id}`,
-        avatar: parseAvatar(post.author_avatar) ? post.author_avatar : DEFAULT_PROFILE.avatar,
-        comments: fixes.map((fix) => mapSupabaseFix(fix, viewer))
+        updatedAt: post.updated_at || null,
+        views: Math.max(0, Number(post.views) || 0),
+        author: authorProfile && typeof authorProfile.nickname === 'string' && authorProfile.nickname.trim()
+          ? authorProfile.nickname.trim().slice(0, 24)
+          : typeof post.author_name === 'string' ? post.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
+        authorId: isOwned ? viewer.id : `remote-post-${id}`,
+        avatar: authorProfile && parseAvatar(authorProfile.avatar_url)
+          ? authorProfile.avatar_url : legacyAvatar,
+        comments: fixes.map((fix) => mapSupabaseFix(fix, viewer, profilesById))
       };
+    }
+
+    function makeUserProfileTrigger(element, profile) {
+      element.classList.add('user-profile-trigger');
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+      element.setAttribute('aria-label', `Открыть профиль ${profile.name || 'пользователя'}`);
+      element.setAttribute('aria-haspopup', 'dialog');
+      element.setAttribute('aria-controls', 'user-profile-overlay');
+      element.addEventListener('click', () => openUserProfile(profile));
+      element.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openUserProfile(profile);
+        }
+      });
+    }
+
+    function formatUserProfileDate(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? ''
+        : date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getLegacyProfileSummary(name) {
+      const normalizedName = String(name || '').trim().toLocaleLowerCase();
+      const matchesName = (value) => String(value || '').trim().toLocaleLowerCase() === normalizedName;
+      const posts = feedCards
+        .filter((card) => matchesName(card.author))
+        .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+      const fixes = feedCards.flatMap((card) =>
+        (Array.isArray(card.comments) ? card.comments : []).filter((comment) => matchesName(comment.author))
+      );
+      const activityDates = [
+        ...posts.map((post) => post.createdAt),
+        ...fixes.map((fix) => fix.createdAt)
+      ].filter((value) => value && !Number.isNaN(new Date(value).getTime()));
+      activityDates.sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+      return {
+        postsCount: posts.length,
+        fixesCount: fixes.length,
+        workingCount: fixes.filter((fix) => fix.accepted).length,
+        joinedAt: activityDates[0] || null,
+        posts: posts.slice(0, 5)
+      };
+    }
+
+    function renderUserProfilePosts(posts) {
+      const container = document.getElementById('user-profile-posts');
+      container.replaceChildren();
+      if (!posts.length) {
+        const empty = document.createElement('p');
+        empty.className = 'user-profile-status';
+        empty.textContent = 'Мыслей пока нет.';
+        container.appendChild(empty);
+        return;
+      }
+
+      posts.slice(0, 5).forEach((post) => {
+        const postId = String(post.id);
+        const isLoaded = feedCards.some((card) => String(card.id) === postId);
+        const entry = document.createElement(isLoaded ? 'button' : 'div');
+        if (isLoaded) entry.type = 'button';
+        entry.className = 'user-profile-post';
+        const date = document.createElement('span');
+        date.className = 'user-profile-post-date';
+        date.textContent = formatUserProfileDate(post.created_at || post.createdAt) || 'Дата неизвестна';
+        const moods = document.createElement('span');
+        moods.className = 'user-profile-post-moods';
+        getCardMoods(post).forEach((item) => {
+          const tag = document.createElement('span');
+          tag.className = 'mood-tag';
+          tag.textContent = `${getMoodIcon(item.mood)} ${item.mood}`;
+          tag.style.setProperty('--tag-color', getTagAccent(item.mood));
+          moods.appendChild(tag);
+        });
+        const message = document.createElement('span');
+        message.className = 'user-profile-post-message';
+        message.textContent = typeof post.message === 'string' && post.message
+          ? post.message : 'Мысль без текста';
+        entry.append(date, moods, message);
+        if (isLoaded) entry.addEventListener('click', () => navigateToFeedPost(postId));
+        else entry.setAttribute('aria-disabled', 'true');
+        container.appendChild(entry);
+      });
+    }
+
+    function renderUserProfileSummary(summary) {
+      document.getElementById('user-profile-post-count').textContent = String(summary.postsCount);
+      document.getElementById('user-profile-fix-count').textContent = String(summary.fixesCount);
+      document.getElementById('user-profile-helped-count').textContent = String(summary.workingCount);
+      document.getElementById('user-profile-joined').textContent =
+        `В эфире с ${formatUserProfileDate(summary.joinedAt) || '—'}`;
+      renderUserProfilePosts(summary.posts);
+    }
+
+    async function fetchUserProfileRecord(authorId) {
+      const withCreatedAt = await supabaseClient
+        .from('profiles')
+        .select('id, nickname, avatar_url, created_at')
+        .eq('id', authorId)
+        .maybeSingle();
+      if (!withCreatedAt.error) return withCreatedAt.data;
+
+      const withoutCreatedAt = await supabaseClient
+        .from('profiles')
+        .select('id, nickname, avatar_url')
+        .eq('id', authorId)
+        .maybeSingle();
+      if (withoutCreatedAt.error) throw withoutCreatedAt.error;
+      return withoutCreatedAt.data;
+    }
+
+    async function findEarliestUserActivity(authorId) {
+      const [postsResult, fixesResult] = await Promise.all([
+        supabaseClient.from('posts')
+          .select('created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: true })
+          .limit(1),
+        supabaseClient.from('fixes')
+          .select('created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: true })
+          .limit(1)
+      ]);
+      if (postsResult.error) throw postsResult.error;
+      if (fixesResult.error) throw fixesResult.error;
+      const dates = [
+        ...(Array.isArray(postsResult.data) ? postsResult.data : []).map((row) => row.created_at),
+        ...(Array.isArray(fixesResult.data) ? fixesResult.data : []).map((row) => row.created_at)
+      ].filter((value) => value && !Number.isNaN(new Date(value).getTime()));
+      dates.sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+      return dates[0] || null;
+    }
+
+    async function openUserProfile(profile) {
+      const overlay = document.getElementById('user-profile-overlay');
+      const requestId = ++userProfileRequestId;
+      userProfileReturnFocus = document.activeElement;
+      const authorId = typeof profile.authorId === 'string' ? profile.authorId : '';
+      const name = typeof profile.name === 'string' && profile.name.trim()
+        ? profile.name.trim() : 'Аноним';
+      const avatar = typeof profile.avatar === 'string' ? profile.avatar : DEFAULT_PROFILE.avatar;
+      document.getElementById('user-profile-name').textContent = name;
+      document.getElementById('user-profile-avatar').replaceChildren(renderAvatar(avatar, 56));
+      document.getElementById('user-profile-joined').textContent = 'В эфире с ...';
+      document.getElementById('user-profile-owner').hidden =
+        !authorId || authorId !== getProfile().supabaseId;
+      document.getElementById('user-profile-post-count').textContent = '—';
+      document.getElementById('user-profile-fix-count').textContent = '—';
+      document.getElementById('user-profile-helped-count').textContent = '—';
+      document.getElementById('user-profile-posts').textContent = 'Загружаем мысли...';
+      document.getElementById('user-profile-status').textContent =
+        authorId ? 'Загружаем данные профиля...' : 'Показаны данные из уже загруженной ленты.';
+      overlay.hidden = false;
+      document.getElementById('user-profile-close').focus({ preventScroll: true });
+
+      if (!authorId) {
+        renderUserProfileSummary(getLegacyProfileSummary(name));
+        return;
+      }
+      if (!supabaseClient) {
+        renderUserProfileSummary(getLegacyProfileSummary(name));
+        document.getElementById('user-profile-status').textContent =
+          'Не удалось загрузить данные профиля: библиотека Supabase не загрузилась.';
+        return;
+      }
+
+      const profilePromise = fetchUserProfileRecord(authorId)
+        .then((record) => ({ record, error: null }))
+        .catch((error) => ({ record: null, error }));
+      try {
+        const [profileResult, postsResult, fixesResult, workingFixesResult] = await Promise.all([
+          profilePromise,
+          supabaseClient.from('posts')
+            .select('id, created_at, moods, message', { count: 'exact' })
+            .eq('author_id', authorId)
+            .order('created_at', { ascending: false })
+            .limit(5),
+          supabaseClient.from('fixes')
+            .select('id', { count: 'exact', head: true })
+            .eq('author_id', authorId),
+          supabaseClient.from('fixes')
+            .select('id', { count: 'exact', head: true })
+            .eq('author_id', authorId)
+            .eq('is_working', true)
+        ]);
+        if (requestId !== userProfileRequestId) return;
+        if (postsResult.error) throw postsResult.error;
+        if (fixesResult.error) throw fixesResult.error;
+        if (workingFixesResult.error) throw workingFixesResult.error;
+
+        const record = profileResult.record;
+        if (record && typeof record.nickname === 'string' && record.nickname.trim()) {
+          document.getElementById('user-profile-name').textContent = record.nickname.trim().slice(0, 24);
+        }
+        if (record && typeof record.avatar_url === 'string' && parseAvatar(record.avatar_url)) {
+          document.getElementById('user-profile-avatar').replaceChildren(renderAvatar(record.avatar_url, 56));
+        }
+        const posts = Array.isArray(postsResult.data) ? postsResult.data : [];
+        const summary = {
+          postsCount: Math.max(0, Number(postsResult.count ?? posts.length) || 0),
+          fixesCount: Math.max(0, Number(fixesResult.count) || 0),
+          workingCount: Math.max(0, Number(workingFixesResult.count) || 0),
+          joinedAt: record && record.created_at ? record.created_at : null,
+          posts
+        };
+        let activityDateError = '';
+        if (!summary.joinedAt) {
+          try {
+            summary.joinedAt = await findEarliestUserActivity(authorId);
+          } catch (error) {
+            console.error('Не удалось определить дату первой активности:', error);
+            activityDateError = error.message || 'ошибка Supabase.';
+          }
+        }
+        if (requestId !== userProfileRequestId) return;
+        renderUserProfileSummary(summary);
+        document.getElementById('user-profile-status').textContent = profileResult.error
+          ? `Не удалось обновить имя и аватар профиля: ${profileResult.error.message || 'ошибка Supabase.'}`
+          : activityDateError
+            ? `Не удалось определить дату первой активности: ${activityDateError}`
+            : '';
+      } catch (error) {
+        if (requestId !== userProfileRequestId) return;
+        console.error('Не удалось загрузить профиль пользователя:', error);
+        renderUserProfileSummary(getLegacyProfileSummary(name));
+        document.getElementById('user-profile-status').textContent =
+          `Не удалось загрузить статистику профиля: ${error.message || 'ошибка Supabase.'}`;
+      }
+    }
+
+    function closeUserProfile(restoreFocus) {
+      userProfileRequestId += 1;
+      document.getElementById('user-profile-overlay').hidden = true;
+      if (restoreFocus !== false && userProfileReturnFocus && userProfileReturnFocus.isConnected) {
+        userProfileReturnFocus.focus({ preventScroll: true });
+      }
+      userProfileReturnFocus = null;
+    }
+
+    function navigateToFeedPost(postId) {
+      if (!feedCards.some((card) => String(card.id) === String(postId))) return;
+      closeUserProfile(false);
+      activeFeedTab = 'all';
+      activeMoodFilter = 'all';
+      document.querySelectorAll('.feed-tab').forEach((button) => {
+        const selected = button.dataset.feedTab === 'all';
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-selected', String(selected));
+      });
+      document.getElementById('mood-filter').value = 'all';
+      if (mobileLayoutQuery.matches) switchMobileTab('feed');
+      renderFeed();
+      window.requestAnimationFrame(() => {
+        const card = [...document.querySelectorAll('#feed .card[data-post-id]')]
+          .find((element) => element.dataset.postId === String(postId));
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
     }
 
     function getStoredCards() {
@@ -3782,7 +4723,7 @@
         if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
         const { data: posts, error: postsError } = await supabaseClient
           .from('posts')
-          .select('*')
+          .select('id, author_name, author_avatar, author_id, moods, message, track, created_at, updated_at, views')
           .order('created_at', { ascending: false })
           .range(0, loadedPostsLimit);
         if (postsError) throw postsError;
@@ -3794,7 +4735,7 @@
         if (postRows.length) {
           const { data: fixRows, error: fixesError } = await supabaseClient
             .from('fixes')
-            .select('*')
+            .select('id, post_id, parent_id, author_id, author_name, author_avatar, message, track, is_working, helpful_count, created_at')
             .in('post_id', postRows.map((post) => post.id))
             .order('created_at', { ascending: true });
           if (fixesError) throw fixesError;
@@ -3809,6 +4750,21 @@
           fixesByPost.set(key, group);
         });
 
+        const authorIds = [...new Set([...postRows, ...fixes]
+          .map((row) => typeof row.author_id === 'string' ? row.author_id : '')
+          .filter(Boolean))];
+        const profilesById = new Map();
+        if (authorIds.length) {
+          const { data: profileRows, error: profilesError } = await supabaseClient
+            .from('profiles')
+            .select('id, nickname, avatar_url')
+            .in('id', authorIds);
+          if (profilesError) throw profilesError;
+          (Array.isArray(profileRows) ? profileRows : []).forEach((row) => {
+            if (typeof row.id === 'string') profilesById.set(row.id, row);
+          });
+        }
+
         const viewer = getProfile();
         const nextCards = postRows.map((post) => {
           const postFixes = fixesByPost.get(String(post.id)) || [];
@@ -3816,7 +4772,11 @@
             Number(Boolean(right.is_working)) - Number(Boolean(left.is_working)) ||
             new Date(left.created_at).getTime() - new Date(right.created_at).getTime()
           );
-          return mapSupabasePost(post, postFixes, viewer);
+          return mapSupabasePost(post, postFixes, viewer, profilesById);
+        });
+        nextCards.forEach((card) => {
+          const localMinimum = localViewMinimums.get(String(card.id));
+          if (localMinimum !== undefined) card.views = Math.max(card.views, localMinimum);
         });
         shouldRender = JSON.stringify(feedCards) !== JSON.stringify(nextCards);
         if (shouldRender) feedCards = nextCards;
@@ -4022,6 +4982,247 @@
       return form;
     }
 
+    function getPostEditFormId(postId) {
+      return `edit-post-${String(postId).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+    }
+
+    function captureEditPostForm(form) {
+      const channels = [...form.querySelectorAll('.edit-post-moods .mixer-channel')];
+      return {
+        message: form.querySelector('.edit-post-message').value,
+        track: form.querySelector('.edit-post-track').value,
+        moods: channels.filter((channel) => channel.classList.contains('is-active')).map((channel) => ({
+          mood: channel.dataset.mood,
+          intensity: Number(channel.querySelector('.mixer-range').value)
+        })),
+        intensities: Object.fromEntries(channels.map((channel) => [
+          channel.dataset.mood,
+          Number(channel.querySelector('.mixer-range').value)
+        ])),
+        warning: form.querySelector('.edit-post-warning').textContent,
+        saving: form.querySelector('[type="submit"]').disabled
+      };
+    }
+
+    function buildEditMoodControls(form, state) {
+      const container = form.querySelector('.edit-post-moods');
+      const selectedMoods = new Map((state.moods || []).map((item) => [item.mood, Number(item.intensity)]));
+      const intensities = state.intensities || {};
+      const channels = [...document.querySelectorAll('#post-form .mixer-channel')];
+      channels.forEach((source, index) => {
+        const channel = source.cloneNode(true);
+        const mood = channel.dataset.mood;
+        const selected = selectedMoods.has(mood);
+        const range = channel.querySelector('.mixer-range');
+        const output = channel.querySelector('.intensity-output');
+        const selectButton = channel.querySelector('.channel-select');
+        range.value = String(intensities[mood] || selectedMoods.get(mood) || 70);
+        range.dataset.editFocusKey = `mood-${index}`;
+        channel.classList.toggle('is-active', selected);
+        output.value = `${range.value}%`;
+        output.textContent = `${range.value}%`;
+        range.style.setProperty('--range-fill', `${range.value}%`);
+        selectButton.textContent = selected ? 'Активно' : 'Выбрать';
+        selectButton.setAttribute('aria-pressed', String(selected));
+
+        const updateSelectionLabels = () => {
+          container.querySelectorAll('.mixer-channel').forEach((item) => {
+            const active = item.classList.contains('is-active');
+            const button = item.querySelector('.channel-select');
+            button.textContent = active ? 'Активно' : 'Выбрать';
+            button.setAttribute('aria-pressed', String(active));
+          });
+        };
+        selectButton.addEventListener('click', () => {
+          const active = channel.classList.contains('is-active');
+          const activeCount = container.querySelectorAll('.mixer-channel.is-active').length;
+          if (active && activeCount === 1) {
+            form.querySelector('.edit-post-warning').textContent = 'Оставь хотя бы одно состояние активным.';
+            return;
+          }
+          if (!active && activeCount >= 3) {
+            form.querySelector('.edit-post-warning').textContent = 'Можно выбрать до 3 состояний.';
+            return;
+          }
+          channel.classList.toggle('is-active');
+          form.querySelector('.edit-post-warning').textContent = '';
+          updateSelectionLabels();
+        });
+        range.addEventListener('input', () => {
+          output.value = `${range.value}%`;
+          output.textContent = `${range.value}%`;
+          range.style.setProperty('--range-fill', `${range.value}%`);
+          if (!channel.classList.contains('is-active')) {
+            if (container.querySelectorAll('.mixer-channel.is-active').length >= 3) {
+              form.querySelector('.edit-post-warning').textContent = 'Можно выбрать до 3 состояний.';
+              return;
+            }
+            channel.classList.add('is-active');
+            updateSelectionLabels();
+          }
+          form.querySelector('.edit-post-warning').textContent = '';
+        });
+        container.appendChild(channel);
+      });
+    }
+
+    function buildPostEditForm(cardData, token) {
+      const postId = String(cardData.id);
+      const storedDraft = editPostDrafts.get(postId);
+      const currentMoods = getCardMoods(cardData);
+      const state = storedDraft || {
+        message: cardData.message || '',
+        track: cardData.track || '',
+        moods: currentMoods.map((item) => ({ ...item })),
+        intensities: Object.fromEntries(currentMoods.map((item) => [item.mood, item.intensity])),
+        warning: '',
+        saving: false
+      };
+      const form = document.createElement('form');
+      form.className = 'edit-post-form';
+      form.id = getPostEditFormId(postId);
+      form.dataset.postId = postId;
+      form.setAttribute('aria-label', 'Редактирование мысли');
+
+      const moodLabel = document.createElement('span');
+      moodLabel.className = 'edit-post-label';
+      moodLabel.textContent = 'Состояния';
+      const moodControls = document.createElement('div');
+      moodControls.className = 'edit-post-moods';
+
+      const messageLabel = document.createElement('label');
+      messageLabel.className = 'edit-post-label';
+      messageLabel.textContent = 'Текст мысли';
+      const messageInput = document.createElement('textarea');
+      messageInput.className = 'comment-input edit-post-message';
+      messageInput.maxLength = 5000;
+      messageInput.value = state.message;
+      messageInput.dataset.editFocusKey = 'message';
+      messageLabel.htmlFor = `${form.id}-message`;
+      messageInput.id = messageLabel.htmlFor;
+
+      const trackLabel = document.createElement('label');
+      trackLabel.className = 'edit-post-label';
+      trackLabel.textContent = 'Трек';
+      const trackInput = document.createElement('input');
+      trackInput.className = 'comment-track-input edit-post-track';
+      trackInput.type = 'text';
+      trackInput.maxLength = 2048;
+      trackInput.value = state.track;
+      trackInput.placeholder = 'Название трека или https://ссылка';
+      trackInput.dataset.editFocusKey = 'track';
+      trackLabel.htmlFor = `${form.id}-track`;
+      trackInput.id = trackLabel.htmlFor;
+
+      const warning = document.createElement('p');
+      warning.className = 'edit-post-warning';
+      warning.setAttribute('role', 'status');
+      warning.setAttribute('aria-live', 'polite');
+      warning.textContent = state.warning || '';
+
+      const actions = document.createElement('div');
+      actions.className = 'edit-post-actions';
+      const saveButton = document.createElement('button');
+      saveButton.type = 'submit';
+      saveButton.className = 'comment-submit';
+      saveButton.textContent = state.saving ? 'Сохраняем...' : 'Сохранить';
+      saveButton.disabled = Boolean(state.saving);
+      if (state.saving) saveButton.setAttribute('aria-busy', 'true');
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.className = 'delete-button';
+      cancelButton.textContent = 'Отмена';
+      cancelButton.addEventListener('click', () => {
+        editPostDrafts.delete(postId);
+        renderFeed();
+      });
+      actions.append(saveButton, cancelButton);
+
+      form.append(moodLabel, moodControls, messageLabel, messageInput, trackLabel, trackInput, warning, actions);
+      buildEditMoodControls(form, state);
+      if (state.saving) {
+        form.querySelectorAll('input, textarea, button').forEach((control) => { control.disabled = true; });
+      }
+      form.addEventListener('input', () => {
+        if (warning.textContent) warning.textContent = '';
+      });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (saveButton.disabled) return;
+        const draft = captureEditPostForm(form);
+        draft.saving = true;
+        draft.warning = '';
+        editPostDrafts.set(postId, draft);
+        form.querySelectorAll('input, textarea, button').forEach((control) => { control.disabled = true; });
+        const editToggle = form.closest('.card').querySelector('.post-edit-toggle');
+        if (editToggle) editToggle.disabled = true;
+        saveButton.setAttribute('aria-busy', 'true');
+        saveButton.textContent = 'Сохраняем...';
+        try {
+          await editOwnPost(postId, token, messageInput.value, trackInput.value, draft.moods);
+        } catch (error) {
+          console.error('Не удалось изменить мысль:', error);
+          const failedDraft = captureEditPostForm(form);
+          failedDraft.saving = false;
+          failedDraft.warning = error && error.message
+            ? `Не удалось сохранить: ${error.message}`
+            : 'Не удалось сохранить изменения.';
+          editPostDrafts.set(postId, failedDraft);
+          renderFeed();
+        } finally {
+          saveButton.disabled = false;
+          saveButton.removeAttribute('aria-busy');
+        }
+      });
+      return form;
+    }
+
+    async function submitContentReport(targetType, targetId, reason) {
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+      const { data, error } = await supabaseClient.rpc('submit_report', {
+        p_target_type: targetType,
+        p_target_id: getSafeRpcId(targetId, targetType === 'post' ? 'мысли' : 'фикса'),
+        p_secret_token: getProfile().secretToken,
+        p_reason: reason
+      });
+      if (error) throw error;
+      if (data === false) throw new Error('Жалоба не была принята.');
+    }
+
+    function createReportButton(targetType, targetId) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'delete-button report-button';
+      button.textContent = 'Пожаловаться';
+      button.setAttribute('aria-label', targetType === 'post'
+        ? 'Пожаловаться на эту мысль' : 'Пожаловаться на этот фикс');
+      button.addEventListener('click', async () => {
+        if (button.disabled) return;
+        const reasonValue = window.prompt('Кратко укажи причину жалобы (до 500 символов).');
+        if (reasonValue === null) return;
+        const reason = reasonValue.trim().slice(0, 500);
+        if (!reason) {
+          showFeedNotice('Для жалобы укажи причину.');
+          return;
+        }
+        if (!window.confirm('Отправить жалобу?')) return;
+
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        try {
+          await submitContentReport(targetType, targetId, reason);
+          showFeedNotice('Жалоба отправлена. Спасибо.');
+        } catch (error) {
+          console.error('Не удалось отправить жалобу:', error);
+          showFeedNotice(`Не удалось отправить жалобу: ${error.message || 'ошибка Supabase.'}`);
+        } finally {
+          button.disabled = false;
+          button.removeAttribute('aria-busy');
+        }
+      });
+      return button;
+    }
+
     function buildCard(cardData) {
       const { mood, message, track, now, id } = cardData;
       const cardMoods = getCardMoods(cardData);
@@ -4031,6 +5232,7 @@
       const postAuthorId = cardData.authorId || (cardData.author === viewer.name ? viewer.id : '');
       const card = document.createElement('div');
       card.className = 'card';
+      card.dataset.postId = String(id);
       card.style.setProperty('--card-accent', getTagAccent(cardMoods[0].mood));
 
       const header = document.createElement('div');
@@ -4048,13 +5250,76 @@
 
       const meta = document.createElement('span');
       meta.className = 'meta';
-      meta.textContent = now;
+      const updatedTime = cardData.updatedAt ? Date.parse(cardData.updatedAt) : NaN;
+      const createdTime = cardData.createdAt ? Date.parse(cardData.createdAt) : NaN;
+      const wasEdited = Boolean(cardData.updatedAt) &&
+        (Number.isNaN(updatedTime) || Number.isNaN(createdTime)
+          ? cardData.updatedAt !== cardData.createdAt
+          : updatedTime !== createdTime);
+      meta.textContent = `${now}${wasEdited ? ' · изменено' : ''}`;
 
       const metaActions = document.createElement('div');
       metaActions.className = 'card-meta-actions';
       metaActions.appendChild(meta);
+      const viewsIndicator = document.createElement('span');
+      viewsIndicator.className = 'meta views-indicator';
+      const viewCount = Math.max(0, Number(cardData.views) || 0);
+      viewsIndicator.setAttribute('aria-label', `${viewCount} просмотров`);
+      const eyeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      eyeIcon.setAttribute('viewBox', '0 0 24 24');
+      eyeIcon.setAttribute('width', '14');
+      eyeIcon.setAttribute('height', '14');
+      eyeIcon.setAttribute('aria-hidden', 'true');
+      eyeIcon.setAttribute('fill', 'none');
+      eyeIcon.setAttribute('stroke', 'currentColor');
+      eyeIcon.setAttribute('stroke-width', '1.7');
+      eyeIcon.setAttribute('stroke-linecap', 'round');
+      eyeIcon.setAttribute('stroke-linejoin', 'round');
+      const eyeOutline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      eyeOutline.setAttribute('d', 'M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z');
+      const eyePupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      eyePupil.setAttribute('cx', '12');
+      eyePupil.setAttribute('cy', '12');
+      eyePupil.setAttribute('r', '2.5');
+      eyeIcon.append(eyeOutline, eyePupil);
+      const viewCountText = document.createElement('span');
+      viewCountText.className = 'views-count';
+      viewCountText.textContent = String(viewCount);
+      viewsIndicator.append(eyeIcon, viewCountText);
+      metaActions.appendChild(viewsIndicator);
       const postDeleteToken = getStoredDeleteToken(POST_TOKENS_KEY, id);
       if (postDeleteToken) {
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'delete-button post-edit-toggle';
+        editButton.textContent = 'Редактировать';
+        editButton.setAttribute('aria-label', 'Редактировать эту мысль');
+        const editDraft = editPostDrafts.get(String(id));
+        editButton.disabled = Boolean(editDraft && editDraft.saving);
+        editButton.setAttribute('aria-expanded', String(Boolean(editDraft)));
+        editButton.addEventListener('click', () => {
+          const postId = String(id);
+          if (editPostDrafts.has(postId)) {
+            editPostDrafts.delete(postId);
+          } else {
+            const intensities = Object.fromEntries(cardMoods.map((item) => [item.mood, item.intensity]));
+            editPostDrafts.set(postId, {
+              message: cardData.message || '',
+              track: cardData.track || '',
+              moods: cardMoods.map((item) => ({ ...item })),
+              intensities,
+              warning: '',
+              saving: false
+            });
+          }
+          renderFeed();
+          if (editPostDrafts.has(postId)) {
+            const editForm = document.getElementById(getPostEditFormId(postId));
+            if (editForm) editForm.querySelector('.edit-post-message').focus();
+          }
+        });
+        metaActions.appendChild(editButton);
+
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.className = 'delete-button';
@@ -4076,14 +5341,21 @@
         });
         metaActions.appendChild(deleteButton);
       }
+      metaActions.appendChild(createReportButton('post', id));
       header.appendChild(metaActions);
 
       const author = document.createElement('div');
       author.className = 'card-author';
       const authorAvatar = renderAvatar(cardData.avatar, 28);
       const authorName = document.createElement('span');
+      authorName.className = 'user-profile-name';
       setEscapedText(authorName, profileName);
       author.append(authorAvatar, authorName);
+      makeUserProfileTrigger(author, {
+        authorId: cardData.authorProfileId,
+        name: profileName,
+        avatar: cardData.avatar
+      });
 
       const text = document.createElement('p');
       text.className = 'card-text';
@@ -4101,6 +5373,10 @@
           trackBlock.appendChild(trackMarkup);
           card.appendChild(trackBlock);
         }
+      }
+
+      if (postDeleteToken && editPostDrafts.has(String(id))) {
+        card.appendChild(buildPostEditForm(cardData, postDeleteToken));
       }
 
       const commentsSection = document.createElement('section');
@@ -4167,8 +5443,14 @@
         commentAuthor.className = 'comment-author';
         commentAuthor.append(renderAvatar(comment.avatar, 22));
         const commentAuthorName = document.createElement('span');
+        commentAuthorName.className = 'user-profile-name';
         setEscapedText(commentAuthorName, ` ${comment.author || 'Аноним'}: `);
         commentAuthor.appendChild(commentAuthorName);
+        makeUserProfileTrigger(commentAuthor, {
+          authorId: comment.authorProfileId,
+          name: comment.author,
+          avatar: comment.avatar
+        });
         const commentText = document.createElement('span');
         commentText.style.whiteSpace = 'pre-wrap';
         appendCommentText(commentText, comment.text || '');
@@ -4196,7 +5478,7 @@
           const acceptedButton = document.createElement('button');
           acceptedButton.type = 'button';
           acceptedButton.className = 'reaction-button';
-          acceptedButton.textContent = comment.accepted ? '✨ Фикс сработал' : '✨ Фикс сработал';
+          acceptedButton.textContent = '✨ Фикс сработал';
           acceptedButton.disabled = Boolean(comment.accepted);
           acceptedButton.setAttribute('aria-pressed', String(Boolean(comment.accepted)));
           acceptedButton.addEventListener('click', async () => {
@@ -4239,6 +5521,7 @@
           replyButton.setAttribute('aria-expanded', 'false');
           reactionActions.appendChild(replyButton);
         }
+        reactionActions.appendChild(createReportButton('fix', comment.id));
         const fixDeleteToken = getStoredDeleteToken(FIX_TOKENS_KEY, comment.id);
         if (fixDeleteToken) {
           const deleteButton = document.createElement('button');
@@ -4315,10 +5598,93 @@
       return card;
     }
 
+    async function editOwnPost(postId, token, newMessage, newTrack, newMoods) {
+      const message = typeof newMessage === 'string' ? newMessage.trim() : '';
+      const track = typeof newTrack === 'string' ? newTrack.trim() : '';
+      if (!token || typeof token !== 'string') throw new Error('Не найден токен для редактирования этой мысли.');
+      if (!message) throw new Error('Текст мысли не может быть пустым.');
+      if (message.length > 5000) throw new Error('Пост может содержать не более 5000 символов.');
+      if (track.length > 2048) throw new Error('Ссылка на трек может содержать не более 2048 символов.');
+      if (!isSafeTrackValue(track)) {
+        throw new Error('Для ссылки используй только корректный адрес, начинающийся с http:// или https://.');
+      }
+
+      if (containsDangerWords(message)) {
+        throw new Error('Текст содержит фразу, требующую дополнительной поддержки. Измени сообщение перед сохранением.');
+      }
+
+      if (!Array.isArray(newMoods) || newMoods.length < 1 || newMoods.length > 3) {
+        throw new Error('Выбери от 1 до 3 состояний.');
+      }
+      const seenMoods = new Set();
+      const moods = newMoods.map((item) => {
+        const mood = item && typeof item.mood === 'string' ? item.mood : '';
+        const intensity = Number(item && item.intensity);
+        if (!Object.prototype.hasOwnProperty.call(MOOD_GLOWS, mood) || seenMoods.has(mood)) {
+          throw new Error('Выбрано некорректное состояние.');
+        }
+        if (!Number.isFinite(intensity) || intensity < 10 || intensity > 100) {
+          throw new Error('Интенсивность состояния должна быть от 10 до 100%.');
+        }
+        seenMoods.add(mood);
+        return {
+          name: mood,
+          emoji: getMoodIcon(mood),
+          color: getTagAccent(mood),
+          percentage: Math.round(intensity)
+        };
+      });
+
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+      const numericPostId = Number(postId);
+      const targetId = /^\d+$/.test(String(postId)) && Number.isSafeInteger(numericPostId)
+        ? numericPostId : String(postId);
+      const { data, error } = await supabaseClient.rpc('update_own_post', {
+        target_id: targetId,
+        token,
+        new_message: message,
+        new_track: track,
+        new_moods: moods
+      });
+      if (error) throw error;
+      const updatedPost = Array.isArray(data) ? data[0] : data;
+      if (!updatedPost || typeof updatedPost !== 'object') {
+        throw new Error('Supabase не вернула обновлённую мысль.');
+      }
+      if (updatedPost.id != null && String(updatedPost.id) !== String(postId)) {
+        throw new Error('Supabase вернула другую запись вместо обновлённой мысли.');
+      }
+
+      const card = feedCards.find((item) => String(item.id) === String(postId));
+      if (card) {
+        const savedMoods = Array.isArray(updatedPost.moods) ? updatedPost.moods : moods;
+        const primaryMood = savedMoods[0] || moods[0];
+        card.message = typeof updatedPost.message === 'string' ? updatedPost.message.slice(0, 5000) : message;
+        card.track = typeof updatedPost.track === 'string' && isSafeTrackValue(updatedPost.track)
+          ? updatedPost.track.slice(0, 2048) : track;
+        card.moods = savedMoods;
+        card.mood = primaryMood.name || primaryMood.mood;
+        card.intensity = primaryMood.percentage || primaryMood.intensity;
+        card.updatedAt = updatedPost.updated_at || new Date().toISOString();
+      }
+      editPostDrafts.delete(String(postId));
+      renderFeed();
+      await refreshFeed(false);
+    }
+
+    function getSafeRpcId(value, label) {
+      const id = String(value);
+      const numericId = Number(id);
+      if (!/^\d+$/.test(id) || !Number.isSafeInteger(numericId)) {
+        throw new Error(`Некорректный идентификатор ${label || 'записи'}.`);
+      }
+      return numericId;
+    }
+
     async function deleteOwnPost(postId, token) {
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
       const { data, error } = await supabaseClient.rpc('delete_own_post', {
-        target_id: Number(postId),
+        target_id: getSafeRpcId(postId, 'мысли'),
         token
       });
       if (error) throw error;
@@ -4327,6 +5693,7 @@
       const card = feedCards.find((item) => String(item.id) === String(postId));
       if (card) forgetOwnedFixData(new Set(card.comments.map((comment) => String(comment.id))));
       feedCards = feedCards.filter((item) => String(item.id) !== String(postId));
+      editPostDrafts.delete(String(postId));
       removeLocalIds(OWNED_POSTS_KEY, [postId]);
       removeDeleteTokens(POST_TOKENS_KEY, [postId]);
       renderFeed();
@@ -4336,7 +5703,7 @@
     async function deleteOwnFix(cardId, commentId, token) {
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
       const { data, error } = await supabaseClient.rpc('delete_own_fix', {
-        target_id: Number(commentId),
+        target_id: getSafeRpcId(commentId, 'фикса'),
         token
       });
       if (error) throw error;
@@ -4364,64 +5731,42 @@
       const viewer = getProfile();
       if (reaction === 'accepted') {
         if (card.authorId !== viewer.id || comment.authorId === viewer.id || comment.accepted) return;
-        const { data: current, error: readError } = await supabaseClient
-          .from('fixes')
-          .select('is_working')
-          .eq('id', comment.id)
-          .eq('post_id', card.id)
-          .single();
-        if (readError) throw readError;
-        if (current.is_working) {
-          await refreshFeed(false);
-          return;
-        }
-        let updateQuery = supabaseClient
-          .from('fixes')
-          .update({ is_working: true })
-          .eq('id', comment.id)
-          .eq('post_id', card.id);
-        updateQuery = current.is_working === null
-          ? updateQuery.is('is_working', null)
-          : updateQuery.eq('is_working', false);
-        const { data, error } = await updateQuery
-          .select('id');
+        const postDeleteToken = getStoredDeleteToken(POST_TOKENS_KEY, card.id);
+        if (!postDeleteToken) throw new Error('Не найден ключ для подтверждения этой мысли.');
+        const { data, error } = await supabaseClient.rpc('toggle_fix_working', {
+          p_fix_id: getSafeRpcId(comment.id, 'фикса'),
+          p_post_id: getSafeRpcId(card.id, 'мысли'),
+          p_post_delete_token: postDeleteToken
+        });
         if (error) throw error;
-        if (!Array.isArray(data) || !data.length) {
+        const workingResult = Array.isArray(data) ? data[0] : data;
+        const isWorking = typeof workingResult === 'boolean'
+          ? workingResult
+          : workingResult && typeof workingResult === 'object' &&
+            typeof workingResult.is_working === 'boolean'
+            ? workingResult.is_working : true;
+        if (!isWorking) {
           await refreshFeed(false);
           return;
         }
-        comment.accepted = true;
+        comment.accepted = isWorking;
         renderFeed();
         await refreshFeed(false);
       } else {
         if (comment.authorId === viewer.id || readLocalIdList(LIKED_FIXES_KEY).includes(String(comment.id))) return;
-        let updatedCount = null;
-        for (let attempt = 0; attempt < 3 && updatedCount === null; attempt += 1) {
-          const { data: current, error: readError } = await supabaseClient
-            .from('fixes')
-            .select('helpful_count')
-            .eq('id', comment.id)
-            .eq('post_id', card.id)
-            .single();
-          if (readError) throw readError;
-          const currentCount = Math.max(0, Number(current.helpful_count) || 0);
-          let updateQuery = supabaseClient
-            .from('fixes')
-            .update({ helpful_count: currentCount + 1 })
-            .eq('id', comment.id)
-            .eq('post_id', card.id);
-          updateQuery = current.helpful_count === null
-            ? updateQuery.is('helpful_count', null)
-            : updateQuery.eq('helpful_count', current.helpful_count);
-          const { data: updated, error: updateError } = await updateQuery.select('helpful_count');
-          if (updateError) throw updateError;
-          if (Array.isArray(updated) && updated.length) {
-            updatedCount = Number(updated[0].helpful_count) || currentCount + 1;
-          }
-        }
-        if (updatedCount === null) throw new Error('Фикс только что изменился. Обнови эфир и попробуй снова.');
+        const { data, error } = await supabaseClient.rpc('increment_fix_helpful', {
+          p_fix_id: getSafeRpcId(comment.id, 'фикса'),
+          p_secret_token: viewer.secretToken
+        });
+        if (error) throw error;
+        const helpfulResult = Array.isArray(data) ? data[0] : data;
+        const returnedCount = typeof helpfulResult === 'number'
+          ? helpfulResult
+          : helpfulResult && typeof helpfulResult === 'object' && helpfulResult.helpful_count != null
+            ? Number(helpfulResult.helpful_count) : NaN;
         rememberLocalId(LIKED_FIXES_KEY, comment.id);
-        comment.helpfulCount = updatedCount;
+        comment.helpfulCount = Number.isSafeInteger(returnedCount) && returnedCount >= 0
+          ? returnedCount : Math.max(0, Number(comment.helpfulCount) || 0) + 1;
         renderFeed();
         await refreshFeed(false);
       }
@@ -4688,7 +6033,11 @@
         setNotice('Для ссылки используй только корректный адрес, начинающийся с http:// или https://.');
         return false;
       }
-      if (!checkCooldown(FIX_COOLDOWN_KEY, 5, setNotice)) return false;
+      if (containsDangerWords(text)) {
+        setNotice('Текст содержит фразу, требующую дополнительной поддержки. Измени сообщение перед отправкой.');
+        return false;
+      }
+      if (!checkCooldown(FIX_COOLDOWN_KEY, 10, setNotice)) return false;
 
       const cards = getStoredCards();
       const card = cards.find((item) => String(item.id) === String(cardId));
@@ -4698,31 +6047,28 @@
       }
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
-      const profile = getProfile();
+      let profile = getProfile();
+      if (!profile.supabaseId) profile = await ensureSupabaseProfile();
       const isWaitingFix = activeFeedTab === 'waiting' && card.comments.length === 0;
       const deleteToken = generateDeleteToken();
-      const { data, error } = await supabaseClient
-        .from('fixes')
-        .insert({
-          post_id: card.id,
-          parent_id: parentId == null ? null : parentId,
-          delete_token: deleteToken,
-          author_name: profile.name,
-          author_avatar: profile.avatar,
-          message: text,
-          track,
-          is_working: false,
-          helpful_count: 0
-        })
-        .select()
-        .single();
+      const { data, error } = await supabaseClient.rpc('create_fix', {
+        p_secret_token: profile.secretToken,
+        p_delete_token: deleteToken,
+        p_post_id: getSafeRpcId(card.id, 'мысли'),
+        p_parent_id: parentId == null ? null : getSafeRpcId(parentId, 'родительского фикса'),
+        p_message: text,
+        p_track: track
+      });
       if (error) throw error;
-      if (!data) throw new Error('Supabase не вернула созданный фикс.');
+      const createdFix = Array.isArray(data) ? data[0] : data;
+      if (!createdFix || typeof createdFix !== 'object' || createdFix.id == null) {
+        throw new Error('Supabase не вернула созданный фикс.');
+      }
 
       writeStorage(FIX_COOLDOWN_KEY, String(Date.now()));
-      rememberLocalId(OWNED_FIXES_KEY, data.id);
-      const deleteTokenStored = rememberDeleteToken(FIX_TOKENS_KEY, data.id, deleteToken);
-      card.comments.push(mapSupabaseFix(data, profile));
+      rememberLocalId(OWNED_FIXES_KEY, createdFix.id);
+      const deleteTokenStored = rememberDeleteToken(FIX_TOKENS_KEY, createdFix.id, deleteToken);
+      card.comments.push(mapSupabaseFix(createdFix, profile));
       card.comments.sort((left, right) =>
         Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
         new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
@@ -4754,12 +6100,13 @@
       const formStates = new Map();
       const activeElement = document.activeElement;
       const focusedForm = activeElement && activeElement.closest
-        ? activeElement.closest('.comment-compose')
+        ? activeElement.closest('.comment-compose, .edit-post-form')
         : null;
       const focusState = focusedForm && activeElement
         ? {
           formId: focusedForm.id,
           className: activeElement.className,
+          editFocusKey: activeElement.dataset.editFocusKey || '',
           start: typeof activeElement.selectionStart === 'number' ? activeElement.selectionStart : null,
           end: typeof activeElement.selectionEnd === 'number' ? activeElement.selectionEnd : null
         }
@@ -4772,12 +6119,22 @@
           notice: form.querySelector('.comment-warning').textContent
         });
       });
+      feed.querySelectorAll('.edit-post-form').forEach((form) => {
+        const postId = form.dataset.postId;
+        if (editPostDrafts.has(postId)) editPostDrafts.set(postId, captureEditPostForm(form));
+      });
       const pinnedForm = feed.querySelector('.pinned-fix-form');
       const pinnedState = pinnedForm ? {
         hidden: pinnedForm.hidden,
         value: pinnedForm.querySelector('textarea').value,
         notice: pinnedForm.querySelector('.pinned-notice').textContent
       } : null;
+      if (postViewObserver) {
+        feed.querySelectorAll('.card[data-post-id]').forEach((element) => {
+          postViewObserver.unobserve(element);
+          clearPostViewTimer(element);
+        });
+      }
       feed.replaceChildren();
       const cards = getStoredCards();
       feed.appendChild(buildPinnedCard());
@@ -4869,7 +6226,10 @@
       refreshProfileStats();
       if (focusState) {
         const form = document.getElementById(focusState.formId);
-        const target = form && form.querySelector(`.${focusState.className}`);
+        const target = form && (focusState.editFocusKey
+          ? [...form.querySelectorAll('[data-edit-focus-key]')]
+            .find((element) => element.dataset.editFocusKey === focusState.editFocusKey)
+          : form.querySelector(`.${focusState.className}`));
         if (target) {
           target.focus({ preventScroll: true });
           if (focusState.start !== null && typeof target.setSelectionRange === 'function') {
@@ -4877,6 +6237,7 @@
           }
         }
       }
+      observeVisiblePostCards();
     }
 
     async function createCard() {
@@ -4909,23 +6270,16 @@
         return;
       }
 
-      const dangerWords = ["суицид", "покончить с собой", "не хочу жить", "убить себя"];
-      const normalizedMessage = message
-        .toLowerCase()
-        .replace(/[\s\p{P}\p{S}]+/gu, ' ')
-        .trim();
-
-      for (const word of dangerWords) {
-        if (normalizedMessage.includes(word)) {
-          alert("Похоже, тебе сейчас очень тяжело. Пожалуйста, не оставайся с этим один — обратись на круглосуточную горячую линию психологической помощи или к врачу.");
-          return;
-        }
+      if (containsDangerWords(message)) {
+        alert("Похоже, тебе сейчас очень тяжело. Пожалуйста, не оставайся с этим один — обратись на круглосуточную горячую линию психологической помощи или к врачу.");
+        return;
       }
 
-      if (!checkCooldown(POST_COOLDOWN_KEY, 10, setMixerHint)) return;
+      if (!checkCooldown(POST_COOLDOWN_KEY, 30, setMixerHint)) return;
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
-      const profile = getProfile();
+      let profile = getProfile();
+      if (!profile.supabaseId) profile = await ensureSupabaseProfile();
       const deleteToken = generateDeleteToken();
       const moods = selectedMoods.map(({ mood, intensity }) => ({
         name: mood,
@@ -4933,26 +6287,24 @@
         color: getTagAccent(mood),
         percentage: intensity
       }));
-      const { data, error } = await supabaseClient
-        .from('posts')
-        .insert({
-          author_name: profile.name,
-          author_avatar: profile.avatar,
-          moods,
-          message,
-          track,
-          delete_token: deleteToken
-        })
-        .select()
-        .single();
+      const { data, error } = await supabaseClient.rpc('create_post', {
+        p_secret_token: profile.secretToken,
+        p_delete_token: deleteToken,
+        p_moods: moods,
+        p_message: message,
+        p_track: track
+      });
       if (error) throw error;
-      if (!data) throw new Error('Supabase не вернула созданный пост.');
+      const createdPost = Array.isArray(data) ? data[0] : data;
+      if (!createdPost || typeof createdPost !== 'object' || createdPost.id == null) {
+        throw new Error('Supabase не вернула созданный пост.');
+      }
 
       writeStorage(POST_COOLDOWN_KEY, String(Date.now()));
-      rememberLocalId(OWNED_POSTS_KEY, data.id);
-      const deleteTokenStored = rememberDeleteToken(POST_TOKENS_KEY, data.id, deleteToken);
+      rememberLocalId(OWNED_POSTS_KEY, createdPost.id);
+      const deleteTokenStored = rememberDeleteToken(POST_TOKENS_KEY, createdPost.id, deleteToken);
       loadedPostsLimit += 1;
-      const newCard = mapSupabasePost(data, [], profile);
+      const newCard = mapSupabasePost(createdPost, [], profile);
       feedCards = [newCard, ...feedCards.filter((card) => String(card.id) !== String(newCard.id))];
       feedError = '';
       awardDailyPost(profile.id);
@@ -5189,11 +6541,24 @@
 
     window.addEventListener('pagehide', stopAmbientSources);
 
+    document.getElementById('user-profile-close').addEventListener('click', () => closeUserProfile());
+    document.getElementById('user-profile-overlay').addEventListener('click', (event) => {
+      if (event.target === event.currentTarget) closeUserProfile();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !document.getElementById('user-profile-overlay').hidden) {
+        closeUserProfile();
+      }
+    });
+
     initializeOnboarding();
     updateProfileUI();
     syncMixer();
     refreshFeed(true);
-    window.setInterval(() => refreshFeed(false), 15000);
+    window.setInterval(() => {
+      if (document.hidden) return;
+      refreshFeed(false);
+    }, 15000);
   </script>
 </body>
 </html>
