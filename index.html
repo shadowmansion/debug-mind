@@ -3877,7 +3877,8 @@
         return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       }
 
-      if (host === 'soundcloud.com' || host === 'www.soundcloud.com') {
+      const soundcloudHosts = ['soundcloud.com', 'www.soundcloud.com', 'm.soundcloud.com', 'on.soundcloud.com'];
+      if (soundcloudHosts.includes(host)) {
         return `https://w.soundcloud.com/player/?url=${encodeURIComponent(parsedUrl.href)}&color=%23d99b66&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
       }
       return null;
@@ -3922,9 +3923,12 @@
 
         iframe = document.createElement('iframe');
         iframe.title = isSoundCloud ? 'Плеер SoundCloud' : 'Плеер YouTube';
-        iframe.height = isSoundCloud ? '110' : '152';
+        iframe.height = isSoundCloud ? '166' : '152';
         iframe.loading = 'lazy';
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-presentation');
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        if (!isSoundCloud) {
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-presentation');
+        }
         iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
         iframe.src = embedUrl;
         player.appendChild(iframe);
