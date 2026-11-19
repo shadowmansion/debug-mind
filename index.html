@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DeBug — Debug your mind</title>
+  <meta name="description" content="Тихое анонимное пространство взаимной поддержки. Настрой свой канал и заходи в эфир.">
+  <meta name="theme-color" content="#181513">
+  <meta property="og:title" content="DeBug — Debug your mind">
+  <meta property="og:description" content="Тихое анонимное пространство взаимной поддержки. Настрой свой канал и заходи в эфир.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -224,6 +228,10 @@
       border: 1px solid var(--line);
     }
 
+    .load-more-button {
+      width: 100%;
+    }
+
     .feed {
       display: grid;
       gap: 14px;
@@ -249,13 +257,18 @@
         transform: translateY(0);
       }
     }
-
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 12px;
+    }
+
+    .card-meta-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .tag {
@@ -281,12 +294,36 @@
       white-space: nowrap;
     }
 
+    .delete-button {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.68rem;
+      font-weight: 500;
+    }
+
+    .delete-button:hover:not(:disabled) {
+      color: var(--accent-light);
+      filter: none;
+      transform: none;
+    }
+
+    .delete-button:disabled {
+      cursor: wait;
+      opacity: 0.56;
+      transform: none;
+    }
+
     .card-text {
       margin: 0;
       color: var(--text);
       font-size: 1rem;
       line-height: 1.65;
       word-break: break-word;
+      white-space: pre-wrap;
     }
 
     .card-track {
@@ -318,6 +355,60 @@
     .track-link:hover {
       transform: translateY(-1px);
       background: rgba(255, 123, 41, 0.2);
+    }
+
+    .track-player {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .track-player-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .track-player-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent-light);
+      font: 0.72rem "JetBrains Mono", monospace;
+      font-weight: 500;
+    }
+
+    .track-player-toggle:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 123, 41, 0.2);
+      filter: none;
+    }
+
+    .comment-track-player-toggle {
+      margin: 7px 5px 0 0;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(217, 155, 102, 0.08);
+    }
+
+    .track-player-frame {
+      width: 100%;
+      max-width: 560px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .track-player-frame iframe {
+      display: block;
+      width: 100%;
+      border: 0;
     }
 
     .track-link::before {
@@ -466,6 +557,29 @@
       margin-bottom: 12px;
     }
 
+    .comment-list[hidden] {
+      display: none;
+    }
+
+    .comment-thread {
+      min-width: 0;
+    }
+
+    .comment-replies {
+      display: grid;
+      gap: 8px;
+      margin: 8px 0 0 14px;
+      padding-left: 12px;
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .comment-reply-target {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
     .comment-toggle {
       margin-top: 12px;
       padding: 10px 13px;
@@ -473,6 +587,10 @@
       border: 1px solid var(--line-strong);
       color: var(--accent-light);
       font-size: 0.8rem;
+    }
+
+    .fixes-toggle {
+      margin: 0 0 12px;
     }
 
     .comment {
@@ -1260,6 +1378,13 @@
       margin-bottom: 12px;
       border-style: solid;
       border-color: var(--line-strong);
+    }
+
+    .feed-notice {
+      padding: 10px 12px;
+      border-style: solid;
+      border-color: var(--line);
+      font-size: 0.72rem;
     }
 
     .economy-summary {
@@ -2483,10 +2608,10 @@
           <div class="publish-as">Публикуешь как: <span id="publish-avatar"></span><strong id="publish-name"></strong></div>
 
           <label for="message">Что сейчас на душе?</label>
-          <textarea id="message" placeholder="Напиши честно..."></textarea>
+          <textarea id="message" maxlength="5000" placeholder="Напиши честно..."></textarea>
 
           <label for="track">Трек для этого момента · необязательно</label>
-          <input type="text" id="track" placeholder="Название или ссылка">
+          <input type="text" id="track" maxlength="2048" placeholder="Название или ссылка">
 
           <div class="form-actions">
             <button type="submit" class="primary-button">▶ Поделиться багом</button>
@@ -2644,8 +2769,13 @@
     const ECONOMY_KEY = 'debug-economy';
     const OWNED_POSTS_KEY = 'debug-owned-posts';
     const OWNED_FIXES_KEY = 'debug-owned-fixes';
+    const POST_TOKENS_KEY = 'debug-post-tokens';
+    const FIX_TOKENS_KEY = 'debug-fix-tokens';
     const LIKED_FIXES_KEY = 'debug-liked-fixes';
     const REACTION_PROGRESS_KEY = 'debug-reaction-progress';
+    const POST_COOLDOWN_KEY = 'debug-post-cooldown';
+    const FIX_COOLDOWN_KEY = 'debug-fix-cooldown';
+    const POSTS_PAGE_SIZE = 25;
     const SUPABASE_URL = 'https://epdrbxbdqxcyikgzflfn.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_HNjC0qEXNF1THvHJxPfloQ_Uu98GOWm';
     const supabaseClient = window.supabase && typeof window.supabase.createClient === 'function'
@@ -2714,8 +2844,14 @@
     let activeFeedTab = 'all';
     let activeMoodFilter = 'all';
     let feedCards = [];
+    let loadedPostsLimit = POSTS_PAGE_SIZE;
+    let hasMorePosts = false;
+    let loadingMorePosts = false;
+    let pendingPostsPage = false;
     let feedLoading = true;
     let feedError = '';
+    let feedNotice = '';
+    let feedNoticeTimer = null;
     let feedRefreshInProgress = false;
     let feedRefreshQueued = false;
     let audioContext = null;
@@ -2723,7 +2859,76 @@
     let ambientSources = [];
     let activeSoundMode = 'silence';
     let pinnedCollapsed = false;
+    let nextTrackPlayerId = 0;
+    const expandedFixThreads = new Set();
     const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
+
+    function escapeHTML(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]);
+    }
+
+    function setEscapedText(element, value) {
+      element.innerHTML = escapeHTML(value);
+    }
+
+    function appendEscapedText(container, value) {
+      const text = document.createElement('span');
+      setEscapedText(text, value);
+      container.appendChild(text);
+    }
+
+    function readStorage(key) {
+      try {
+        const value = localStorage.getItem(key);
+        return typeof value === 'string' ? value : null;
+      } catch (error) {
+        console.warn('Не удалось прочитать данные браузера.', error);
+        return null;
+      }
+    }
+
+    function writeStorage(key, value) {
+      if (typeof value !== 'string') return false;
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        console.warn('Не удалось сохранить данные браузера.', error);
+        return false;
+      }
+    }
+
+    function isSafeTrackValue(value) {
+      const normalized = typeof value === 'string' ? value.trim() : '';
+      if (!normalized) return true;
+      if (!/^[a-z][a-z\d+.-]*:/i.test(normalized)) return !/^www\./i.test(normalized);
+      if (!/^https?:\/\//i.test(normalized) || /[\s\u0000-\u001f]/.test(normalized)) return false;
+      try {
+        const url = new URL(normalized);
+        return ['http:', 'https:'].includes(url.protocol) &&
+          Boolean(url.hostname) && !url.username && !url.password;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function checkCooldown(key, seconds, notice) {
+      const stored = readStorage(key);
+      const lastSent = typeof stored === 'string' ? Number(stored) : NaN;
+      const now = Date.now();
+      const remaining = seconds - Math.floor((now - lastSent) / 1000);
+      if (Number.isFinite(lastSent) && lastSent > 0 && lastSent <= now && remaining > 0) {
+        notice(`Подожди ещё ${remaining} сек. перед следующей отправкой.`);
+        return false;
+      }
+      return true;
+    }
 
     function createId(prefix) {
       return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -2740,7 +2945,9 @@
     function parseAvatar(value) {
       if (typeof value !== 'string') return null;
       const match = /^av:([a-z]+):([a-z]+):([a-z]+)$/.exec(value);
-      if (!match || !AVATAR_BACKGROUNDS[match[1]] || !ICONS[match[2]] || !AVATAR_FRAMES[match[3]]) return null;
+      if (!match || !Object.prototype.hasOwnProperty.call(AVATAR_BACKGROUNDS, match[1]) ||
+          !Object.prototype.hasOwnProperty.call(ICONS, match[2]) ||
+          !Object.prototype.hasOwnProperty.call(AVATAR_FRAMES, match[3])) return null;
       return { bg: match[1], icon: match[2], frame: match[3] };
     }
 
@@ -2751,7 +2958,7 @@
       const parsed = parseAvatar(avatarValue);
       if (!parsed) {
         avatar.classList.add('is-legacy');
-        avatar.textContent = typeof avatarValue === 'string' && avatarValue ? avatarValue : '🌙';
+        avatar.textContent = '🌙';
         avatar.setAttribute('aria-label', 'Анонимный аватар');
         return avatar;
       }
@@ -2858,8 +3065,9 @@
 
     function getEconomyState() {
       try {
-        const stored = JSON.parse(localStorage.getItem(ECONOMY_KEY) || 'null');
-        return stored && typeof stored === 'object' && stored.users && typeof stored.users === 'object'
+        const stored = JSON.parse(readStorage(ECONOMY_KEY) || 'null');
+        return stored && typeof stored === 'object' && !Array.isArray(stored) &&
+          stored.users && typeof stored.users === 'object' && !Array.isArray(stored.users)
           ? stored
           : { users: {} };
       } catch (error) {
@@ -2889,7 +3097,7 @@
     }
 
     function saveEconomyState(state) {
-      localStorage.setItem(ECONOMY_KEY, JSON.stringify(state));
+      writeStorage(ECONOMY_KEY, JSON.stringify(state));
     }
 
     function getEconomyUser(profileId) {
@@ -2955,6 +3163,18 @@
         hintTimer = window.setTimeout(() => {
           hint.textContent = '';
         }, 2800);
+      }
+    }
+
+    function showFeedNotice(message) {
+      feedNotice = String(message || '');
+      window.clearTimeout(feedNoticeTimer);
+      renderFeed();
+      if (feedNotice) {
+        feedNoticeTimer = window.setTimeout(() => {
+          feedNotice = '';
+          renderFeed();
+        }, 4500);
       }
     }
 
@@ -3154,14 +3374,14 @@
         updatedProfile.joinedAt = updatedProfile.joinedAt || new Date().toISOString();
         updatedProfile.moods = readOnboardingMoods();
         saveProfile(updatedProfile);
-        localStorage.setItem(PROFILE_INITIALIZED_KEY, 'true');
+        writeStorage(PROFILE_INITIALIZED_KEY, 'true');
         document.getElementById('onboarding-overlay').hidden = true;
         applyMoodSettings(updatedProfile.moods);
         updateProfileUI();
         if (document.getElementById('onboarding-rain').checked) setAmbientSound('rain');
       });
 
-      const isInitialized = localStorage.getItem(PROFILE_INITIALIZED_KEY) === 'true';
+      const isInitialized = readStorage(PROFILE_INITIALIZED_KEY) === 'true';
       if (isInitialized) {
         document.getElementById('onboarding-overlay').hidden = true;
         applyMoodSettings(profile.moods);
@@ -3174,7 +3394,9 @@
     document.getElementById('post-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const submitButton = document.querySelector('#post-form button[type="submit"]');
+      if (submitButton.disabled) return;
       submitButton.disabled = true;
+      submitButton.setAttribute('aria-busy', 'true');
       try {
         await createCard();
       } catch (error) {
@@ -3182,6 +3404,13 @@
         setMixerHint(`Не удалось опубликовать пост: ${error.message || 'ошибка Supabase.'}`);
       } finally {
         submitButton.disabled = false;
+        submitButton.removeAttribute('aria-busy');
+      }
+    });
+
+    document.getElementById('message').addEventListener('input', (event) => {
+      if (event.target.value.length === event.target.maxLength) {
+        setMixerHint('Достигнут лимит поста: 5000 символов.');
       }
     });
 
@@ -3209,11 +3438,12 @@
     function getProfile() {
       let profile;
       try {
-        const stored = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
-        profile = stored && typeof stored === 'object' ? {
+        const stored = JSON.parse(readStorage(PROFILE_KEY) || 'null');
+        profile = stored && typeof stored === 'object' && !Array.isArray(stored) ? {
           name: typeof stored.name === 'string' && stored.name.trim() ? stored.name.trim().slice(0, 24) : DEFAULT_PROFILE.name,
-          avatar: typeof stored.avatar === 'string' && stored.avatar.trim() ? stored.avatar : DEFAULT_PROFILE.avatar,
-          id: typeof stored.id === 'string' && stored.id ? stored.id : createId('profile'),
+          avatar: typeof stored.avatar === 'string' && parseAvatar(stored.avatar) ? stored.avatar : DEFAULT_PROFILE.avatar,
+          id: typeof stored.id === 'string' && /^profile-[a-z0-9-]{1,100}$/i.test(stored.id)
+            ? stored.id : createId('profile'),
           joinedAt: typeof stored.joinedAt === 'string' ? stored.joinedAt : new Date().toISOString(),
           rank: typeof stored.rank === 'string' ? stored.rank : 'Новичок',
           moods: Array.isArray(stored.moods) ? stored.moods.slice(0, 3) : []
@@ -3226,7 +3456,7 @@
     }
 
     function saveProfile(profile) {
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      writeStorage(PROFILE_KEY, JSON.stringify(profile));
     }
 
     function updateProfileUI() {
@@ -3245,7 +3475,9 @@
 
     function updateProfileName(value) {
       const profile = getProfile();
-      profile.name = value.trim().slice(0, 24) || DEFAULT_PROFILE.name;
+      const normalized = value.trim();
+      if (normalized.length > 24) setMixerHint('Позывной может содержать не более 24 символов.');
+      profile.name = normalized.slice(0, 24) || DEFAULT_PROFILE.name;
       saveProfile(profile);
       updateProfileUI();
     }
@@ -3338,8 +3570,10 @@
 
     function readLocalIdList(key) {
       try {
-        const values = JSON.parse(localStorage.getItem(key) || '[]');
-        return Array.isArray(values) ? values.map(String) : [];
+        const values = JSON.parse(readStorage(key) || '[]');
+        return Array.isArray(values) ? values.filter((value) =>
+          typeof value === 'string' || typeof value === 'number'
+        ).map(String) : [];
       } catch (error) {
         return [];
       }
@@ -3350,13 +3584,93 @@
       const normalizedId = String(id);
       if (!ids.includes(normalizedId)) {
         ids.push(normalizedId);
-        localStorage.setItem(key, JSON.stringify(ids));
+        writeStorage(key, JSON.stringify(ids));
       }
+    }
+
+    function removeLocalIds(key, idsToRemove) {
+      const removing = new Set([...idsToRemove].map(String));
+      const ids = readLocalIdList(key);
+      const remaining = ids.filter((id) => !removing.has(id));
+      if (remaining.length !== ids.length) writeStorage(key, JSON.stringify(remaining));
+    }
+
+    function readDeleteTokens(key) {
+      try {
+        const stored = JSON.parse(readStorage(key) || '{}');
+        if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return Object.create(null);
+        const tokens = Object.create(null);
+        Object.entries(stored).forEach(([id, token]) => {
+          if (typeof token === 'string' && token.trim()) tokens[id] = token;
+        });
+        return tokens;
+      } catch (error) {
+        return Object.create(null);
+      }
+    }
+
+    function getStoredDeleteToken(key, id) {
+      const token = readDeleteTokens(key)[String(id)];
+      return typeof token === 'string' ? token : '';
+    }
+
+    function rememberDeleteToken(key, id, token) {
+      if ((typeof id !== 'string' && typeof id !== 'number') ||
+          typeof token !== 'string' || !token) return false;
+      const tokens = readDeleteTokens(key);
+      tokens[String(id)] = token;
+      return writeStorage(key, JSON.stringify(tokens));
+    }
+
+    function removeDeleteTokens(key, idsToRemove) {
+      const tokens = readDeleteTokens(key);
+      let changed = false;
+      idsToRemove.forEach((id) => {
+        const normalizedId = String(id);
+        if (Object.prototype.hasOwnProperty.call(tokens, normalizedId)) {
+          delete tokens[normalizedId];
+          changed = true;
+        }
+      });
+      if (changed) writeStorage(key, JSON.stringify(tokens));
+    }
+
+    function generateDeleteToken() {
+      const cryptoApi = window.crypto;
+      if (cryptoApi && typeof cryptoApi.randomUUID === 'function') {
+        return cryptoApi.randomUUID();
+      }
+      if (cryptoApi && typeof cryptoApi.getRandomValues === 'function') {
+        const bytes = cryptoApi.getRandomValues(new Uint8Array(24));
+        return [...bytes].map((value) => value.toString(16).padStart(2, '0')).join('');
+      }
+      return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    }
+
+    function collectCommentSubtreeIds(comments, rootId) {
+      const ids = new Set([String(rootId)]);
+      let foundChild = true;
+      while (foundChild) {
+        foundChild = false;
+        comments.forEach((comment) => {
+          const id = String(comment.id);
+          if (comment.parentId != null && ids.has(String(comment.parentId)) && !ids.has(id)) {
+            ids.add(id);
+            foundChild = true;
+          }
+        });
+      }
+      return ids;
+    }
+
+    function forgetOwnedFixData(ids) {
+      removeLocalIds(OWNED_FIXES_KEY, ids);
+      removeDeleteTokens(FIX_TOKENS_KEY, ids);
     }
 
     function readReactionProgress() {
       try {
-        const progress = JSON.parse(localStorage.getItem(REACTION_PROGRESS_KEY) || '{}');
+        const progress = JSON.parse(readStorage(REACTION_PROGRESS_KEY) || '{}');
         return progress && typeof progress === 'object' && !Array.isArray(progress) ? progress : {};
       } catch (error) {
         return {};
@@ -3375,11 +3689,12 @@
       const isOwned = readLocalIdList(OWNED_FIXES_KEY).includes(id);
       return {
         id,
-        author: fix.author_name || 'Аноним',
+        parentId: fix.parent_id == null ? null : String(fix.parent_id),
+        author: typeof fix.author_name === 'string' ? fix.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
         authorId: isOwned ? viewer.id : `remote-fix-${id}`,
-        avatar: fix.author_avatar,
-        text: fix.message || '',
-        track: fix.track || '',
+        avatar: parseAvatar(fix.author_avatar) ? fix.author_avatar : DEFAULT_PROFILE.avatar,
+        text: typeof fix.message === 'string' ? fix.message.slice(0, 2500) : '',
+        track: typeof fix.track === 'string' && isSafeTrackValue(fix.track) ? fix.track.slice(0, 2048) : '',
         accepted: Boolean(fix.is_working),
         helpfulCount: Math.max(0, Number(fix.helpful_count) || 0),
         now: formatTimestamp(fix.created_at),
@@ -3395,13 +3710,13 @@
         mood: moods[0] && (moods[0].mood || moods[0].name || moods[0].title),
         intensity: moods[0] && (moods[0].intensity || moods[0].percentage || moods[0].percent),
         moods,
-        message: post.message || '',
-        track: post.track || '',
+        message: typeof post.message === 'string' ? post.message.slice(0, 5000) : '',
+        track: typeof post.track === 'string' && isSafeTrackValue(post.track) ? post.track.slice(0, 2048) : '',
         now: formatTimestamp(post.created_at),
         createdAt: post.created_at,
-        author: post.author_name || 'Аноним',
+        author: typeof post.author_name === 'string' ? post.author_name.trim().slice(0, 24) || 'Аноним' : 'Аноним',
         authorId: readLocalIdList(OWNED_POSTS_KEY).includes(id) ? viewer.id : `remote-post-${id}`,
-        avatar: post.author_avatar,
+        avatar: parseAvatar(post.author_avatar) ? post.author_avatar : DEFAULT_PROFILE.avatar,
         comments: fixes.map((fix) => mapSupabaseFix(fix, viewer))
       };
     }
@@ -3438,7 +3753,7 @@
           };
         });
       });
-      if (changed) localStorage.setItem(REACTION_PROGRESS_KEY, JSON.stringify(progress));
+      if (changed) writeStorage(REACTION_PROGRESS_KEY, JSON.stringify(progress));
     }
 
     async function refreshFeed(showLoading) {
@@ -3447,6 +3762,12 @@
         return;
       }
       feedRefreshInProgress = true;
+      const wasLoading = feedLoading;
+      const previousError = feedError;
+      const previousHasMorePosts = hasMorePosts;
+      const previousLoadingMorePosts = loadingMorePosts;
+      const requestedPostsLimit = loadedPostsLimit;
+      let shouldRender = false;
       const refreshButton = document.getElementById('refresh-feed');
       if (refreshButton) {
         refreshButton.disabled = true;
@@ -3462,10 +3783,13 @@
         const { data: posts, error: postsError } = await supabaseClient
           .from('posts')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .range(0, loadedPostsLimit);
         if (postsError) throw postsError;
 
-        const postRows = Array.isArray(posts) ? posts : [];
+        const fetchedPostRows = Array.isArray(posts) ? posts : [];
+        const nextHasMorePosts = fetchedPostRows.length > requestedPostsLimit;
+        const postRows = fetchedPostRows.slice(0, requestedPostsLimit);
         let fixes = [];
         if (postRows.length) {
           const { data: fixRows, error: fixesError } = await supabaseClient
@@ -3486,7 +3810,7 @@
         });
 
         const viewer = getProfile();
-        feedCards = postRows.map((post) => {
+        const nextCards = postRows.map((post) => {
           const postFixes = fixesByPost.get(String(post.id)) || [];
           postFixes.sort((left, right) =>
             Number(Boolean(right.is_working)) - Number(Boolean(left.is_working)) ||
@@ -3494,7 +3818,10 @@
           );
           return mapSupabasePost(post, postFixes, viewer);
         });
-        syncLocalReactionRewards(feedCards);
+        shouldRender = JSON.stringify(feedCards) !== JSON.stringify(nextCards);
+        if (shouldRender) feedCards = nextCards;
+        hasMorePosts = nextHasMorePosts;
+        syncLocalReactionRewards(nextCards);
         feedLoading = false;
         feedError = '';
       } catch (error) {
@@ -3503,11 +3830,16 @@
         console.error('Не удалось обновить эфир:', error);
       } finally {
         feedRefreshInProgress = false;
+        if (!feedRefreshQueued && pendingPostsPage && !feedError) pendingPostsPage = false;
+        if (!feedRefreshQueued && loadingMorePosts) loadingMorePosts = false;
         if (refreshButton) {
           refreshButton.disabled = false;
           refreshButton.textContent = '🔄 Обновить эфир';
         }
-        renderFeed();
+        if (shouldRender || wasLoading !== feedLoading || previousError !== feedError ||
+            previousHasMorePosts !== hasMorePosts || previousLoadingMorePosts !== loadingMorePosts) {
+          renderFeed();
+        }
         if (feedRefreshQueued) {
           feedRefreshQueued = false;
           window.setTimeout(() => refreshFeed(false), 0);
@@ -3515,31 +3847,175 @@
       }
     }
 
-    function renderTrack(trackValue) {
-      const normalized = trackValue.trim();
-      if (!normalized) return null;
+    function parseEmbedTrack(value) {
+      const normalized = typeof value === 'string' ? value.trim() : '';
+      if (!/^https?:\/\//i.test(normalized) || !isSafeTrackValue(normalized)) return null;
 
-      let trackUrl;
+      let parsedUrl;
       try {
-        trackUrl = new URL(/^www\./i.test(normalized) ? `https://${normalized}` : normalized);
+        parsedUrl = new URL(normalized);
       } catch (error) {
-        trackUrl = null;
+        return null;
+      }
+      if (parsedUrl.port) return null;
+
+      const host = parsedUrl.hostname.toLowerCase();
+      const youtubeHosts = ['youtube.com', 'www.youtube.com', 'music.youtube.com'];
+      let videoId = '';
+      if (host === 'youtu.be') {
+        const match = parsedUrl.pathname.match(/^\/([a-zA-Z0-9_-]{11})\/?$/);
+        videoId = match ? match[1] : '';
+      } else if (youtubeHosts.includes(host)) {
+        if (parsedUrl.pathname === '/watch') {
+          videoId = parsedUrl.searchParams.get('v') || '';
+        } else {
+          const match = parsedUrl.pathname.match(/^\/shorts\/([a-zA-Z0-9_-]{11})\/?$/);
+          videoId = match ? match[1] : '';
+        }
+      }
+      if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+        return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       }
 
-      if (trackUrl && ['http:', 'https:'].includes(trackUrl.protocol)) {
+      if (host === 'soundcloud.com' || host === 'www.soundcloud.com') {
+        return `https://w.soundcloud.com/player/?url=${encodeURIComponent(parsedUrl.href)}&color=%23d99b66&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
+      }
+      return null;
+    }
+
+    function createTrackPlayer(normalized, link, isCommentTrack) {
+      const embedUrl = parseEmbedTrack(normalized);
+      if (!embedUrl) return null;
+
+      const isSoundCloud = embedUrl.startsWith('https://w.soundcloud.com/player/');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'track-player';
+      const controls = document.createElement('div');
+      controls.className = 'track-player-controls';
+      controls.appendChild(link);
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = isCommentTrack
+        ? 'track-player-toggle comment-track-player-toggle'
+        : 'track-player-toggle';
+      toggle.textContent = '▶ Послушать здесь';
+      toggle.setAttribute('aria-expanded', 'false');
+      const playerId = `track-player-${++nextTrackPlayerId}`;
+      toggle.setAttribute('aria-controls', playerId);
+      controls.appendChild(toggle);
+
+      const player = document.createElement('div');
+      player.id = playerId;
+      player.className = 'track-player-frame';
+      player.hidden = true;
+      let iframe = null;
+      toggle.addEventListener('click', () => {
+        if (iframe) {
+          iframe.remove();
+          iframe = null;
+          player.hidden = true;
+          toggle.textContent = '▶ Послушать здесь';
+          toggle.setAttribute('aria-expanded', 'false');
+          return;
+        }
+
+        iframe = document.createElement('iframe');
+        iframe.title = isSoundCloud ? 'Плеер SoundCloud' : 'Плеер YouTube';
+        iframe.height = isSoundCloud ? '110' : '152';
+        iframe.loading = 'lazy';
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-presentation');
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+        iframe.src = embedUrl;
+        player.appendChild(iframe);
+        player.hidden = false;
+        toggle.textContent = 'Свернуть плеер';
+        toggle.setAttribute('aria-expanded', 'true');
+      });
+
+      wrapper.append(controls, player);
+      return wrapper;
+    }
+
+    function renderTrack(trackValue) {
+      const normalized = typeof trackValue === 'string' ? trackValue.trim() : '';
+      if (!normalized) return null;
+
+      const trackUrl = /^https?:\/\//i.test(normalized) && isSafeTrackValue(normalized)
+        ? new URL(normalized)
+        : null;
+
+      if (trackUrl) {
         const link = document.createElement('a');
         link.className = 'track-link';
         link.href = trackUrl.href;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = 'Открыть трек';
-        return link;
+        return createTrackPlayer(normalized, link, false) || link;
       }
 
       const readout = document.createElement('div');
       readout.className = 'track-readout';
-      readout.textContent = `🎵 ${normalized}`;
+      setEscapedText(readout, `🎵 ${normalized}`);
       return readout;
+    }
+
+    function buildCommentForm(postId, parentId) {
+      const form = document.createElement('form');
+      form.className = parentId == null ? 'comment-compose' : 'comment-compose reply-compose';
+      form.id = parentId == null
+        ? `comment-compose-${postId}`
+        : `reply-compose-${postId}-${parentId}`;
+      form.hidden = true;
+
+      const textInput = document.createElement('input');
+      textInput.className = 'comment-input';
+      textInput.type = 'text';
+      textInput.maxLength = 2500;
+      textInput.placeholder = 'Напиши слова поддержки, свой опыт или прикрепи трек...';
+      textInput.setAttribute('aria-label', parentId == null ? 'Комментарий к карточке' : 'Текст ответа');
+
+      const trackInput = document.createElement('input');
+      trackInput.className = 'comment-track-input';
+      trackInput.type = 'text';
+      trackInput.maxLength = 300;
+      trackInput.placeholder = 'Название трека или https://ссылка';
+      trackInput.setAttribute('aria-label', 'Название трека или ссылка');
+
+      const submit = document.createElement('button');
+      submit.className = 'comment-submit';
+      submit.type = 'submit';
+      submit.textContent = parentId == null ? 'Отправить фикс' : 'Отправить ответ';
+
+      const warning = document.createElement('span');
+      warning.className = 'comment-warning';
+      warning.setAttribute('role', 'status');
+      warning.setAttribute('aria-live', 'polite');
+      textInput.addEventListener('input', () => {
+        if (textInput.value.length === textInput.maxLength) {
+          warning.textContent = 'Достигнут лимит: 2500 символов.';
+        }
+      });
+
+      form.append(textInput, trackInput, submit, warning);
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (submit.disabled) return;
+        submit.disabled = true;
+        submit.setAttribute('aria-busy', 'true');
+        warning.textContent = '';
+        try {
+          await addComment(postId, textInput.value, trackInput.value, parentId, form);
+        } catch (error) {
+          console.error('Не удалось отправить фикс:', error);
+          warning.textContent = `Не удалось отправить фикс: ${error.message || 'ошибка Supabase.'}`;
+        } finally {
+          submit.disabled = false;
+          submit.removeAttribute('aria-busy');
+        }
+      });
+      return form;
     }
 
     function buildCard(cardData) {
@@ -3570,18 +4046,44 @@
       meta.className = 'meta';
       meta.textContent = now;
 
-      header.appendChild(meta);
+      const metaActions = document.createElement('div');
+      metaActions.className = 'card-meta-actions';
+      metaActions.appendChild(meta);
+      const postDeleteToken = getStoredDeleteToken(POST_TOKENS_KEY, id);
+      if (postDeleteToken) {
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'delete-button';
+        deleteButton.textContent = 'Удалить';
+        deleteButton.setAttribute('aria-label', 'Удалить эту мысль');
+        deleteButton.addEventListener('click', async () => {
+          if (deleteButton.disabled || !window.confirm('Удалить эту мысль?')) return;
+          deleteButton.disabled = true;
+          deleteButton.setAttribute('aria-busy', 'true');
+          try {
+            await deleteOwnPost(id, postDeleteToken);
+          } catch (error) {
+            console.error('Не удалось удалить мысль:', error);
+            showFeedNotice(`Не удалось удалить эту мысль: ${error.message || 'ошибка Supabase.'}`);
+          } finally {
+            deleteButton.disabled = false;
+            deleteButton.removeAttribute('aria-busy');
+          }
+        });
+        metaActions.appendChild(deleteButton);
+      }
+      header.appendChild(metaActions);
 
       const author = document.createElement('div');
       author.className = 'card-author';
       const authorAvatar = renderAvatar(cardData.avatar, 28);
       const authorName = document.createElement('span');
-      authorName.textContent = profileName;
+      setEscapedText(authorName, profileName);
       author.append(authorAvatar, authorName);
 
       const text = document.createElement('p');
       text.className = 'card-text';
-      text.textContent = message;
+      setEscapedText(text, message);
 
       card.append(header, tagList);
       card.appendChild(author);
@@ -3602,23 +4104,69 @@
       const commentsTitle = document.createElement('h3');
       commentsTitle.className = 'comments-title';
       commentsTitle.textContent = comments.length
-        ? `Фиксы (комментарии) · ${comments.length}`
+        ? 'Фиксы (комментарии)'
         : 'Фиксы (комментарии) · пока тихо';
 
       const commentList = document.createElement('div');
       commentList.className = 'comment-list';
-      comments.sort((left, right) =>
-        Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
-        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
-      );
+      commentList.id = `fix-list-${id}`;
+      const commentsById = new Map(comments.map((comment) => [String(comment.id), comment]));
+      const repliesByParent = new Map();
+      const rootComments = [];
       comments.forEach((comment) => {
+        const parentKey = comment.parentId == null ? null : String(comment.parentId);
+        if (parentKey !== null && commentsById.has(parentKey)) {
+          const replies = repliesByParent.get(parentKey) || [];
+          replies.push(comment);
+          repliesByParent.set(parentKey, replies);
+        } else {
+          rootComments.push(comment);
+        }
+      });
+      const compareComments = (left, right) =>
+        Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+      rootComments.sort(compareComments);
+      repliesByParent.forEach((replies) => replies.sort(compareComments));
+
+      const threadIsExpanded = expandedFixThreads.has(String(id));
+      const fixesToggle = comments.length ? document.createElement('button') : null;
+      if (fixesToggle) {
+        fixesToggle.type = 'button';
+        fixesToggle.className = 'comment-toggle fixes-toggle';
+        fixesToggle.setAttribute('aria-controls', commentList.id);
+        fixesToggle.setAttribute('aria-expanded', String(threadIsExpanded));
+        const hasWorkingFix = comments.some((comment) => comment.accepted);
+        const workingLabel = hasWorkingFix ? ' · есть рабочий фикс' : '';
+        fixesToggle.textContent = threadIsExpanded
+          ? `Свернуть фиксы${workingLabel}`
+          : `Показать фиксы (${comments.length})${workingLabel}`;
+        fixesToggle.addEventListener('click', () => {
+          if (expandedFixThreads.has(String(id))) expandedFixThreads.delete(String(id));
+          else expandedFixThreads.add(String(id));
+          renderFeed();
+        });
+      }
+      commentList.hidden = comments.length > 0 && !threadIsExpanded;
+
+      function buildCommentNode(comment, parentComment) {
         const item = document.createElement('div');
         item.className = 'comment';
         item.classList.toggle('is-accepted', Boolean(comment.accepted));
+        if (parentComment) {
+          const replyTarget = document.createElement('span');
+          replyTarget.className = 'comment-reply-target';
+          setEscapedText(replyTarget, `↳ в ответ ${parentComment.author || 'Аноним'}`);
+          item.appendChild(replyTarget);
+        }
         const commentAuthor = document.createElement('span');
         commentAuthor.className = 'comment-author';
-        commentAuthor.append(renderAvatar(comment.avatar, 22), document.createTextNode(` ${comment.author || 'Аноним'}: `));
+        commentAuthor.append(renderAvatar(comment.avatar, 22));
+        const commentAuthorName = document.createElement('span');
+        setEscapedText(commentAuthorName, ` ${comment.author || 'Аноним'}: `);
+        commentAuthor.appendChild(commentAuthorName);
         const commentText = document.createElement('span');
+        commentText.style.whiteSpace = 'pre-wrap';
         appendCommentText(commentText, comment.text || '');
         item.append(commentAuthor, commentText);
         if (comment.accepted) {
@@ -3639,6 +4187,7 @@
           (comment.author === viewer.name ? viewer.id : '');
         const reactionActions = document.createElement('div');
         reactionActions.className = 'comment-actions';
+        let replyButton = null;
         if (postAuthorId === viewer.id && commentAuthorId !== viewer.id) {
           const acceptedButton = document.createElement('button');
           acceptedButton.type = 'button';
@@ -3678,35 +4227,71 @@
           });
           reactionActions.appendChild(helpfulButton);
         }
+        if (!parentComment) {
+          replyButton = document.createElement('button');
+          replyButton.type = 'button';
+          replyButton.className = 'reaction-button';
+          replyButton.textContent = 'Ответить';
+          replyButton.setAttribute('aria-expanded', 'false');
+          reactionActions.appendChild(replyButton);
+        }
+        const fixDeleteToken = getStoredDeleteToken(FIX_TOKENS_KEY, comment.id);
+        if (fixDeleteToken) {
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'delete-button';
+          deleteButton.textContent = 'Удалить';
+          deleteButton.setAttribute('aria-label', 'Удалить этот фикс');
+          deleteButton.addEventListener('click', async () => {
+            if (deleteButton.disabled || !window.confirm('Удалить этот фикс?')) return;
+            deleteButton.disabled = true;
+            deleteButton.setAttribute('aria-busy', 'true');
+            try {
+              await deleteOwnFix(id, comment.id, fixDeleteToken);
+            } catch (error) {
+              console.error('Не удалось удалить фикс:', error);
+              showFeedNotice(`Не удалось удалить этот фикс: ${error.message || 'ошибка Supabase.'}`);
+            } finally {
+              deleteButton.disabled = false;
+              deleteButton.removeAttribute('aria-busy');
+            }
+          });
+          reactionActions.appendChild(deleteButton);
+        }
         if (reactionActions.childElementCount) item.appendChild(reactionActions);
-        commentList.appendChild(item);
-      });
+        return { item, replyButton };
+      }
 
-      const commentForm = document.createElement('form');
-      commentForm.className = 'comment-compose';
-      commentForm.id = `comment-compose-${id}`;
-      commentForm.hidden = true;
-      const commentInput = document.createElement('input');
-      commentInput.className = 'comment-input';
-      commentInput.type = 'text';
-      commentInput.maxLength = 500;
-      commentInput.placeholder = 'Напиши слова поддержки, свой опыт или прикрепи трек...';
-      commentInput.setAttribute('aria-label', 'Комментарий к карточке');
-      const commentTrackInput = document.createElement('input');
-      commentTrackInput.className = 'comment-track-input';
-      commentTrackInput.type = 'text';
-      commentTrackInput.maxLength = 300;
-      commentTrackInput.placeholder = 'Название трека или https://ссылка';
-      commentTrackInput.setAttribute('aria-label', 'Название трека или ссылка');
-      const commentButton = document.createElement('button');
-      commentButton.className = 'comment-submit';
-      commentButton.type = 'submit';
-      commentButton.textContent = 'Отправить фикс';
-      const commentWarning = document.createElement('span');
-      commentWarning.className = 'comment-warning';
-      commentWarning.setAttribute('role', 'status');
-      commentWarning.setAttribute('aria-live', 'polite');
+      function appendThread(parentComment, parentContainer, isRoot) {
+        const thread = document.createElement('div');
+        thread.className = 'comment-thread';
+        const rendered = buildCommentNode(parentComment, isRoot ? null : commentsById.get(String(parentComment.parentId)));
+        thread.appendChild(rendered.item);
 
+        if (isRoot && rendered.replyButton) {
+          const replyForm = buildCommentForm(id, parentComment.id);
+          rendered.replyButton.setAttribute('aria-controls', replyForm.id);
+          rendered.replyButton.addEventListener('click', () => {
+            replyForm.hidden = !replyForm.hidden;
+            rendered.replyButton.setAttribute('aria-expanded', String(!replyForm.hidden));
+            if (!replyForm.hidden) replyForm.querySelector('.comment-input').focus();
+          });
+          thread.appendChild(replyForm);
+        }
+
+        const replies = repliesByParent.get(String(parentComment.id)) || [];
+        if (replies.length) {
+          const repliesContainer = document.createElement('div');
+          repliesContainer.className = 'comment-replies';
+          replies.forEach((reply) => appendThread(reply, repliesContainer, false));
+          thread.appendChild(repliesContainer);
+        }
+        parentContainer.appendChild(thread);
+      }
+
+      rootComments.forEach((comment) => appendThread(comment, commentList, true));
+
+      const commentForm = buildCommentForm(id, null);
       const commentToggle = document.createElement('button');
       commentToggle.className = 'comment-toggle';
       commentToggle.type = 'button';
@@ -3716,28 +4301,53 @@
       commentToggle.addEventListener('click', () => {
         commentForm.hidden = !commentForm.hidden;
         commentToggle.setAttribute('aria-expanded', String(!commentForm.hidden));
-        if (!commentForm.hidden) commentInput.focus();
+        if (!commentForm.hidden) commentForm.querySelector('.comment-input').focus();
       });
 
-      commentForm.append(commentInput, commentTrackInput, commentButton, commentWarning);
-      commentForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        commentButton.disabled = true;
-        commentWarning.textContent = '';
-        try {
-          const added = await addComment(id, commentInput.value, commentTrackInput.value);
-          if (added) commentForm.reset();
-        } catch (error) {
-          console.error('Не удалось отправить фикс:', error);
-          commentWarning.textContent = `Не удалось отправить фикс: ${error.message || 'ошибка Supabase.'}`;
-        } finally {
-          commentButton.disabled = false;
-        }
-      });
-
-      commentsSection.append(commentsTitle, commentList, commentToggle, commentForm);
+      commentsSection.append(commentsTitle);
+      if (fixesToggle) commentsSection.appendChild(fixesToggle);
+      commentsSection.append(commentList, commentToggle, commentForm);
       card.appendChild(commentsSection);
       return card;
+    }
+
+    async function deleteOwnPost(postId, token) {
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+      const { data, error } = await supabaseClient.rpc('delete_own_post', {
+        target_id: Number(postId),
+        token
+      });
+      if (error) throw error;
+      if (data !== true) throw new Error('Удаление не выполнено: токен недействителен или запись уже удалена.');
+
+      const card = feedCards.find((item) => String(item.id) === String(postId));
+      if (card) forgetOwnedFixData(new Set(card.comments.map((comment) => String(comment.id))));
+      feedCards = feedCards.filter((item) => String(item.id) !== String(postId));
+      removeLocalIds(OWNED_POSTS_KEY, [postId]);
+      removeDeleteTokens(POST_TOKENS_KEY, [postId]);
+      renderFeed();
+      await refreshFeed(false);
+    }
+
+    async function deleteOwnFix(cardId, commentId, token) {
+      if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
+      const { data, error } = await supabaseClient.rpc('delete_own_fix', {
+        target_id: Number(commentId),
+        token
+      });
+      if (error) throw error;
+      if (data !== true) throw new Error('Удаление не выполнено: токен недействителен или фикс уже удалён.');
+
+      const card = feedCards.find((item) => String(item.id) === String(cardId));
+      const removedIds = card
+        ? collectCommentSubtreeIds(card.comments, commentId)
+        : new Set([String(commentId)]);
+      if (card) {
+        card.comments = card.comments.filter((comment) => !removedIds.has(String(comment.id)));
+      }
+      forgetOwnedFixData(removedIds);
+      renderFeed();
+      await refreshFeed(false);
     }
 
     async function reactToComment(cardId, commentId, reaction) {
@@ -3781,8 +4391,6 @@
         await refreshFeed(false);
       } else {
         if (comment.authorId === viewer.id || readLocalIdList(LIKED_FIXES_KEY).includes(String(comment.id))) return;
-        if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
-
         let updatedCount = null;
         for (let attempt = 0; attempt < 3 && updatedCount === null; attempt += 1) {
           const { data: current, error: readError } = await supabaseClient
@@ -3839,13 +4447,16 @@
     }
 
     function createSafeLink(url, className, label) {
+      if (typeof url !== 'string' || !/^https?:\/\//i.test(url) ||
+          /[\s\u0000-\u001f]/.test(url)) return null;
       let parsedUrl;
       try {
         parsedUrl = new URL(url);
       } catch (error) {
         return null;
       }
-      if (!['http:', 'https:'].includes(parsedUrl.protocol)) return null;
+      if (!['http:', 'https:'].includes(parsedUrl.protocol) ||
+          !parsedUrl.hostname || parsedUrl.username || parsedUrl.password) return null;
 
       const link = document.createElement('a');
       link.className = className;
@@ -3862,30 +4473,31 @@
       let match;
 
       while ((match = urlPattern.exec(value)) !== null) {
-        container.appendChild(document.createTextNode(value.slice(cursor, match.index)));
+        appendEscapedText(container, value.slice(cursor, match.index));
         const url = match[0].replace(/[.,!?;:)\]]+$/, '');
         const link = createSafeLink(url, 'comment-track-link', '🎵 Открыть трек');
         if (link) {
           container.appendChild(link);
-          container.appendChild(document.createTextNode(match[0].slice(url.length)));
+          appendEscapedText(container, match[0].slice(url.length));
         } else {
-          container.appendChild(document.createTextNode(match[0]));
+          appendEscapedText(container, match[0]);
         }
         cursor = match.index + match[0].length;
       }
 
-      container.appendChild(document.createTextNode(value.slice(cursor)));
+      appendEscapedText(container, value.slice(cursor));
     }
 
     function renderCommentTrack(trackValue) {
-      const normalized = trackValue.trim();
+      const normalized = typeof trackValue === 'string' ? trackValue.trim() : '';
       if (!normalized) return null;
-      if (/^https?:\/\//i.test(normalized)) {
-        return createSafeLink(normalized, 'comment-track-link', '🎵 Открыть трек');
+      if (/^https?:\/\//i.test(normalized) && isSafeTrackValue(normalized)) {
+        const link = createSafeLink(normalized, 'comment-track-link', '🎵 Открыть трек');
+        return link ? createTrackPlayer(normalized, link, true) || link : null;
       }
       const title = document.createElement('span');
       title.className = 'track-readout';
-      title.textContent = `🎵 ${normalized}`;
+      setEscapedText(title, `🎵 ${normalized}`);
       return title;
     }
 
@@ -3974,14 +4586,14 @@
       const tryFix = document.createElement('button');
       tryFix.type = 'button';
       tryFix.className = 'comment-toggle';
-      tryFix.textContent = localStorage.getItem(WELCOME_REWARD_KEY) === 'true'
+      tryFix.textContent = readStorage(WELCOME_REWARD_KEY) === 'true'
         ? 'Попробовать оставить первый фикс'
         : 'Попробовать оставить первый фикс (+5 ДБ)';
       const form = document.createElement('form');
       form.className = 'pinned-fix-form';
       form.hidden = true;
       const input = document.createElement('textarea');
-      input.maxLength = 500;
+      input.maxLength = 2500;
       input.placeholder = 'Напиши короткий пример поддержки или опыта...';
       input.setAttribute('aria-label', 'Пример первого фикса');
       const send = document.createElement('button');
@@ -3992,8 +4604,11 @@
       notice.className = 'pinned-notice';
       notice.setAttribute('role', 'status');
       notice.setAttribute('aria-live', 'polite');
+      input.addEventListener('input', () => {
+        if (input.value.length === input.maxLength) notice.textContent = 'Достигнут лимит: 2500 символов.';
+      });
       form.append(input, send, notice);
-      const sample = localStorage.getItem(WELCOME_FIX_KEY);
+      const sample = readStorage(WELCOME_FIX_KEY);
 
       collapse.addEventListener('click', () => {
         pinnedCollapsed = !pinnedCollapsed;
@@ -4011,11 +4626,21 @@
           notice.textContent = 'Напиши пару слов — пример останется только у тебя.';
           return;
         }
-        localStorage.setItem(WELCOME_FIX_KEY, value);
+        if (value.length > 2500) {
+          notice.textContent = 'Фикс может содержать не более 2500 символов.';
+          return;
+        }
+        if (!writeStorage(WELCOME_FIX_KEY, value)) {
+          notice.textContent = 'Не удалось сохранить пример в этом браузере.';
+          return;
+        }
         const profile = getProfile();
-        if (localStorage.getItem(WELCOME_REWARD_KEY) !== 'true') {
+        if (readStorage(WELCOME_REWARD_KEY) !== 'true') {
+          if (!writeStorage(WELCOME_REWARD_KEY, 'true')) {
+            notice.textContent = 'Пример сохранён, но не удалось сохранить отметку о награде.';
+            return;
+          }
           awardDb(profile.id, 5);
-          localStorage.setItem(WELCOME_REWARD_KEY, 'true');
           notice.textContent = 'Пример сохранён локально. Начислено +5 ДБ — спасибо, что начал.';
         } else {
           notice.textContent = 'Пример сохранён локально. Приветственные ДБ уже получены.';
@@ -4038,22 +4663,46 @@
       return card;
     }
 
-    async function addComment(cardId, value, trackValue) {
-      const text = value.trim();
-      const track = trackValue.trim();
-      if (!text && !track) return false;
+    async function addComment(cardId, value, trackValue, parentId, form) {
+      const text = typeof value === 'string' ? value.trim() : '';
+      const track = typeof trackValue === 'string' ? trackValue.trim() : '';
+      const notice = form && form.querySelector('.comment-warning');
+      const setNotice = (message) => { if (notice) notice.textContent = message; };
+      if (text.length > 2500) {
+        setNotice('Фикс может содержать не более 2500 символов.');
+        return false;
+      }
+      if (track.length > 300) {
+        setNotice('Название трека или ссылка могут содержать не более 300 символов.');
+        return false;
+      }
+      if (!text && !track) {
+        setNotice('Напиши пару слов или прикрепи трек.');
+        return false;
+      }
+      if (!isSafeTrackValue(track)) {
+        setNotice('Для ссылки используй только корректный адрес, начинающийся с http:// или https://.');
+        return false;
+      }
+      if (!checkCooldown(FIX_COOLDOWN_KEY, 5, setNotice)) return false;
 
       const cards = getStoredCards();
       const card = cards.find((item) => String(item.id) === String(cardId));
-      if (!card) return false;
+      if (!card) {
+        setNotice('Эта карточка больше недоступна. Обнови эфир и попробуй снова.');
+        return false;
+      }
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
       const profile = getProfile();
       const isWaitingFix = activeFeedTab === 'waiting' && card.comments.length === 0;
+      const deleteToken = generateDeleteToken();
       const { data, error } = await supabaseClient
         .from('fixes')
         .insert({
           post_id: card.id,
+          parent_id: parentId == null ? null : parentId,
+          delete_token: deleteToken,
           author_name: profile.name,
           author_avatar: profile.avatar,
           message: text,
@@ -4066,7 +4715,9 @@
       if (error) throw error;
       if (!data) throw new Error('Supabase не вернула созданный фикс.');
 
+      writeStorage(FIX_COOLDOWN_KEY, String(Date.now()));
       rememberLocalId(OWNED_FIXES_KEY, data.id);
+      const deleteTokenStored = rememberDeleteToken(FIX_TOKENS_KEY, data.id, deleteToken);
       card.comments.push(mapSupabaseFix(data, profile));
       card.comments.sort((left, right) =>
         Number(Boolean(right.accepted)) - Number(Boolean(left.accepted)) ||
@@ -4075,16 +4726,65 @@
       awardDailyFix(profile.id);
       if (isWaitingFix) completeDailyTask(profile.id, 'waiting-fix', 7);
       if (track) completeDailyTask(profile.id, 'track', 3);
+      expandedFixThreads.add(String(card.id));
+      if (form) form.reset();
+      setNotice('');
       renderFeed();
       await refreshFeed(false);
+      if (!deleteTokenStored) showFeedNotice('Фикс опубликован, но токен удаления не удалось сохранить на этом устройстве.');
       return true;
+    }
+
+    function loadMorePosts(button) {
+      if (loadingMorePosts || !hasMorePosts || feedError) return;
+      if (!pendingPostsPage) loadedPostsLimit += POSTS_PAGE_SIZE;
+      pendingPostsPage = true;
+      loadingMorePosts = true;
+      button.disabled = true;
+      button.textContent = 'Загружаем...';
+      refreshFeed(false);
     }
 
     function renderFeed() {
       const feed = document.getElementById('feed');
+      const formStates = new Map();
+      const activeElement = document.activeElement;
+      const focusedForm = activeElement && activeElement.closest
+        ? activeElement.closest('.comment-compose')
+        : null;
+      const focusState = focusedForm && activeElement
+        ? {
+          formId: focusedForm.id,
+          className: activeElement.className,
+          start: typeof activeElement.selectionStart === 'number' ? activeElement.selectionStart : null,
+          end: typeof activeElement.selectionEnd === 'number' ? activeElement.selectionEnd : null
+        }
+        : null;
+      feed.querySelectorAll('.comment-compose').forEach((form) => {
+        formStates.set(form.id, {
+          hidden: form.hidden,
+          text: form.querySelector('.comment-input').value,
+          track: form.querySelector('.comment-track-input').value,
+          notice: form.querySelector('.comment-warning').textContent
+        });
+      });
+      const pinnedForm = feed.querySelector('.pinned-fix-form');
+      const pinnedState = pinnedForm ? {
+        hidden: pinnedForm.hidden,
+        value: pinnedForm.querySelector('textarea').value,
+        notice: pinnedForm.querySelector('.pinned-notice').textContent
+      } : null;
       feed.replaceChildren();
       const cards = getStoredCards();
       feed.appendChild(buildPinnedCard());
+      if (feedNotice) {
+        const notice = document.createElement('div');
+        notice.className = 'feed-empty feed-notice';
+        notice.setAttribute('role', 'status');
+        notice.setAttribute('aria-live', 'polite');
+        notice.textContent = feedNotice;
+        feed.appendChild(notice);
+      }
 
       if (feedLoading) {
         const loading = document.createElement('div');
@@ -4121,6 +4821,29 @@
       });
 
       visibleCards.forEach((cardData) => feed.appendChild(buildCard(cardData)));
+      formStates.forEach((state, formId) => {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        form.hidden = state.hidden;
+        form.querySelector('.comment-input').value = state.text;
+        form.querySelector('.comment-track-input').value = state.track;
+        form.querySelector('.comment-warning').textContent = state.notice;
+        const toggle = [...form.parentElement.querySelectorAll('button[aria-controls]')]
+          .find((button) => button.getAttribute('aria-controls') === formId);
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', String(!state.hidden));
+        }
+      });
+      if (pinnedState) {
+        const form = feed.querySelector('.pinned-fix-form');
+        if (form) {
+          form.hidden = pinnedState.hidden;
+          form.querySelector('textarea').value = pinnedState.value;
+          form.querySelector('.pinned-notice').textContent = pinnedState.notice;
+          const toggle = form.parentElement.querySelector('.comment-toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', String(!pinnedState.hidden));
+        }
+      }
       if (!visibleCards.length && !feedError) {
         const emptyState = document.createElement('div');
         emptyState.className = 'feed-empty';
@@ -4129,8 +4852,27 @@
           : 'Здесь появятся мысли сообщества. Поделись первой.';
         feed.appendChild(emptyState);
       }
+      if (hasMorePosts && !feedError) {
+        const loadMoreButton = document.createElement('button');
+        loadMoreButton.type = 'button';
+        loadMoreButton.className = 'secondary-button load-more-button';
+        loadMoreButton.disabled = loadingMorePosts;
+        loadMoreButton.textContent = loadingMorePosts ? 'Загружаем...' : 'Показать ещё';
+        loadMoreButton.addEventListener('click', () => loadMorePosts(loadMoreButton));
+        feed.appendChild(loadMoreButton);
+      }
       updatePulse();
       refreshProfileStats();
+      if (focusState) {
+        const form = document.getElementById(focusState.formId);
+        const target = form && form.querySelector(`.${focusState.className}`);
+        if (target) {
+          target.focus({ preventScroll: true });
+          if (focusState.start !== null && typeof target.setSelectionRange === 'function') {
+            target.setSelectionRange(focusState.start, focusState.end);
+          }
+        }
+      }
     }
 
     async function createCard() {
@@ -4147,7 +4889,19 @@
       const track = document.getElementById('track').value.trim();
 
       if (message === "") {
-        alert("Напиши хотя бы пару слов о своём состоянии.");
+        setMixerHint('Напиши хотя бы пару слов о своём состоянии.');
+        return;
+      }
+      if (message.length > 5000) {
+        setMixerHint('Пост может содержать не более 5000 символов.');
+        return;
+      }
+      if (track.length > 2048) {
+        setMixerHint('Название трека или ссылка слишком длинные.');
+        return;
+      }
+      if (!isSafeTrackValue(track)) {
+        setMixerHint('Для ссылки используй только корректный адрес, начинающийся с http:// или https://.');
         return;
       }
 
@@ -4164,9 +4918,11 @@
         }
       }
 
+      if (!checkCooldown(POST_COOLDOWN_KEY, 10, setMixerHint)) return;
       if (!supabaseClient) throw new Error('Библиотека Supabase не загрузилась.');
 
       const profile = getProfile();
+      const deleteToken = generateDeleteToken();
       const moods = selectedMoods.map(({ mood, intensity }) => ({
         name: mood,
         emoji: getMoodIcon(mood),
@@ -4180,14 +4936,18 @@
           author_avatar: profile.avatar,
           moods,
           message,
-          track
+          track,
+          delete_token: deleteToken
         })
         .select()
         .single();
       if (error) throw error;
       if (!data) throw new Error('Supabase не вернула созданный пост.');
 
+      writeStorage(POST_COOLDOWN_KEY, String(Date.now()));
       rememberLocalId(OWNED_POSTS_KEY, data.id);
+      const deleteTokenStored = rememberDeleteToken(POST_TOKENS_KEY, data.id, deleteToken);
+      loadedPostsLimit += 1;
       const newCard = mapSupabasePost(data, [], profile);
       feedCards = [newCard, ...feedCards.filter((card) => String(card.id) !== String(newCard.id))];
       feedError = '';
@@ -4209,6 +4969,7 @@
       renderFeed();
       if (mobileLayoutQuery.matches) switchMobileTab('feed');
       await refreshFeed(false);
+      if (!deleteTokenStored) showFeedNotice('Мысль опубликована, но токен удаления не удалось сохранить на этом устройстве.');
     }
 
     function updateSoundModeButtons(mode) {
@@ -4224,14 +4985,33 @@
     function stopAmbientSources() {
       if (!audioContext) return;
       const now = audioContext.currentTime;
-      ambientSources.forEach(({ source, gain }) => {
-        gain.gain.cancelScheduledValues(now);
-        gain.gain.setTargetAtTime(0, now, 0.12);
-        source.onended = () => {
-          source.disconnect();
-          gain.disconnect();
+      ambientSources.forEach((entry) => {
+        const gain = entry.gain;
+        const sources = Array.isArray(entry.sources)
+          ? entry.sources
+          : entry.source ? [entry.source] : [];
+        const nodes = Array.isArray(entry.nodes) ? entry.nodes : [];
+        if (gain) {
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setTargetAtTime(0, now, 0.12);
+        }
+        const disconnectNodes = () => {
+          sources.forEach((source) => source.disconnect());
+          nodes.forEach((node) => node.disconnect());
+          if (gain) gain.disconnect();
         };
-        source.stop(now + 0.5);
+        if (!sources.length) {
+          disconnectNodes();
+          return;
+        }
+        let remainingSources = sources.length;
+        sources.forEach((source) => {
+          source.onended = () => {
+            remainingSources -= 1;
+            if (remainingSources === 0) disconnectNodes();
+          };
+          source.stop(now + 0.5);
+        });
       });
       ambientSources = [];
     }
@@ -4275,28 +5055,81 @@
       masterGain.gain.setTargetAtTime(volume * 0.35, now, 0.08);
 
       if (mode === 'rain') {
-        const bufferLength = audioContext.sampleRate * 2;
-        const noiseBuffer = audioContext.createBuffer(1, bufferLength, audioContext.sampleRate);
-        const samples = noiseBuffer.getChannelData(0);
-        for (let index = 0; index < samples.length; index += 1) {
-          samples[index] = (Math.random() * 2 - 1) * 0.55;
+        const bufferLength = Math.floor(audioContext.sampleRate * 5);
+        const rawSamples = new Float32Array(bufferLength);
+        // Paul Kellet pink-noise filter.
+        let b0 = 0;
+        let b1 = 0;
+        let b2 = 0;
+        let b3 = 0;
+        let b4 = 0;
+        let b5 = 0;
+        let b6 = 0;
+        for (let index = 0; index < rawSamples.length; index += 1) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          rawSamples[index] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+          b6 = white * 0.115926;
         }
 
+        const seamLength = Math.floor(audioContext.sampleRate * 0.25);
+        const seam = new Float32Array(seamLength);
+        for (let index = 0; index < seamLength; index += 1) {
+          const progress = index / (seamLength - 1);
+          seam[index] =
+            rawSamples[bufferLength - seamLength + index] * Math.cos(progress * Math.PI / 2) +
+            rawSamples[index] * Math.sin(progress * Math.PI / 2);
+        }
+        const loopSamples = new Float32Array(bufferLength - seamLength);
+        const seamMidpoint = Math.floor(seamLength / 2);
+        let sampleOffset = 0;
+        loopSamples.set(seam.subarray(seamMidpoint), sampleOffset);
+        sampleOffset += seamLength - seamMidpoint;
+        loopSamples.set(rawSamples.subarray(seamLength, bufferLength - seamLength), sampleOffset);
+        sampleOffset += bufferLength - seamLength * 2;
+        loopSamples.set(seam.subarray(0, seamMidpoint), sampleOffset);
+        const noiseBuffer = audioContext.createBuffer(1, loopSamples.length, audioContext.sampleRate);
+        noiseBuffer.getChannelData(0).set(loopSamples);
         const source = audioContext.createBufferSource();
-        const filter = audioContext.createBiquadFilter();
+        const lowpass = audioContext.createBiquadFilter();
+        const highpass = audioContext.createBiquadFilter();
         const gain = audioContext.createGain();
+        const lfo = audioContext.createOscillator();
+        const frequencyDepth = audioContext.createGain();
+        const volumeDepth = audioContext.createGain();
         source.buffer = noiseBuffer;
         source.loop = true;
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1050, now);
-        filter.Q.setValueAtTime(0.35, now);
+        lowpass.type = 'lowpass';
+        lowpass.frequency.value = 850;
+        lowpass.Q.value = 0.45;
+        highpass.type = 'highpass';
+        highpass.frequency.value = 140;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.setTargetAtTime(0.2, now, 0.7);
-        source.connect(filter);
-        filter.connect(gain);
+        gain.gain.setTargetAtTime(0.38, now, 0.7);
+        lfo.frequency.value = 0.1;
+        frequencyDepth.gain.value = 180;
+        volumeDepth.gain.setValueAtTime(0.0001, now);
+        volumeDepth.gain.setTargetAtTime(0.07, now, 0.8);
+        source.connect(lowpass);
+        lowpass.connect(highpass);
+        highpass.connect(gain);
         gain.connect(masterGain);
-        source.start();
-        ambientSources.push({ source, gain });
+        lfo.connect(frequencyDepth);
+        frequencyDepth.connect(lowpass.frequency);
+        lfo.connect(volumeDepth);
+        volumeDepth.connect(gain.gain);
+        source.start(now);
+        lfo.start(now);
+        ambientSources.push({
+          sources: [source, lfo],
+          gain,
+          nodes: [lowpass, highpass, frequencyDepth, volumeDepth]
+        });
       } else if (mode === 'warm') {
         [55, 82.4].forEach((frequency, index) => {
           const oscillator = audioContext.createOscillator();
