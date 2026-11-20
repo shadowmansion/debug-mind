@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -2385,6 +2385,7 @@
     }
 
     .vibe-card-preview-header button {
+      width: auto;
       flex: 0 0 auto;
       padding: 8px 11px;
       font-size: 0.72rem;
@@ -2661,6 +2662,7 @@
       .onboarding-overlay, .avatar-overlay, .user-profile-overlay { padding: 10px; }
       .onboarding-modal, .avatar-modal, .user-profile-modal { max-height: 94vh; padding: 18px; border-radius: 16px; }
       .vibe-card-preview-actions { display: grid; grid-template-columns: 1fr; }
+      .vibe-card-preview-image { max-height: 44vh; }
       .avatar-builder { grid-template-columns: 1fr; }
       .avatar-builder-preview { width: 58px; height: 58px; justify-self: center; grid-row: 1; }
       .avatar-builder-controls { grid-template-columns: 1fr; }
@@ -7882,7 +7884,7 @@
     async function createVibeCardBlob(cardData, metadata, quote, cardNumber) {
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
-      canvas.height = 1920;
+      canvas.height = 1350;
       const context = canvas.getContext('2d');
       if (!context) throw new Error('Не удалось создать изображение на этом устройстве.');
       context.imageSmoothingQuality = 'high';
@@ -7902,18 +7904,23 @@
       context.font = '30px Arial, sans-serif';
       const quoteLines = quoteText ? wrapCanvasText(context, quoteText, 730, 4) : [];
 
-      const messageLineHeight = 48;
+      const messageLineHeight = 42;
       const messageBlockHeight = messageLines.length
-        ? 44 + 22 + messageLines.length * messageLineHeight + 18 : 0;
-      const trackBlockHeight = track ? 44 + 16 + 136 + 20 : 0;
-      const quoteHeight = quoteLines.length ? Math.max(160, quoteLines.length * 46 + 84) : 0;
-      const contentTop = 780;
-      const footerTop = 1590;
-      const contentHeight = messageBlockHeight + trackBlockHeight + quoteHeight;
+        ? 34 + 8 + messageLines.length * messageLineHeight : 0;
+      const trackBlockHeight = track ? 44 + 10 + 136 + 2 : 0;
+      const quoteLineHeight = 34;
+      const quoteHeight = quoteLines.length
+        ? Math.max(96, 72 + (quoteLines.length - 1) * quoteLineHeight) : 0;
       const contentSections = [messageBlockHeight, trackBlockHeight, quoteHeight]
         .filter((height) => height > 0).length;
+      const moodRowStep = quoteLines.length ? 112 : 138;
+      const moodAreaHeight = moodRowStep * moods.length;
+      const moodAreaTop = contentSections ? 208 : (canvas.height - moodAreaHeight) / 2;
+      const contentTop = contentSections ? moodAreaTop + moodAreaHeight : 450;
+      const footerTop = 1140;
+      const contentHeight = messageBlockHeight + trackBlockHeight + quoteHeight;
       const sectionGap = contentSections
-        ? Math.max(12, (footerTop - contentTop - contentHeight) / (contentSections + 1))
+        ? Math.max(4, (footerTop - contentTop - contentHeight) / (contentSections + 1))
         : 0;
 
       context.fillStyle = '#181513';
@@ -7946,8 +7953,6 @@
       context.font = '28px Arial, sans-serif';
       context.fillText(t('ТВОЁ НАСТРОЕНИЕ СЕЙЧАС'), 102, 210);
 
-      const moodAreaTop = contentSections ? 320 : 220;
-      const moodAreaHeight = contentSections ? 420 : 1400;
       moods.forEach((item, index) => {
         const y = moodAreaTop + moodAreaHeight * (index + 0.5) / moods.length;
         const color = getTagAccent(item.mood);
@@ -7979,7 +7984,7 @@
         context.fillStyle = '#e8e0d5';
         context.font = '36px Arial, sans-serif';
         messageLines.forEach((line, index) =>
-          context.fillText(line, 100, y + 82 + index * messageLineHeight)
+          context.fillText(line, 100, y + 70 + index * messageLineHeight)
         );
         y += messageBlockHeight + sectionGap;
       }
@@ -8039,10 +8044,12 @@
         context.stroke();
         context.fillStyle = accent;
         context.font = '700 76px Georgia, serif';
-        context.fillText('“', 126, y + 78);
+        context.fillText('“', 126, y + 70);
         context.fillStyle = '#e8e0d5';
         context.font = '30px Arial, sans-serif';
-        quoteLines.forEach((line, index) => context.fillText(line, 198, y + 64 + index * 46));
+        quoteLines.forEach((line, index) =>
+          context.fillText(line, 198, y + 54 + index * quoteLineHeight)
+        );
       }
 
       const localHostnames = ['', 'localhost', '127.0.0.1'];
@@ -8052,30 +8059,30 @@
       const siteUrl = useProductionSite
         ? 'https://debug-mind-nine.vercel.app' : window.location.origin;
       context.fillStyle = '#e8b17f';
-      context.font = '700 36px Arial, sans-serif';
-      context.fillText(`САУНДЧЕК #${String(cardNumber).padStart(4, '0')}`, 100, 1720);
+      context.font = '700 34px Arial, sans-serif';
+      context.fillText(`Саундчек #${String(cardNumber).padStart(4, '0')}`, 100, 1214);
       context.fillStyle = 'rgba(232, 224, 213, 0.68)';
-      context.font = '26px Arial, sans-serif';
-      context.fillText(siteAddress, 100, 1790, 650);
+      context.font = '24px Arial, sans-serif';
+      context.fillText(siteAddress, 100, 1246, 650);
 
       if (typeof window.QRious === 'function') {
-        const qrSize = 150;
+        const qrSize = 130;
         const qr = new window.QRious({
           value: siteUrl,
           size: qrSize,
           background: '#211d1a',
-          foreground: '#f5efe6',
+          foreground: '#cfc7be',
           level: 'M'
         });
-        const qrFrameSize = 200;
+        const qrFrameSize = 144;
         const qrQuietZone = (qrFrameSize - qrSize) / 2;
         const qrFrameX = canvas.width - 100 - qrFrameSize;
-        const qrFrameY = 1630;
-        drawCanvasRoundedRect(context, qrFrameX, qrFrameY, qrFrameSize, qrFrameSize, 24);
+        const qrFrameY = 1148;
+        drawCanvasRoundedRect(context, qrFrameX, qrFrameY, qrFrameSize, qrFrameSize, 16);
         context.fillStyle = '#211d1a';
         context.fill();
-        context.strokeStyle = 'rgba(217, 155, 102, 0.72)';
-        context.lineWidth = 3;
+        context.strokeStyle = 'rgba(207, 199, 190, 0.24)';
+        context.lineWidth = 2;
         context.stroke();
         context.save();
         context.imageSmoothingEnabled = false;
