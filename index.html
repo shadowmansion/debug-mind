@@ -1087,6 +1087,9 @@
     .mixer-channel[data-mood="Грустно"] { --channel-color: #6f9295; }
     .mixer-channel[data-mood="Раздражён"] { --channel-color: #a66068; }
     .mixer-channel[data-mood="Спокойно"] { --channel-color: #a18b60; }
+    .mixer-channel[data-mood="Ностальгия"] { --channel-color: #8f7a9e; }
+    .mixer-channel[data-mood="Весело"] { --channel-color: #6b8e78; }
+    .mixer-channel[data-mood="Все хорошо"] { --channel-color: #a8935c; }
 
     .mixer-channel-top {
       display: flex;
@@ -1198,6 +1201,40 @@
     .form-actions {
       display: grid;
       gap: 9px;
+    }
+
+    .vibe-card-action {
+      display: grid;
+      gap: 6px;
+    }
+
+    .save-vibe-card-button {
+      width: 100%;
+      background: rgba(235, 215, 195, 0.035);
+      border: 1px solid var(--line-strong);
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .save-vibe-card-button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: rgba(217, 155, 102, 0.08);
+    }
+
+    .save-vibe-card-button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    .vibe-card-status {
+      min-height: 1.2em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .card-vibe-card-action {
+      margin-top: 12px;
     }
 
     .primary-button {
@@ -2097,6 +2134,72 @@
       font-size: clamp(1.25rem, 5vw, 1.7rem);
     }
 
+    .vibe-card-preview-modal {
+      width: min(760px, 100%);
+    }
+
+    .vibe-card-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .vibe-card-preview-header button {
+      flex: 0 0 auto;
+      padding: 8px 11px;
+      font-size: 0.72rem;
+    }
+
+    .vibe-card-preview-image {
+      display: block;
+      width: min(100%, 560px);
+      max-height: 54vh;
+      margin: 0 auto 16px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #181513;
+    }
+
+    .vibe-card-preview-image[hidden] { display: none; }
+
+    .vibe-card-preview-modal > label {
+      display: block;
+      margin: 12px 0 7px;
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .vibe-card-quote-input {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      background: #191614;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .vibe-card-preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .vibe-card-preview-actions button {
+      flex: 1 1 150px;
+    }
+
+    .vibe-card-preview-status {
+      min-height: 1.2em;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
     .user-profile-modal-header,
     .user-profile-identity {
       display: flex;
@@ -2323,6 +2426,7 @@
     @media (max-width: 540px) {
       .onboarding-overlay, .avatar-overlay, .user-profile-overlay { padding: 10px; }
       .onboarding-modal, .avatar-modal, .user-profile-modal { max-height: 94vh; padding: 18px; border-radius: 16px; }
+      .vibe-card-preview-actions { display: grid; grid-template-columns: 1fr; }
       .avatar-builder { grid-template-columns: 1fr; }
       .avatar-builder-preview { width: 58px; height: 58px; justify-self: center; grid-row: 1; }
       .avatar-builder-controls { grid-template-columns: 1fr; }
@@ -2725,6 +2829,23 @@
       <div class="user-profile-posts" id="user-profile-posts"></div>
     </section>
   </div>
+  <div class="avatar-overlay" id="vibe-card-preview-overlay" hidden>
+    <section class="avatar-modal vibe-card-preview-modal" role="dialog" aria-modal="true" aria-labelledby="vibe-card-preview-title">
+      <div class="vibe-card-preview-header">
+        <h2 id="vibe-card-preview-title">Предпросмотр карточки</h2>
+        <button type="button" class="secondary-button" id="vibe-card-preview-close-top">Закрыть</button>
+      </div>
+      <img class="vibe-card-preview-image" id="vibe-card-preview-image" alt="Предпросмотр карточки настроения" hidden>
+      <label for="vibe-card-quote">Строчка из трека или цитата (до 220 символов)</label>
+      <textarea class="vibe-card-quote-input" id="vibe-card-quote" maxlength="220" placeholder="Добавь строку, которая подходит этому моменту..."></textarea>
+      <p class="vibe-card-preview-status" id="vibe-card-preview-status" role="status" aria-live="polite"></p>
+      <div class="vibe-card-preview-actions">
+        <button type="button" class="primary-button" id="vibe-card-download" disabled>Скачать PNG</button>
+        <button type="button" class="secondary-button" id="vibe-card-share" disabled>Поделиться</button>
+        <button type="button" class="secondary-button" id="vibe-card-preview-close">Закрыть</button>
+      </div>
+    </section>
+  </div>
   <div class="app-shell">
     <header class="topbar">
       <h1 class="brand-mark">DeBug_</h1>
@@ -2853,6 +2974,39 @@
             </div>
           </div>
 
+          <div class="mixer-channel" data-mood="Ностальгия">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">📼 Ностальгия</span>
+              <button class="channel-select" type="button" data-select-mood="Ностальгия">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Ностальгия">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Весело">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🎧 Весело</span>
+              <button class="channel-select" type="button" data-select-mood="Весело">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Весело">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
+          <div class="mixer-channel" data-mood="Все хорошо">
+            <div class="mixer-channel-top">
+              <span class="mixer-label">🍃 Все хорошо</span>
+              <button class="channel-select" type="button" data-select-mood="Все хорошо">Выбрать</button>
+            </div>
+            <div class="mixer-control">
+              <input class="mixer-range" type="range" min="10" max="100" step="1" value="70" aria-label="Интенсивность состояния Все хорошо">
+              <output class="intensity-output">70%</output>
+            </div>
+          </div>
+
           <input type="hidden" id="mood" value="Выгорел">
           <input type="hidden" id="intensity" value="70">
           <div class="publish-as">Публикуешь как: <span id="publish-avatar"></span><strong id="publish-name"></strong></div>
@@ -2865,6 +3019,7 @@
 
           <div class="form-actions">
             <button type="submit" class="primary-button">▶ Поделиться багом</button>
+            <div class="vibe-card-action" id="post-vibe-card-action"></div>
             <button type="button" class="secondary-button" id="refresh-feed">🔄 Обновить эфир</button>
           </div>
         </form>
@@ -2890,6 +3045,9 @@
                 <option value="Грустно">🌧️ Грустно</option>
                 <option value="Раздражён">💢 Раздражён</option>
                 <option value="Спокойно">☕ Спокойно</option>
+                <option value="Ностальгия">📼 Ностальгия</option>
+                <option value="Весело">🎧 Весело</option>
+                <option value="Все хорошо">🍃 Все хорошо</option>
               </select>
             </label>
           </div>
@@ -3099,7 +3257,10 @@
       'Полон сил': '#638765',
       'Грустно': '#5c858a',
       'Раздражён': '#a45362',
-      'Спокойно': '#a08451'
+      'Спокойно': '#a08451',
+      'Ностальгия': '#8f7a9e',
+      'Весело': '#6b8e78',
+      'Все хорошо': '#a8935c'
     };
     let visibleGlowId = 'front';
     let hintTimer;
@@ -3132,6 +3293,9 @@
     let postViewObserver = null;
     let userProfileRequestId = 0;
     let userProfileReturnFocus = null;
+    let vibeCardPreview = null;
+    let vibeCardPreviewRequestId = 0;
+    let vibeCardRenderTimer = null;
     let viewTrackingTimer = null;
     const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
 
@@ -5595,6 +5759,9 @@
       if (fixesToggle) commentsSection.appendChild(fixesToggle);
       commentsSection.append(commentList, commentToggle, commentForm);
       card.appendChild(commentsSection);
+      if (postDeleteToken) {
+        card.appendChild(createVibeCardAction(() => cardData, 'card-vibe-card-action'));
+      }
       return card;
     }
 
@@ -5859,7 +6026,10 @@
         'Полон сил': '#7d9a7e',
         'Грустно': '#6f9295',
         'Раздражён': '#a66068',
-        'Спокойно': '#a18b60'
+        'Спокойно': '#a18b60',
+        'Ностальгия': '#8f7a9e',
+        'Весело': '#6b8e78',
+        'Все хорошо': '#a8935c'
       };
 
       return palette[mood] || '#d99b66';
@@ -5874,11 +6044,572 @@
         'Полон сил': '🔋',
         'Грустно': '🌧️',
         'Раздражён': '💢',
-        'Спокойно': '☕'
+        'Спокойно': '☕',
+        'Ностальгия': '📼',
+        'Весело': '🎧',
+        'Все хорошо': '🍃'
       };
 
       return icons[mood] || '☕';
     }
+
+    function wrapCanvasText(context, value, maxWidth, maxLines) {
+      const paragraphs = String(value).split(/\r?\n/);
+      const lines = [];
+      let truncated = false;
+      paragraphs.forEach((paragraph) => {
+        const words = paragraph.split(/\s+/).filter(Boolean);
+        if (!words.length) {
+          lines.push('');
+          return;
+        }
+        let line = '';
+        words.forEach((word) => {
+          let remaining = word;
+          while (remaining) {
+            const candidate = line ? `${line} ${remaining}` : remaining;
+            if (context.measureText(candidate).width <= maxWidth) {
+              line = candidate;
+              remaining = '';
+              continue;
+            }
+            if (line) {
+              lines.push(line);
+              line = '';
+            } else {
+              let fittingWord = '';
+              while (remaining && context.measureText(fittingWord + remaining[0]).width <= maxWidth) {
+                fittingWord += remaining[0];
+                remaining = remaining.slice(1);
+              }
+              if (!fittingWord) {
+                fittingWord = remaining[0];
+                remaining = remaining.slice(1);
+              }
+              lines.push(fittingWord);
+            }
+          }
+        });
+        if (line) lines.push(line);
+      });
+
+      if (lines.length > maxLines) {
+        lines.length = maxLines;
+        truncated = true;
+      }
+      if (truncated && lines.length) {
+        let lastLine = lines[lines.length - 1].replace(/\s+$/, '');
+        while (lastLine && context.measureText(`${lastLine}…`).width > maxWidth) {
+          lastLine = lastLine.slice(0, -1);
+        }
+        lines[lines.length - 1] = `${lastLine}…`;
+      }
+      return lines;
+    }
+
+    function drawCanvasRoundedRect(context, x, y, width, height, radius) {
+      const corner = Math.min(radius, width / 2, height / 2);
+      context.beginPath();
+      context.moveTo(x + corner, y);
+      context.arcTo(x + width, y, x + width, y + height, corner);
+      context.arcTo(x + width, y + height, x, y + height, corner);
+      context.arcTo(x, y + height, x, y, corner);
+      context.arcTo(x, y, x + width, y, corner);
+      context.closePath();
+    }
+
+    function getYouTubeVideoId(url) {
+      if (url.hostname === 'youtu.be') {
+        const match = url.pathname.match(/^\/([a-zA-Z0-9_-]{11})\/?$/);
+        return match ? match[1] : '';
+      }
+      if (url.hostname !== 'youtube.com' && !url.hostname.endsWith('.youtube.com')) return '';
+      const videoId = url.searchParams.get('v');
+      if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) return videoId;
+      const match = url.pathname.match(/^\/(?:shorts|embed)\/([a-zA-Z0-9_-]{11})(?:\/|$)/);
+      return match ? match[1] : '';
+    }
+
+    async function getTrackMetadata(trackValue) {
+      const track = typeof trackValue === 'string' ? trackValue.trim() : '';
+      const metadata = { title: track, author: '', thumbnailUrl: '', lookupFailed: false };
+      if (!/^https?:\/\//i.test(track) || !isSafeTrackValue(track)) return metadata;
+
+      let trackUrl;
+      try {
+        trackUrl = new URL(track);
+      } catch (error) {
+        return metadata;
+      }
+      const hostname = trackUrl.hostname.toLowerCase();
+      const isYouTube = hostname === 'youtu.be' || hostname === 'youtube.com' ||
+        hostname.endsWith('.youtube.com');
+      const isSoundCloud = hostname === 'soundcloud.com' || hostname.endsWith('.soundcloud.com');
+      if ((!isYouTube && !isSoundCloud) || trackUrl.port) return metadata;
+
+      const videoId = isYouTube ? getYouTubeVideoId(trackUrl) : '';
+      if (videoId) metadata.thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 3000);
+      try {
+        const endpoint = `https://noembed.com/embed?url=${encodeURIComponent(trackUrl.href)}`;
+        const response = await fetch(endpoint, { signal: controller.signal });
+        if (!response.ok) throw new Error(`noembed вернул HTTP ${response.status}.`);
+        const result = await response.json();
+        if (typeof result.title === 'string' && result.title.trim()) {
+          metadata.title = result.title.trim().slice(0, 240);
+        }
+        if (typeof result.author_name === 'string') {
+          metadata.author = result.author_name.trim().slice(0, 120);
+        }
+        if (typeof result.thumbnail_url === 'string') {
+          try {
+            const thumbnailUrl = new URL(result.thumbnail_url);
+            if (['http:', 'https:'].includes(thumbnailUrl.protocol) &&
+                !thumbnailUrl.username && !thumbnailUrl.password) {
+              metadata.thumbnailUrl = thumbnailUrl.href;
+            }
+          } catch (error) {
+            console.warn('noembed вернул некорректную ссылку на обложку:', error);
+          }
+        }
+      } catch (error) {
+        metadata.lookupFailed = true;
+        if (!error || error.name !== 'AbortError') {
+          console.warn('Не удалось получить метаданные трека:', error);
+        }
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+      return metadata;
+    }
+
+    function loadTrackCover(url) {
+      if (!url) return Promise.resolve(null);
+      return new Promise((resolve) => {
+        const image = new Image();
+        const timeoutId = window.setTimeout(() => {
+          image.onload = null;
+          image.onerror = null;
+          image.src = '';
+          resolve(null);
+        }, 3000);
+        const finish = (result) => {
+          window.clearTimeout(timeoutId);
+          image.onload = null;
+          image.onerror = null;
+          resolve(result);
+        };
+        image.crossOrigin = 'anonymous';
+        image.onload = () => finish(image.naturalWidth ? image : null);
+        image.onerror = () => finish(null);
+        image.src = url;
+      });
+    }
+
+    async function getTrackCover(metadata, track) {
+      const candidates = [metadata.thumbnailUrl];
+      if (/^https?:\/\//i.test(track)) {
+        try {
+          const trackUrl = new URL(track);
+          const videoId = getYouTubeVideoId(trackUrl);
+          if (videoId) candidates.push(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
+        } catch (error) {
+          console.warn('Не удалось разобрать ссылку на трек для обложки:', error);
+        }
+      }
+      const tried = new Set();
+      for (const candidate of candidates) {
+        if (!candidate || tried.has(candidate)) continue;
+        tried.add(candidate);
+        const image = await loadTrackCover(candidate);
+        if (image) return image;
+      }
+      return null;
+    }
+
+    async function createVibeCardBlob(cardData, metadata, quote) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Не удалось создать изображение на этом устройстве.');
+
+      const moods = getCardMoods(cardData);
+      const message = typeof cardData.message === 'string' ? cardData.message.trim() : '';
+      const track = typeof cardData.track === 'string' ? cardData.track.trim() : '';
+      const trackTitle = metadata && metadata.title ? metadata.title : track;
+      const trackAuthor = metadata && metadata.author ? metadata.author : '';
+      const quoteText = typeof quote === 'string' ? quote.trim().slice(0, 220) : '';
+      context.font = '25px Arial, sans-serif';
+      const messageLines = message ? wrapCanvasText(context, message, 850, 4) : [];
+      context.font = '23px Arial, sans-serif';
+      const trackTitleLines = track ? wrapCanvasText(context, trackTitle, 760, 2) : [];
+      context.font = '17px Arial, sans-serif';
+      const authorLines = trackAuthor ? wrapCanvasText(context, trackAuthor, 760, 1) : [];
+      context.font = '23px Arial, sans-serif';
+      const quoteLines = quoteText ? wrapCanvasText(context, quoteText, 780, 4) : [];
+
+      let contentY = Math.max(360, 278 + (moods.length - 1) * 104 + 72);
+      if (messageLines.length) contentY += 42 + messageLines.length * 39 + 28;
+      if (track) contentY += 112;
+      const quoteHeight = quoteLines.length ? Math.max(100, quoteLines.length * 35 + 46) : 0;
+      if (quoteHeight) contentY += quoteHeight + 28;
+      const footerY = contentY + 62;
+      canvas.height = Math.max(760, footerY + 62);
+
+      context.fillStyle = '#181513';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      drawCanvasRoundedRect(context, 54, 54, 972, canvas.height - 108, 34);
+      context.fillStyle = '#211d1a';
+      context.fill();
+      context.save();
+      drawCanvasRoundedRect(context, 54, 54, 972, canvas.height - 108, 34);
+      context.clip();
+      moods.forEach((item, index) => {
+        const color = getTagAccent(item.mood);
+        const x = 170 + index * 370;
+        const glow = context.createRadialGradient(x, 120, 10, x, 120, 560);
+        glow.addColorStop(0, `${color}35`);
+        glow.addColorStop(1, `${color}00`);
+        context.fillStyle = glow;
+        context.fillRect(54, 54, 972, canvas.height - 108);
+      });
+      context.restore();
+      drawCanvasRoundedRect(context, 54, 54, 972, canvas.height - 108, 34);
+      context.strokeStyle = 'rgba(235, 215, 195, 0.12)';
+      context.lineWidth = 2;
+      context.stroke();
+
+      context.fillStyle = '#e8b17f';
+      context.font = '700 48px Arial, sans-serif';
+      context.fillText('DeBug_', 108, 142);
+      context.fillStyle = '#9e9387';
+      context.font = '20px Arial, sans-serif';
+      context.fillText('ТВОЁ НАСТРОЕНИЕ СЕЙЧАС', 110, 183);
+
+      moods.forEach((item, index) => {
+        const y = 247 + index * 104;
+        const color = getTagAccent(item.mood);
+        context.fillStyle = color;
+        context.font = '34px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+        context.fillText(getMoodIcon(item.mood), 110, y + 6);
+        context.fillStyle = '#e8e0d5';
+        context.font = '600 27px Arial, sans-serif';
+        context.fillText(item.mood, 168, y);
+        context.textAlign = 'right';
+        context.fillStyle = color;
+        context.font = '600 24px Arial, sans-serif';
+        context.fillText(`${item.intensity}%`, 968, y);
+        context.textAlign = 'left';
+
+        drawCanvasRoundedRect(context, 168, y + 19, 800, 12, 6);
+        context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        context.fill();
+        drawCanvasRoundedRect(context, 168, y + 19, 800 * item.intensity / 100, 12, 6);
+        context.fillStyle = color;
+        context.fill();
+      });
+
+      let y = Math.max(360, 278 + (moods.length - 1) * 104 + 72);
+      if (messageLines.length) {
+        context.fillStyle = '#9e9387';
+        context.font = '20px Arial, sans-serif';
+        context.fillText('МЫСЛЬ', 110, y);
+        y += 42;
+        context.fillStyle = '#e8e0d5';
+        context.font = '25px Arial, sans-serif';
+        messageLines.forEach((line, index) => context.fillText(line, 110, y + index * 39));
+        y += messageLines.length * 39 + 28;
+      }
+
+      if (track) {
+        context.fillStyle = '#9e9387';
+        context.font = '20px Arial, sans-serif';
+        context.fillText('ТРЕК', 110, y);
+        const coverX = 110;
+        const coverY = y + 16;
+        drawCanvasRoundedRect(context, coverX, coverY, 72, 72, 14);
+        context.save();
+        context.clip();
+        if (metadata && metadata.coverImage) {
+          context.drawImage(metadata.coverImage, coverX, coverY, 72, 72);
+        } else {
+          const placeholder = context.createLinearGradient(coverX, coverY, coverX + 72, coverY + 72);
+          placeholder.addColorStop(0, '#39302a');
+          placeholder.addColorStop(1, '#211d1a');
+          context.fillStyle = placeholder;
+          context.fillRect(coverX, coverY, 72, 72);
+          context.fillStyle = '#e8b17f';
+          context.font = '42px Arial, sans-serif';
+          context.textAlign = 'center';
+          context.fillText('♫', coverX + 36, coverY + 51);
+          context.textAlign = 'left';
+        }
+        context.restore();
+        context.strokeStyle = 'rgba(235, 215, 195, 0.16)';
+        context.lineWidth = 1;
+        drawCanvasRoundedRect(context, coverX, coverY, 72, 72, 14);
+        context.stroke();
+
+        context.fillStyle = '#e8b17f';
+        context.font = '600 23px Arial, sans-serif';
+        trackTitleLines.forEach((line, index) => context.fillText(line, 202, coverY + 25 + index * 27));
+        if (authorLines.length) {
+          context.fillStyle = '#9e9387';
+          context.font = '17px Arial, sans-serif';
+          context.fillText(authorLines[0], 202, coverY + 72);
+        }
+        y += 112;
+      }
+
+      if (quoteLines.length) {
+        const accent = getTagAccent(moods[0].mood);
+        drawCanvasRoundedRect(context, 110, y, 858, quoteHeight, 18);
+        context.fillStyle = `${accent}18`;
+        context.fill();
+        context.strokeStyle = `${accent}75`;
+        context.lineWidth = 2;
+        context.stroke();
+        context.fillStyle = accent;
+        context.font = '700 54px Georgia, serif';
+        context.fillText('“', 130, y + 57);
+        context.fillStyle = '#e8e0d5';
+        context.font = '23px Arial, sans-serif';
+        quoteLines.forEach((line, index) => context.fillText(line, 184, y + 47 + index * 35));
+        y += quoteHeight + 28;
+      }
+
+      context.fillStyle = 'rgba(232, 224, 213, 0.58)';
+      context.font = '19px Arial, sans-serif';
+      context.textAlign = 'center';
+      context.fillText('Debug – debug your mind', 540, canvas.height - 78);
+      context.textAlign = 'left';
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Не удалось сформировать PNG-картинку.'));
+        }, 'image/png');
+      });
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') resolve(reader.result);
+          else reject(new Error('Не удалось подготовить предпросмотр PNG.'));
+        };
+        reader.onerror = () => reject(reader.error || new Error('Не удалось подготовить предпросмотр PNG.'));
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function renderVibeCardPreview() {
+      const preview = vibeCardPreview;
+      if (!preview || preview.metadataLoading) return;
+      const renderId = ++preview.renderId;
+      const status = document.getElementById('vibe-card-preview-status');
+      const image = document.getElementById('vibe-card-preview-image');
+      const downloadButton = document.getElementById('vibe-card-download');
+      const shareButton = document.getElementById('vibe-card-share');
+      status.textContent = 'Обновляем предпросмотр...';
+      downloadButton.disabled = true;
+      shareButton.disabled = true;
+      try {
+        const metadata = {
+          ...preview.trackMetadata,
+          coverImage: preview.coverImage
+        };
+        const blob = await createVibeCardBlob(preview.cardData, metadata, preview.quote);
+        const dataUrl = await blobToDataUrl(blob);
+        if (vibeCardPreview !== preview || preview.renderId !== renderId) return;
+        preview.blob = blob;
+        image.src = dataUrl;
+        image.hidden = false;
+        downloadButton.disabled = false;
+        shareButton.disabled = false;
+        status.textContent = preview.cardData.track && !preview.coverImage
+          ? preview.trackMetadata.lookupFailed
+            ? 'Метаданные недоступны; показаны ссылка и заглушка обложки.'
+            : 'Обложка недоступна — на карточке показана заглушка.'
+          : preview.trackMetadata.lookupFailed
+            ? 'Не удалось получить метаданные трека; показана указанная ссылка.'
+            : '';
+      } catch (error) {
+        if (vibeCardPreview !== preview || preview.renderId !== renderId) return;
+        console.error('Не удалось обновить предпросмотр карточки:', error);
+        status.textContent = error && error.message
+          ? `Не удалось создать предпросмотр: ${error.message}`
+          : 'Не удалось создать предпросмотр карточки.';
+      }
+    }
+
+    async function openVibeCardPreview(cardData, trigger) {
+      const overlay = document.getElementById('vibe-card-preview-overlay');
+      const image = document.getElementById('vibe-card-preview-image');
+      const quoteInput = document.getElementById('vibe-card-quote');
+      const status = document.getElementById('vibe-card-preview-status');
+      const downloadButton = document.getElementById('vibe-card-download');
+      const shareButton = document.getElementById('vibe-card-share');
+      const requestId = ++vibeCardPreviewRequestId;
+      const preview = {
+        requestId,
+        renderId: 0,
+        cardData: {
+          moods: Array.isArray(cardData.moods) ? cardData.moods.map((item) => ({ ...item })) : cardData.moods,
+          mood: cardData.mood,
+          intensity: cardData.intensity,
+          message: typeof cardData.message === 'string' ? cardData.message : '',
+          track: typeof cardData.track === 'string' ? cardData.track : ''
+        },
+        trackMetadata: { title: '', author: '', thumbnailUrl: '', lookupFailed: false },
+        coverImage: null,
+        quote: '',
+        blob: null,
+        trigger,
+        metadataLoading: true
+      };
+      vibeCardPreview = preview;
+      overlay.hidden = false;
+      image.hidden = true;
+      image.removeAttribute('src');
+      quoteInput.value = '';
+      status.textContent = 'Подготавливаем карточку...';
+      downloadButton.disabled = true;
+      shareButton.disabled = true;
+      quoteInput.focus();
+
+      try {
+        preview.trackMetadata = await getTrackMetadata(preview.cardData.track);
+        if (vibeCardPreview !== preview || preview.requestId !== vibeCardPreviewRequestId) return;
+        preview.coverImage = await getTrackCover(preview.trackMetadata, preview.cardData.track);
+        if (vibeCardPreview !== preview || preview.requestId !== vibeCardPreviewRequestId) return;
+        preview.metadataLoading = false;
+        if (preview.trackMetadata.lookupFailed && preview.cardData.track) {
+          status.textContent = 'Не удалось получить метаданные трека; используем указанную ссылку.';
+        }
+        await renderVibeCardPreview();
+      } catch (error) {
+        if (vibeCardPreview !== preview) return;
+        preview.metadataLoading = false;
+        console.error('Не удалось подготовить карточку настроения:', error);
+        status.textContent = error && error.message
+          ? `Не удалось подготовить карточку: ${error.message}`
+          : 'Не удалось подготовить карточку.';
+      }
+    }
+
+    function closeVibeCardPreview() {
+      const overlay = document.getElementById('vibe-card-preview-overlay');
+      if (overlay.hidden) return;
+      window.clearTimeout(vibeCardRenderTimer);
+      vibeCardRenderTimer = null;
+      const trigger = vibeCardPreview && vibeCardPreview.trigger;
+      vibeCardPreview = null;
+      vibeCardPreviewRequestId += 1;
+      overlay.hidden = true;
+      const image = document.getElementById('vibe-card-preview-image');
+      image.removeAttribute('src');
+      image.hidden = true;
+      if (trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
+    }
+
+    function downloadVibeCard(blob) {
+      const url = URL.createObjectURL(blob);
+      const download = document.createElement('a');
+      download.href = url;
+      download.download = 'debug-vibe.png';
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function createVibeCardAction(getCardData, className) {
+      const action = document.createElement('div');
+      action.className = `vibe-card-action ${className || ''}`.trim();
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'save-vibe-card-button';
+      button.textContent = '🖼 Сохранить карточку';
+      const status = document.createElement('p');
+      status.className = 'vibe-card-status';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      action.append(button, status);
+      button.addEventListener('click', () => {
+        openVibeCardPreview(getCardData(), button);
+      });
+      return action;
+    }
+
+    document.getElementById('post-vibe-card-action').appendChild(
+      createVibeCardAction(() => ({
+        moods: getActiveChannels().map((channel) => ({
+          mood: channel.dataset.mood,
+          intensity: Number(channel.querySelector('.mixer-range').value)
+        })),
+        message: document.getElementById('message').value,
+        track: document.getElementById('track').value
+      }))
+    );
+
+    document.getElementById('vibe-card-quote').addEventListener('input', (event) => {
+      if (!vibeCardPreview) return;
+      vibeCardPreview.quote = event.target.value.slice(0, 220);
+      window.clearTimeout(vibeCardRenderTimer);
+      vibeCardRenderTimer = window.setTimeout(() => {
+        renderVibeCardPreview();
+      }, 200);
+    });
+
+    document.getElementById('vibe-card-preview-close').addEventListener('click', closeVibeCardPreview);
+    document.getElementById('vibe-card-preview-close-top').addEventListener('click', closeVibeCardPreview);
+    document.getElementById('vibe-card-preview-overlay').addEventListener('click', (event) => {
+      if (event.target === event.currentTarget) closeVibeCardPreview();
+    });
+    document.getElementById('vibe-card-download').addEventListener('click', () => {
+      const status = document.getElementById('vibe-card-preview-status');
+      if (!vibeCardPreview || !vibeCardPreview.blob) return;
+      try {
+        downloadVibeCard(vibeCardPreview.blob);
+        status.textContent = 'PNG-карточка скачивается.';
+      } catch (error) {
+        console.error('Не удалось скачать PNG-карточку:', error);
+        status.textContent = error && error.message
+          ? `Не удалось скачать карточку: ${error.message}`
+          : 'Не удалось скачать карточку.';
+      }
+    });
+    document.getElementById('vibe-card-share').addEventListener('click', async (event) => {
+      const status = document.getElementById('vibe-card-preview-status');
+      const button = event.currentTarget;
+      if (!vibeCardPreview || !vibeCardPreview.blob || button.disabled) return;
+      const file = typeof File === 'undefined'
+        ? null : new File([vibeCardPreview.blob], 'debug-vibe.png', { type: 'image/png' });
+      if (!file || !navigator.share || !navigator.canShare) {
+        status.textContent = 'Поделиться файлом не поддерживается. Используй «Скачать PNG».';
+        return;
+      }
+      try {
+        if (!navigator.canShare({ files: [file] })) {
+          status.textContent = 'Передача изображений не поддерживается. Используй «Скачать PNG».';
+          return;
+        }
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        await navigator.share({ files: [file], title: 'Моё настроение — DeBug_' });
+        status.textContent = 'Карточка отправлена.';
+      } catch (error) {
+        status.textContent = error && error.name === 'AbortError'
+          ? 'Публикация отменена.'
+          : `Не удалось поделиться карточкой: ${error.message || 'ошибка браузера.'}`;
+      } finally {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+      }
+    });
 
     function updatePulse() {
       const cards = getStoredCards();
@@ -6546,6 +7277,9 @@
       if (event.target === event.currentTarget) closeUserProfile();
     });
     document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !document.getElementById('vibe-card-preview-overlay').hidden) {
+        closeVibeCardPreview();
+      }
       if (event.key === 'Escape' && !document.getElementById('user-profile-overlay').hidden) {
         closeUserProfile();
       }
