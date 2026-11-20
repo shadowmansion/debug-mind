@@ -9,6 +9,7 @@
   <meta property="og:title" content="DeBug — Debug your mind">
   <meta property="og:description" content="Тихое анонимное пространство взаимной поддержки. Настрой свой канал и заходи в эфир.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.9.1/dist/livekit-client.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -908,6 +909,17 @@
       margin: -7px 0 10px;
       color: var(--accent-light);
       font-size: 0.72rem;
+    }
+
+    .crisis-support-notice {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: var(--accent-soft);
+      color: var(--text);
+      font-size: 0.78rem;
+      line-height: 1.5;
     }
 
     .mood-tags {
@@ -2367,6 +2379,11 @@
       margin-bottom: 14px;
     }
 
+    .vibe-card-preview-header h2 {
+      min-width: 0;
+      font-size: clamp(1.05rem, 3.5vw, 1.4rem);
+    }
+
     .vibe-card-preview-header button {
       flex: 0 0 auto;
       padding: 8px 11px;
@@ -3049,16 +3066,17 @@
   <div class="avatar-overlay" id="vibe-card-preview-overlay" hidden>
     <section class="avatar-modal vibe-card-preview-modal" role="dialog" aria-modal="true" aria-labelledby="vibe-card-preview-title">
       <div class="vibe-card-preview-header">
-        <h2 id="vibe-card-preview-title">Предпросмотр карточки</h2>
+        <h2 id="vibe-card-preview-title">Предпросмотр саундчек-карты</h2>
         <button type="button" class="secondary-button" id="vibe-card-preview-close-top">Закрыть</button>
       </div>
-      <img class="vibe-card-preview-image" id="vibe-card-preview-image" alt="Предпросмотр карточки настроения" hidden>
+      <img class="vibe-card-preview-image" id="vibe-card-preview-image" alt="Предпросмотр саундчек-карты настроения" hidden>
       <label for="vibe-card-quote">Строчка из трека или цитата (до 220 символов)</label>
       <textarea class="vibe-card-quote-input" id="vibe-card-quote" maxlength="220" placeholder="Добавь строку, которая подходит этому моменту..."></textarea>
+      <p class="vibe-card-preview-status" id="vibe-card-count" aria-live="polite"></p>
       <p class="vibe-card-preview-status" id="vibe-card-preview-status" role="status" aria-live="polite"></p>
       <div class="vibe-card-preview-actions">
         <button type="button" class="primary-button" id="vibe-card-download" disabled>Скачать PNG</button>
-        <button type="button" class="secondary-button" id="vibe-card-share" disabled>Поделиться</button>
+        <button type="button" class="secondary-button" id="vibe-card-share" disabled>Поделиться саундчек-картой</button>
         <button type="button" class="secondary-button" id="vibe-card-preview-close">Закрыть</button>
       </div>
     </section>
@@ -3107,6 +3125,7 @@
           <h2 class="mixer-heading">Твоё настроение сейчас</h2>
           <p class="mixer-hint">Выбери до 3 каналов и настрой их уровень.</p>
           <p class="mixer-hint-status" id="mixer-hint" role="status" aria-live="polite"></p>
+          <div class="crisis-support-notice" id="crisis-support-notice" role="status" aria-live="polite" hidden></div>
 
           <div class="mixer-channel is-active" data-mood="Выгорел">
             <div class="mixer-channel-top">
@@ -3347,11 +3366,12 @@
           <button type="button" class="secondary-button avatar-config-button" id="open-avatar-editor">Настроить аватар</button>
           <div class="profile-actions profile-key-actions">
             <button type="button" class="secondary-button" id="copy-profile-key">Скопировать ключ</button>
+            <button type="button" class="secondary-button" id="export-profile-backup">Скопировать резервную копию</button>
             <button type="button" class="secondary-button" id="toggle-profile-recovery" aria-expanded="false" aria-controls="profile-recovery-form">Восстановить по ключу</button>
           </div>
           <form class="profile-key-recovery" id="profile-recovery-form" hidden>
-            <label for="profile-recovery-key">Ключ профиля</label>
-            <input id="profile-recovery-key" type="password" maxlength="256" autocomplete="off" placeholder="Вставь ключ профиля">
+            <label for="profile-recovery-key">Ключ профиля или резервная копия</label>
+            <input id="profile-recovery-key" type="text" maxlength="5000000" autocomplete="off" placeholder="Вставь ключ или резервную копию">
             <button type="submit" class="secondary-button" id="submit-profile-recovery">Восстановить</button>
           </form>
           <div class="profile-stats">
@@ -3468,11 +3488,16 @@
       'Фиксов': 'Фіксів',
       'Сработало': 'Спрацювало',
       'Последние мысли': 'Останні думки',
-      'Предпросмотр карточки': 'Попередній перегляд картки',
-      'Предпросмотр карточки настроения': 'Попередній перегляд картки настрою',
+      'Предпросмотр саундчек-карты': 'Попередній перегляд саундчек-картки',
+      'Предпросмотр саундчек-карты настроения': 'Попередній перегляд саундчек-картки настрою',
       'Строчка из трека или цитата (до 220 символов)': 'Рядок із треку або цитата (до 220 символів)',
       'Добавь строку, которая подходит этому моменту...': 'Додай рядок, що пасує цій миті...',
       'Скачать PNG': 'Завантажити PNG',
+      'Поделиться саундчек-картой': 'Поділитися саундчек-карткою',
+      'Сгенерировано саундчеков: {count} · Следующий номер: #{next}':
+        'Згенеровано саундчеків: {count} · Наступний номер: #{next}',
+      'Не удалось поделиться саундчек-картой.': 'Не вдалося поділитися саундчек-карткою.',
+      'Не удалось скачать саундчек-карту.': 'Не вдалося завантажити саундчек-картку.',
       'Тишина': 'Тиша',
       'Дождь': 'Дощ',
       'Тёплый фон': 'Теплий фон',
@@ -3491,7 +3516,7 @@
       'Трек для этого момента · необязательно': 'Трек для цієї миті · необов’язково',
       'Название или ссылка': 'Назва або посилання',
       '▶ Поделиться багом': '▶ Поділитися багом',
-      '🖼 Сохранить карточку': '🖼 Зберегти картку',
+      '🖼 Сделать саундчек-карту': '🖼 Зробити саундчек-картку',
       '🔄 Обновить эфир': '🔄 Оновити ефір',
       'Все мысли': 'Усі думки',
       'Ждут ответа': 'Чекають на відповідь',
@@ -3628,10 +3653,10 @@
       'Пока мыслей нет': 'Поки немає думок',
       'Пока пусто': 'Поки порожньо',
       'Обновляем предпросмотр...': 'Оновлюємо попередній перегляд...',
-      'Подготавливаем карточку...': 'Готуємо картку...',
-      'Обложка недоступна — на карточке показана заглушка.': 'Обкладинка недоступна — показано заглушку.',
+      'Подготавливаем саундчек-карту...': 'Готуємо саундчек-картку...',
+      'Обложка недоступна — на саундчек-карте показана заглушка.': 'Обкладинка недоступна — на саундчек-картці показано заглушку.',
       'Метаданные недоступны; показаны ссылка и заглушка обложки.': 'Метадані недоступні; показано посилання й заглушку обкладинки.',
-      'PNG-карточка скачивается.': 'PNG-картка завантажується.',
+      'PNG-саундчек скачивается.': 'PNG-саундчек завантажується.',
       'Поделиться файлом не поддерживается. Используй «Скачать PNG».': 'Обмін файлами не підтримується. Скористайся кнопкою «Завантажити PNG».',
       'Передача изображений не поддерживается. Используй «Скачать PNG».': 'Передавання зображень не підтримується. Скористайся кнопкою «Завантажити PNG».',
       'Восстановить профиль': 'Відновити профіль',
@@ -3644,16 +3669,19 @@
       'Выбери от 1 до 3 состояний.': 'Обери від одного до трьох станів.',
       'Выбрано некорректное состояние.': 'Обрано некоректний стан.',
       'Интенсивность состояния должна быть от 10 до 100%.': 'Інтенсивність стану має бути від 10 до 100%.',
-      'Текст содержит фразу, требующую дополнительной поддержки. Измени сообщение перед сохранением.':
-        'У тексті є фраза, що потребує додаткової підтримки. Зміни повідомлення перед збереженням.',
+      'Если тебе сейчас очень тяжело, не оставайся с этим один. Горячая линия психологической помощи: 7333.':
+        'Якщо тобі зараз дуже важко, не залишайся з цим наодинці. Гаряча лінія психологічної допомоги: 7333.',
       'Для ссылки используй только корректный адрес, начинающийся с http:// или https://.':
         'Для посилання використовуй коректну адресу, що починається з http:// або https://.',
       'Позывной не может быть пустым.': 'Позивний не може бути порожнім.',
       'Этот позывной уже занят. Выбери другой.': 'Цей позивний уже зайнятий. Обери інший.',
       'Буфер обмена недоступен в этом браузере.': 'Буфер обміну недоступний у цьому браузері.',
       'Библиотека Supabase не загрузилась.': 'Бібліотека Supabase не завантажилася.',
-      'Не удалось сохранить карточку:': 'Не вдалося зберегти картку:',
-      'Не удалось поделиться карточкой:': 'Не вдалося поділитися карткою:',
+      'Не удалось сохранить саундчек-карту:': 'Не вдалося зберегти саундчек-картку:',
+      'Не удалось поделиться саундчек-картой:': 'Не вдалося поділитися саундчек-карткою:',
+      'Не удалось обновить счётчик саундчеков:': 'Не вдалося оновити лічильник саундчеків:',
+      'Supabase вернула некорректный счётчик саундчеков.':
+        'Supabase повернула некоректний лічильник саундчеків.',
       'Ошибка Supabase.': 'Помилка Supabase.',
       'ошибка Supabase.': 'помилка Supabase.',
       'Загрузка профиля...': 'Завантажуємо профіль...',
@@ -3677,8 +3705,8 @@
       'максимальный ранг': 'найвищий ранг',
       'изменено': 'змінено',
       'изменён': 'змінений',
-      'Не удалось создать предпросмотр карточки.': 'Не вдалося створити попередній перегляд картки.',
-      'Не удалось подготовить карточку.': 'Не вдалося підготувати картку.',
+      'Не удалось создать предпросмотр саундчек-карты.': 'Не вдалося створити попередній перегляд саундчек-картки.',
+      'Не удалось подготовить саундчек-карту.': 'Не вдалося підготувати саундчек-картку.',
       'Не удалось получить метаданные трека; используем указанную ссылку.': 'Не вдалося отримати метадані треку; використаємо вказане посилання.',
       'Жалоба отправлена. Спасибо.': 'Скаргу надіслано. Дякуємо.',
       'Жалоба не была принята.': 'Скаргу не прийнято.',
@@ -3691,8 +3719,6 @@
       'Эта карточка больше недоступна. Обнови эфир и попробуй снова.': 'Ця картка більше недоступна. Онови ефір і спробуй ще раз.',
       'Пост может содержать не более 5000 символов.': 'Дописи можуть містити не більш як 5000 символів.',
       'Напиши хотя бы пару слов о своём состоянии.': 'Напиши хоча б кілька слів про свій стан.',
-      'Похоже, тебе сейчас очень тяжело. Пожалуйста, не оставайся с этим один — обратись на круглосуточную горячую линию психологической помощи или к врачу.':
-        'Схоже, тобі зараз дуже важко. Будь ласка, не залишайся з цим наодинці — звернися на цілодобову гарячу лінію психологічної допомоги або до лікаря.',
       'Введи корректный ключ профиля.': 'Введи коректний ключ профілю.',
       'Ключ профиля скопирован. Храни его в надёжном месте.': 'Ключ профілю скопійовано. Збережи його в надійному місці.',
       'Для жалобы укажи причину.': 'Вкажи причину скарги.',
@@ -3766,7 +3792,7 @@
       'Не удалось создать изображение на этом устройстве.': 'Не вдалося створити зображення на цьому пристрої.',
       'Не удалось сформировать PNG-картинку.': 'Не вдалося створити PNG-зображення.',
       'Не удалось подготовить предпросмотр PNG.': 'Не вдалося підготувати попередній перегляд PNG.',
-      'Карточка отправлена.': 'Картку надіслано.',
+      'Саундчек-карта отправлена.': 'Саундчек-картку надіслано.',
       'Публикация отменена.': 'Надсилання скасовано.',
       'Фоновый звук выключен': 'Фоновий звук вимкнено',
       'Web Audio API не поддерживается этим браузером': 'Цей браузер не підтримує Web Audio API',
@@ -3774,7 +3800,6 @@
       'Включить звук дождя': 'Увімкнути звук дощу',
       'Выбери позывной': 'Обери позивний',
       'Не удалось получить метаданные трека; показана указанная ссылка.': 'Не вдалося отримати метадані треку; показано вказане посилання.',
-      'Сохранить карточку': 'Зберегти картку',
       'Состояние должно быть от 10 до 100%.': 'Інтенсивність стану має бути від 10 до 100%.',
       'Не удалось обновить карточку:': 'Не вдалося оновити картку:',
       'Ключ профиля скопирован.': 'Ключ профілю скопійовано.',
@@ -3792,8 +3817,8 @@
       'ошибка буфера обмена.': 'помилка буфера обміну.',
       'ошибка браузера.': 'помилка браузера.',
       'Не удалось создать предпросмотр:': 'Не вдалося створити попередній перегляд:',
-      'Не удалось подготовить карточку:': 'Не вдалося підготувати картку:',
-      'Не удалось скачать карточку:': 'Не вдалося завантажити картку:',
+      'Не удалось подготовить саундчек-карту:': 'Не вдалося підготувати саундчек-картку:',
+      'Не удалось скачать саундчек-карту:': 'Не вдалося завантажити саундчек-картку:',
       'Не удалось отправить жалобу:': 'Не вдалося надіслати скаргу:',
       'Не удалось обновить счётчик просмотров:': 'Не вдалося оновити лічильник переглядів:',
       'Не удалось удалить эту мысль:': 'Не вдалося видалити цю думку:',
@@ -3857,6 +3882,9 @@
       'Вы подключены к эфиру.': 'Ви приєдналися до ефіру.',
       'Вы вышли из эфира.': 'Ви вийшли з ефіру.',
       'Соединение с эфиром потеряно.': 'З’єднання з ефіром втрачено.',
+      'Эфир сейчас не идёт. Подождите начала': 'Ефір зараз не триває. Дочекайтеся початку',
+      'Ведущий завершил эфир': 'Ведучий завершив ефір',
+      'Время прослушивания завершено.': 'Час прослуховування завершено.',
       'Введите пароль ведущего.': 'Введіть пароль ведучого.',
       'Вы вошли как ведущий.': 'Ви приєдналися як ведучий.',
       'Вы вошли как слушатель.': 'Ви приєдналися як слухач.',
@@ -3872,7 +3900,20 @@
       'Сообщение отправлено.': 'Повідомлення надіслано.',
       'Сообщение не может быть пустым.': 'Повідомлення не може бути порожнім.',
       'LiveKit SDK не загрузился.': 'LiveKit SDK не завантажився.',
-      'Не удалось включить микрофон:': 'Не вдалося ввімкнути мікрофон:'
+      'Не удалось включить микрофон:': 'Не вдалося ввімкнути мікрофон:',
+      'Время ожидания подключения истекло. Проверьте соединение и попробуйте снова.':
+        'Час очікування підключення минув. Перевірте з’єднання та спробуйте ще раз.',
+      'Ключ профиля или резервная копия': 'Ключ профілю або резервна копія',
+      'Вставь ключ или резервную копию': 'Встав ключ або резервну копію',
+      'Скопировать резервную копию': 'Скопіювати резервну копію',
+      'Резервная копия профиля скопирована. Храни её в надёжном месте.':
+        'Резервну копію профілю скопійовано. Зберігай її в надійному місці.',
+      'Некорректный формат резервной копии профиля.':
+        'Некоректний формат резервної копії профілю.',
+      'Не удалось восстановить токены мыслей в этом браузере.':
+        'Не вдалося відновити токени думок у цьому браузері.',
+      'Не удалось восстановить токены фиксов в этом браузере.':
+        'Не вдалося відновити токени фіксів у цьому браузері.'
     };
     const I18N = {
       ru: Object.fromEntries(Object.keys(UK_TRANSLATIONS).flatMap((key) => [
@@ -3883,8 +3924,10 @@
     };
     const LANGUAGE_TEXT_STATES = new WeakMap();
     const LANGUAGE_ATTRIBUTE_STATES = new WeakMap();
-    const LANGUAGE_SKIP_SELECTOR = '.card-text, .comment-message, .live-chat-message, .user-profile-name, .user-profile-post-message, .profile-name, .track-readout, .my-post-link';
-    const LANGUAGE_REPLACEMENT_KEYS = Object.keys(UK_TRANSLATIONS).sort((left, right) => right.length - left.length);
+    const LANGUAGE_SKIP_SELECTOR = '.card-text, .comment-message, .comment-reply-target, .live-chat-message, .live-room-participant, .pinned-sample, .user-profile-name, .user-profile-post-message, .profile-name, .track-readout, .my-post-link';
+    const LANGUAGE_REPLACEMENT_KEYS = [
+      ...new Set([...Object.keys(UK_TRANSLATIONS), ...Object.values(UK_TRANSLATIONS)])
+    ].sort((left, right) => right.length - left.length);
     const storedLanguage = readStorage(LANGUAGE_KEY);
     let currentLanguage = storedLanguage === 'uk' || storedLanguage === 'ru'
       ? storedLanguage
@@ -3937,7 +3980,7 @@
       const elements = [element, ...element.querySelectorAll('*')];
       elements.forEach((currentElement) => {
         if (currentElement.closest(LANGUAGE_SKIP_SELECTOR)) return;
-        const attributes = ['aria-label', 'placeholder', 'title'];
+        const attributes = ['aria-label', 'placeholder', 'title', 'alt'];
         let states = LANGUAGE_ATTRIBUTE_STATES.get(currentElement);
         if (!states) {
           states = new Map();
@@ -3981,6 +4024,7 @@
       localizeDocument();
       updateProfileUI();
       refreshEconomyWidgets();
+      updateVibeCardCounter();
       renderFeed();
       setLiveRoomStatus(liveRoomStatusMessage, liveRoomStatusIsError);
       setAirChatStatus(airChatStatusMessage, airChatStatusIsError);
@@ -4069,7 +4113,10 @@
     const RANDOM_ADJECTIVES = ['тихий','сонный','ламповый','ночной','тёплый','туманный','вечерний','дальний','уставший','мягкий','медленный','рыжий','лунный','чайный','пыльный','северный','бережный','странный','уютный','сумрачный','ироничный','винтажный','мокрый','свободный','спокойный','маленький','редкий','запасной','невыспавшийся','космический','шумный','светлый','хрупкий','домашний','дождливый','невидимый','потерянный','честный','последний','аналоговый'];
     const RANDOM_NOUNS = ['маяк','кот','шум','пилигрим','дождь','сигнал','чай','берег','космонавт','пиксель','космос','радио','фонарь','странник','баг','спутник','терминал','плед','трамвай','океан','плейлист','ветер','комета','чердак','эфир','гриб','сон','кактус','провод','автобус','снег','прохожий','дельфин','будильник','компас','сосед','буфер','архив','экран','кофе'];
     const DEFAULT_PROFILE = { name: 'тихий_маяк', avatar: 'av:graphite:moon:none' };
-    const DANGER_WORDS = ['суицид', 'покончить с собой', 'не хочу жить', 'убить себя'];
+    const DANGER_WORDS = [
+      'суицид', 'покончить с собой', 'не хочу жить', 'убить себя',
+      'суїцид', 'не хочу жити', 'вбити себе', 'покінчити з собою'
+    ];
     const MOOD_GLOWS = {
       'Выгорел': '#8a5738',
       'Тревожно': '#587da0',
@@ -4106,9 +4153,12 @@
     let liveMicEnabled = false;
     let liveRoomStatusMessage = 'Ожидание ведущего';
     let liveRoomStatusIsError = false;
+    let liveRoomEmptyCheckTimer = null;
+    let liveRoomListenerTimeoutTimer = null;
     let activeLiveSpeakers = new Set();
     let liveAudioElements = new Map();
     let airChatChannel = null;
+    let airChatReconnectTimer = null;
     let airChatMessages = [];
     let airChatStatusMessage = '';
     let airChatStatusIsError = false;
@@ -4127,6 +4177,11 @@
     let postViewObserver = null;
     let userProfileRequestId = 0;
     let userProfileReturnFocus = null;
+    const VIBE_CARD_COUNT_KEY = 'debug-vibe-card-count';
+    const storedVibeCardCount = Number(readStorage(VIBE_CARD_COUNT_KEY));
+    let vibeCardCount = Number.isSafeInteger(storedVibeCardCount) && storedVibeCardCount >= 0
+      ? storedVibeCardCount : 0;
+    let vibeCardCountRefreshPromise = null;
     let vibeCardPreview = null;
     let vibeCardPreviewRequestId = 0;
     let vibeCardRenderTimer = null;
@@ -4446,6 +4501,13 @@
           hint.textContent = '';
         }, 2800);
       }
+    }
+
+    function showCrisisSupportNotice() {
+      const notice = document.getElementById('crisis-support-notice');
+      notice.textContent = t('Если тебе сейчас очень тяжело, не оставайся с этим один. Горячая линия психологической помощи: 7333.');
+      notice.hidden = false;
+      localizeElement(notice);
     }
 
     function showFeedNotice(message) {
@@ -4943,12 +5005,58 @@
       document.getElementById('live-room-host-form').querySelectorAll('button, input')
         .forEach((control) => { control.disabled = liveConnecting; });
       if (isConnected) {
+        const participants = [
+          liveRoom.localParticipant,
+          ...liveRoom.remoteParticipants.values()
+        ];
         count.textContent = t('Слушатели: {count}', {
-          count: (liveRoom.remoteParticipants.size || 0) + 1
+          count: participants.filter((participant) =>
+            participant && !String(participant.identity || '').startsWith('host-')
+          ).length
         });
         micButton.textContent = t(liveMicEnabled ? '🎙 Микрофон: Вкл' : '🎙 Микрофон: Выкл');
         renderLiveRoomHosts();
+      } else {
+        count.textContent = '';
+        document.getElementById('live-room-hosts').replaceChildren();
       }
+    }
+
+    function clearLiveRoomTimers() {
+      window.clearTimeout(liveRoomEmptyCheckTimer);
+      window.clearTimeout(liveRoomListenerTimeoutTimer);
+      liveRoomEmptyCheckTimer = null;
+      liveRoomListenerTimeoutTimer = null;
+    }
+
+    function isLiveRoomHost(participant) {
+      return Boolean(participant && participant.permissions &&
+        participant.permissions.canPublish === true);
+    }
+
+    function hasRemoteLiveRoomHost(room, excludedParticipant) {
+      return Boolean(room && room.remoteParticipants &&
+        Array.from(room.remoteParticipants.values()).some((participant) =>
+          participant !== excludedParticipant &&
+          (!excludedParticipant || participant.identity !== excludedParticipant.identity) &&
+          isLiveRoomHost(participant)
+        ));
+    }
+
+    function startLiveRoomListenerTimers(room) {
+      if (liveIsHost) return;
+      if (!hasRemoteLiveRoomHost(room)) {
+        liveRoomEmptyCheckTimer = window.setTimeout(() => {
+          liveRoomEmptyCheckTimer = null;
+          if (liveRoom !== room || !liveConnected || liveIsHost || hasRemoteLiveRoomHost(room)) return;
+          void leaveLiveRoom('Эфир сейчас не идёт. Подождите начала', true);
+        }, 20000);
+      }
+      liveRoomListenerTimeoutTimer = window.setTimeout(() => {
+        liveRoomListenerTimeoutTimer = null;
+        if (liveRoom !== room || !liveConnected || liveIsHost) return;
+        void leaveLiveRoom('Время прослушивания завершено.', true);
+      }, 90 * 60 * 1000);
     }
 
     function setAirChatStatus(message, isError) {
@@ -5004,6 +5112,8 @@
     }
 
     async function removeAirChatChannel() {
+      window.clearTimeout(airChatReconnectTimer);
+      airChatReconnectTimer = null;
       const channel = airChatChannel;
       airChatChannel = null;
       if (!channel || !supabaseClient) return;
@@ -5017,12 +5127,7 @@
       }
     }
 
-    async function openAirChat(room) {
-      if (!supabaseClient) {
-        setAirChatStatus(`${t('Не удалось загрузить чат:')} ${t('Библиотека Supabase не загрузилась.')}`, true);
-        return;
-      }
-      setAirChatStatus(t('Загружаем чат...'));
+    async function loadAirChatHistory(room, channel) {
       try {
         const { data, error } = await supabaseClient
           .from('air_messages')
@@ -5030,32 +5135,96 @@
           .order('created_at', { ascending: false })
           .limit(40);
         if (error) throw error;
-        if (liveRoom !== room || !liveConnected) return;
+        if (liveRoom !== room || !liveConnected || airChatChannel !== channel) return;
 
-        airChatMessages = Array.isArray(data) ? data.slice().reverse() : [];
-        renderAirChatMessages();
-        await removeAirChatChannel();
-        if (liveRoom !== room || !liveConnected) return;
-
-        airChatChannel = supabaseClient
-          .channel('air-chat')
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'air_messages'
-          }, (payload) => {
-            if (liveRoom === room && liveConnected) addAirChatMessage(payload.new);
-          })
-          .subscribe((status) => {
-            if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-              setAirChatStatus(t('Не удалось обновить подключение к чату.'), true);
-            } else if (status === 'SUBSCRIBED') {
-              setAirChatStatus('');
+        const messagesById = new Map();
+        const messagesWithoutId = [];
+        [...(Array.isArray(data) ? data.slice().reverse() : []), ...airChatMessages]
+          .forEach((message) => {
+            if (!message || typeof message !== 'object') return;
+            if (message.id === undefined || message.id === null) {
+              messagesWithoutId.push(message);
+            } else {
+              messagesById.set(String(message.id), message);
             }
           });
+        airChatMessages = [...messagesById.values(), ...messagesWithoutId]
+          .map((message, index) => ({
+            message,
+            index,
+            timestamp: Date.parse(message.created_at || '') || 0
+          }))
+          .sort((left, right) => left.timestamp - right.timestamp || left.index - right.index)
+          .slice(-80)
+          .map((item) => item.message);
+        renderAirChatMessages();
+        setAirChatStatus('');
       } catch (error) {
         console.error('Не удалось загрузить чат эфира:', error);
-        setAirChatStatus(`${t('Не удалось загрузить чат:')} ${error && error.message ? error.message : t('Ошибка Supabase.')}`, true);
+        if (liveRoom === room && liveConnected && airChatChannel === channel) {
+          setAirChatStatus(`${t('Не удалось загрузить чат:')} ${error && error.message ? error.message : t('Ошибка Supabase.')}`, true);
+        }
+      }
+    }
+
+    function scheduleAirChatReconnect(room, failedChannel) {
+      if (airChatReconnectTimer !== null) return;
+      airChatReconnectTimer = window.setTimeout(async () => {
+        airChatReconnectTimer = null;
+        if (liveRoom !== room || !liveConnected || airChatChannel !== failedChannel) return;
+        await removeAirChatChannel();
+        if (liveRoom !== room || !liveConnected) return;
+        try {
+          subscribeAirChatChannel(room);
+        } catch (error) {
+          console.error('Не удалось переподключить чат эфира:', error);
+          setAirChatStatus(`${t('Не удалось обновить подключение к чату.')} ${error && error.message ? error.message : ''}`, true);
+          scheduleAirChatReconnect(room, airChatChannel);
+        }
+      }, 3000);
+    }
+
+    function subscribeAirChatChannel(room) {
+      const channel = supabaseClient
+        .channel('air-chat')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'air_messages'
+        }, (payload) => {
+          if (liveRoom === room && liveConnected) addAirChatMessage(payload.new);
+        });
+      airChatChannel = channel;
+      channel.subscribe((status) => {
+        if (liveRoom !== room || !liveConnected || airChatChannel !== channel) return;
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setAirChatStatus(t('Не удалось обновить подключение к чату.'), true);
+          scheduleAirChatReconnect(room, channel);
+        } else if (status === 'SUBSCRIBED') {
+          window.clearTimeout(airChatReconnectTimer);
+          airChatReconnectTimer = null;
+          setAirChatStatus(t('Загружаем чат...'));
+          void loadAirChatHistory(room, channel);
+        }
+      });
+    }
+
+    async function openAirChat(room) {
+      if (!supabaseClient) {
+        setAirChatStatus(`${t('Не удалось загрузить чат:')} ${t('Библиотека Supabase не загрузилась.')}`, true);
+        return;
+      }
+      setAirChatStatus(t('Загружаем чат...'));
+      airChatMessages = [];
+      renderAirChatMessages();
+      try {
+        await removeAirChatChannel();
+        if (liveRoom !== room || !liveConnected) return;
+        subscribeAirChatChannel(room);
+      } catch (error) {
+        console.error('Не удалось подключиться к каналу чата эфира:', error);
+        setAirChatStatus(`${t('Не удалось обновить подключение к чату.')} ${error && error.message ? error.message : ''}`, true);
+        scheduleAirChatReconnect(room, airChatChannel);
       }
     }
 
@@ -5080,6 +5249,7 @@
 
     function onLiveRoomDisconnected(room) {
       if (liveRoom !== room) return;
+      clearLiveRoomTimers();
       liveRoom = null;
       liveConnected = false;
       liveConnecting = false;
@@ -5090,6 +5260,15 @@
       setLiveRoomStatus(t('Соединение с эфиром потеряно.'), true);
       renderLiveRoom();
       void removeAirChatChannel();
+    }
+
+    function onLiveRoomParticipantDisconnected(room, participant) {
+      if (liveRoom !== room || !liveConnected) return;
+      if (!liveIsHost && isLiveRoomHost(participant) && !hasRemoteLiveRoomHost(room, participant)) {
+        void leaveLiveRoom('Ведущий завершил эфир', true);
+        return;
+      }
+      renderLiveRoom();
     }
 
     async function connectToLiveRoom(asHost, hostPassword) {
@@ -5106,21 +5285,34 @@
       }
 
       liveConnecting = true;
+      clearLiveRoomTimers();
       setLiveRoomStatus(t('Подключаемся к эфиру...'));
       renderLiveRoom();
       const profile = getProfile();
       let room = null;
       try {
-        const response = await fetch('/api/livekit-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            identity: profile.supabaseId || profile.id,
-            nickname: profile.name,
-            avatar: profile.avatar,
-            hostPassword: asHost ? password : ''
-          })
-        });
+        const tokenRequestController = new AbortController();
+        const tokenRequestTimeout = window.setTimeout(() => tokenRequestController.abort(), 15000);
+        let response;
+        try {
+          response = await fetch('/api/livekit-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nickname: profile.name,
+              avatar: profile.avatar,
+              hostPassword: asHost ? password : ''
+            }),
+            signal: tokenRequestController.signal
+          });
+        } catch (error) {
+          if (error && error.name === 'AbortError') {
+            throw new Error(t('Время ожидания подключения истекло. Проверьте соединение и попробуйте снова.'));
+          }
+          throw error;
+        } finally {
+          window.clearTimeout(tokenRequestTimeout);
+        }
         let credentials;
         try {
           credentials = await response.json();
@@ -5152,9 +5344,10 @@
           }
         });
         room.on(roomEvents.TrackUnsubscribed || 'trackUnsubscribed', (track) => detachLiveTrack(track));
+        room.on(roomEvents.ParticipantConnected || 'participantConnected', () => renderLiveRoom());
+        room.on(roomEvents.ParticipantDisconnected || 'participantDisconnected',
+          (participant) => onLiveRoomParticipantDisconnected(room, participant));
         [
-          roomEvents.ParticipantConnected || 'participantConnected',
-          roomEvents.ParticipantDisconnected || 'participantDisconnected',
           roomEvents.ParticipantMetadataChanged || 'participantMetadataChanged',
           roomEvents.ParticipantPermissionsChanged || 'participantPermissionsChanged'
         ].forEach((eventName) => room.on(eventName, () => renderLiveRoom()));
@@ -5173,11 +5366,13 @@
         document.getElementById('live-room-host-password').value = '';
         setLiveRoomStatus(t(liveIsHost ? 'Вы вошли как ведущий.' : 'Вы вошли как слушатель.'));
         renderLiveRoom();
+        startLiveRoomListenerTimers(room);
         await openAirChat(room);
       } catch (error) {
         console.error('Не удалось подключиться к эфиру:', error);
         document.getElementById('live-room-host-password').value = '';
         if (room && liveRoom === room) {
+          clearLiveRoomTimers();
           liveRoom = null;
           liveConnected = false;
           liveIsHost = false;
@@ -5197,9 +5392,10 @@
       }
     }
 
-    async function leaveLiveRoom() {
+    async function leaveLiveRoom(statusMessage, clearChat) {
       const room = liveRoom;
       if (!room) return;
+      clearLiveRoomTimers();
       liveRoom = null;
       liveConnected = false;
       liveConnecting = false;
@@ -5207,8 +5403,13 @@
       liveMicEnabled = false;
       activeLiveSpeakers.clear();
       clearLiveAudio();
+      if (clearChat) {
+        airChatMessages = [];
+        renderAirChatMessages();
+        setAirChatStatus('');
+      }
       renderLiveRoom();
-      setLiveRoomStatus(t('Вы вышли из эфира.'));
+      setLiveRoomStatus(statusMessage || t('Вы вышли из эфира.'));
       try {
         await room.disconnect();
       } catch (error) {
@@ -5239,7 +5440,7 @@
       connectToLiveRoom(true, document.getElementById('live-room-host-password').value);
     });
 
-    document.getElementById('live-room-leave').addEventListener('click', leaveLiveRoom);
+    document.getElementById('live-room-leave').addEventListener('click', () => leaveLiveRoom());
 
     document.getElementById('live-room-mic').addEventListener('click', async () => {
       if (!liveRoom || !liveIsHost) return;
@@ -5291,6 +5492,7 @@
     window.addEventListener('pagehide', () => {
       if (!liveRoom) return;
       const room = liveRoom;
+      clearLiveRoomTimers();
       liveRoom = null;
       clearLiveAudio();
       void removeAirChatChannel();
@@ -5450,36 +5652,109 @@
       }
     });
 
+    async function copyTextToClipboard(text) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      if (typeof document.execCommand !== 'function') {
+        throw new Error(t('Буфер обмена недоступен в этом браузере.'));
+      }
+      const temporaryInput = document.createElement('textarea');
+      temporaryInput.value = text;
+      temporaryInput.setAttribute('readonly', '');
+      temporaryInput.style.position = 'fixed';
+      temporaryInput.style.opacity = '0';
+      document.body.appendChild(temporaryInput);
+      let copied = false;
+      try {
+        temporaryInput.select();
+        copied = document.execCommand('copy');
+      } finally {
+        temporaryInput.remove();
+      }
+      if (!copied) throw new Error(t('Буфер обмена недоступен в этом браузере.'));
+    }
+
+    function createProfileRecoveryBundle() {
+      const profile = getProfile();
+      return {
+        format: 'debug-profile-backup',
+        version: 1,
+        secretToken: profile.secretToken,
+        name: profile.name,
+        avatar: profile.avatar,
+        postTokens: readDeleteTokens(POST_TOKENS_KEY),
+        fixTokens: readDeleteTokens(FIX_TOKENS_KEY)
+      };
+    }
+
+    function parseProfileRecoveryInput(value) {
+      const input = String(value || '').trim();
+      if (!input.startsWith('{')) {
+        if (input.length > 256) throw new Error(t('Некорректный формат резервной копии профиля.'));
+        return { secretToken: input, postTokens: null, fixTokens: null };
+      }
+      let backup;
+      try {
+        backup = JSON.parse(input);
+      } catch (error) {
+        throw new Error(t('Некорректный формат резервной копии профиля.'));
+      }
+      if (!backup || backup.format !== 'debug-profile-backup' || backup.version !== 1 ||
+          typeof backup.secretToken !== 'string' || !backup.secretToken.trim() ||
+          backup.secretToken.length > 256 ||
+          typeof backup.name !== 'string' || !backup.name.trim() ||
+          typeof backup.avatar !== 'string' || !parseAvatar(backup.avatar) ||
+          !backup.postTokens || typeof backup.postTokens !== 'object' || Array.isArray(backup.postTokens) ||
+          !backup.fixTokens || typeof backup.fixTokens !== 'object' || Array.isArray(backup.fixTokens)) {
+        throw new Error(t('Некорректный формат резервной копии профиля.'));
+      }
+      const normalizeTokens = (tokens) => {
+        const normalized = Object.create(null);
+        Object.entries(tokens).forEach(([id, token]) => {
+          if (!id.trim() || typeof token !== 'string' || !token.trim() || token.length > 256) {
+            throw new Error(t('Некорректный формат резервной копии профиля.'));
+          }
+          normalized[id] = token;
+        });
+        return normalized;
+      };
+      return {
+        secretToken: backup.secretToken.trim(),
+        name: backup.name.trim().slice(0, 24),
+        avatar: backup.avatar,
+        postTokens: normalizeTokens(backup.postTokens),
+        fixTokens: normalizeTokens(backup.fixTokens)
+      };
+    }
+
     document.getElementById('copy-profile-key').addEventListener('click', async (event) => {
       const button = event.currentTarget;
       if (button.disabled) return;
       button.disabled = true;
       try {
         const profile = getProfile();
-        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-          await navigator.clipboard.writeText(profile.secretToken);
-        } else if (typeof document.execCommand === 'function') {
-          const temporaryInput = document.createElement('textarea');
-          temporaryInput.value = profile.secretToken;
-          temporaryInput.setAttribute('readonly', '');
-          temporaryInput.style.position = 'fixed';
-          temporaryInput.style.opacity = '0';
-          document.body.appendChild(temporaryInput);
-          let copied = false;
-          try {
-            temporaryInput.select();
-            copied = document.execCommand('copy');
-          } finally {
-            temporaryInput.remove();
-          }
-          if (!copied) throw new Error('Буфер обмена недоступен в этом браузере.');
-        } else {
-          throw new Error('Буфер обмена недоступен в этом браузере.');
-        }
+        await copyTextToClipboard(profile.secretToken);
         showFeedNotice('Ключ профиля скопирован. Храни его в надёжном месте.');
       } catch (error) {
         console.error('Не удалось скопировать ключ профиля:', error);
         showFeedNotice(`Не удалось скопировать ключ: ${error.message || 'ошибка буфера обмена.'}`);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('export-profile-backup').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      if (button.disabled) return;
+      button.disabled = true;
+      try {
+        await copyTextToClipboard(JSON.stringify(createProfileRecoveryBundle()));
+        showFeedNotice(t('Резервная копия профиля скопирована. Храни её в надёжном месте.'));
+      } catch (error) {
+        console.error('Не удалось скопировать резервную копию профиля:', error);
+        showFeedNotice(`${t('Не удалось скопировать ключ:')} ${error.message || t('ошибка буфера обмена.')}`);
       } finally {
         button.disabled = false;
       }
@@ -5498,23 +5773,46 @@
       const form = event.currentTarget;
       const keyInput = document.getElementById('profile-recovery-key');
       const submitButton = document.getElementById('submit-profile-recovery');
-      const key = keyInput.value.trim();
-      if (!key || key.length > keyInput.maxLength) {
+      const recoveryInput = keyInput.value.trim();
+      if (!recoveryInput || recoveryInput.length > keyInput.maxLength) {
         setProfileSyncStatus('profile-sync-status', 'Введи корректный ключ профиля.');
+        return;
+      }
+      let recoveryData;
+      try {
+        recoveryData = parseProfileRecoveryInput(recoveryInput);
+      } catch (error) {
+        setProfileSyncStatus('profile-sync-status', error.message);
         return;
       }
       if (submitButton.disabled) return;
       submitButton.disabled = true;
       submitButton.setAttribute('aria-busy', 'true');
       const previousProfile = getProfile();
+      const previousPostTokens = readDeleteTokens(POST_TOKENS_KEY);
+      const previousFixTokens = readDeleteTokens(FIX_TOKENS_KEY);
       try {
-        const recoveryProfile = { ...previousProfile, secretToken: key, supabaseId: '' };
+        const recoveryProfile = {
+          ...previousProfile,
+          secretToken: recoveryData.secretToken,
+          name: recoveryData.name || previousProfile.name,
+          avatar: recoveryData.avatar || previousProfile.avatar,
+          supabaseId: ''
+        };
         if (!saveProfile(recoveryProfile)) {
           throw new Error('Не удалось сохранить ключ в этом браузере.');
         }
+        if (recoveryData.postTokens &&
+            !writeStorage(POST_TOKENS_KEY, JSON.stringify(recoveryData.postTokens))) {
+          throw new Error('Не удалось восстановить токены мыслей в этом браузере.');
+        }
+        if (recoveryData.fixTokens &&
+            !writeStorage(FIX_TOKENS_KEY, JSON.stringify(recoveryData.fixTokens))) {
+          throw new Error('Не удалось восстановить токены фиксов в этом браузере.');
+        }
         const restoredProfile = await syncProfileWithSupabase(
-          previousProfile.name,
-          previousProfile.avatar,
+          recoveryProfile.name,
+          recoveryProfile.avatar,
           { autoResolveConflict: true }
         );
         setProfileSyncStatus('profile-sync-status', '');
@@ -5526,6 +5824,8 @@
         await refreshFeed(false);
       } catch (error) {
         saveProfile(previousProfile);
+        writeStorage(POST_TOKENS_KEY, JSON.stringify(previousPostTokens));
+        writeStorage(FIX_TOKENS_KEY, JSON.stringify(previousFixTokens));
         console.error('Не удалось восстановить профиль:', error);
         setProfileSyncStatus('profile-sync-status', profileSyncErrorMessage(error));
       } finally {
@@ -5589,8 +5889,13 @@
 
     function trackVisiblePostViews(cards) {
       if (!Array.isArray(cards) || !cards.length) return;
+      const savedViewedPostIds = readLocalIdList(VIEWED_POSTS_KEY);
+      const recentViewedPostIds = savedViewedPostIds.slice(-2500);
+      if (recentViewedPostIds.length !== savedViewedPostIds.length) {
+        writeStorage(VIEWED_POSTS_KEY, JSON.stringify(recentViewedPostIds));
+      }
       const viewedIds = new Set([
-        ...readLocalIdList(VIEWED_POSTS_KEY),
+        ...recentViewedPostIds,
         ...inMemoryViewedPostIds
       ]);
       const newIds = [];
@@ -5611,7 +5916,7 @@
       });
       if (!newIds.length) return;
 
-      const saved = writeStorage(VIEWED_POSTS_KEY, JSON.stringify([...viewedIds]));
+      const saved = writeStorage(VIEWED_POSTS_KEY, JSON.stringify([...viewedIds].slice(-2500)));
       if (viewTrackingTimer !== null) window.clearTimeout(viewTrackingTimer);
       viewTrackingTimer = window.setTimeout(flushPostViewBatch, 800);
       if (!saved) showFeedNotice('Не удалось сохранить отметку о просмотре в браузере.');
@@ -6243,7 +6548,7 @@
       if (parsedUrl.port) return null;
 
       const host = parsedUrl.hostname.toLowerCase();
-      const youtubeHosts = ['youtube.com', 'www.youtube.com', 'music.youtube.com'];
+      const youtubeHosts = ['youtube.com', 'www.youtube.com', 'music.youtube.com', 'm.youtube.com'];
       let videoId = '';
       if (host === 'youtu.be') {
         const match = parsedUrl.pathname.match(/^\/([a-zA-Z0-9_-]{11})\/?$/);
@@ -7037,7 +7342,7 @@
       }
 
       if (containsDangerWords(message)) {
-        throw new Error('Текст содержит фразу, требующую дополнительной поддержки. Измени сообщение перед сохранением.');
+        showCrisisSupportNotice();
       }
 
       if (!Array.isArray(newMoods) || newMoods.length < 1 || newMoods.length > 3) {
@@ -7491,7 +7796,90 @@
       return null;
     }
 
-    async function createVibeCardBlob(cardData, metadata, quote) {
+    function updateVibeCardCounter() {
+      const counter = document.getElementById('vibe-card-count');
+      if (!counter) return;
+      counter.textContent = t('Сгенерировано саундчеков: {count} · Следующий номер: #{next}', {
+        count: vibeCardCount,
+        next: String(vibeCardCount + 1).padStart(4, '0')
+      });
+    }
+
+    async function refreshVibeCardCount() {
+      if (vibeCardCountRefreshPromise) return vibeCardCountRefreshPromise;
+      vibeCardCountRefreshPromise = (async () => {
+        try {
+          if (!supabaseClient) throw new Error(t('Библиотека Supabase не загрузилась.'));
+          const { data, error } = await supabaseClient
+            .from('app_stats')
+            .select('count')
+            .eq('id', 'vibe_cards')
+            .single();
+          if (error) throw error;
+          const count = Number(data && data.count);
+          if (!data || data.count == null || data.count === '' || !Number.isSafeInteger(count) || count < 0) {
+            throw new Error(t('Supabase вернула некорректный счётчик саундчеков.'));
+          }
+          vibeCardCount = count;
+          writeStorage(VIBE_CARD_COUNT_KEY, String(vibeCardCount));
+        } catch (error) {
+          console.warn('Не удалось обновить счётчик саундчеков:', error);
+        }
+        updateVibeCardCounter();
+        return vibeCardCount;
+      })();
+      try {
+        return await vibeCardCountRefreshPromise;
+      } finally {
+        vibeCardCountRefreshPromise = null;
+      }
+    }
+
+    async function incrementVibeCardCount() {
+      try {
+        if (!supabaseClient) throw new Error(t('Библиотека Supabase не загрузилась.'));
+        const { data: newCount, error } = await supabaseClient.rpc('increment_vibe_card_count');
+        if (error) throw error;
+        const count = Number(newCount);
+        if (!Number.isSafeInteger(count) || count < 1) {
+          throw new Error(t('Supabase вернула некорректный счётчик саундчеков.'));
+        }
+        vibeCardCount = count;
+      } catch (error) {
+        console.warn('Не удалось обновить счётчик саундчеков:', error);
+        vibeCardCount += 1;
+      }
+      writeStorage(VIBE_CARD_COUNT_KEY, String(vibeCardCount));
+      updateVibeCardCounter();
+      return vibeCardCount;
+    }
+
+    async function prepareVibeCardExport(preview) {
+      if (preview.exporting) return null;
+      preview.exporting = true;
+      document.getElementById('vibe-card-download').disabled = true;
+      document.getElementById('vibe-card-share').disabled = true;
+      document.getElementById('vibe-card-quote').disabled = true;
+      try {
+        if (!preview.counted) {
+          preview.counted = true;
+          preview.cardNumber = await incrementVibeCardCount();
+        }
+        if (vibeCardPreview !== preview) return null;
+        await renderVibeCardPreview();
+        return vibeCardPreview === preview ? preview.blob : null;
+      } finally {
+        preview.exporting = false;
+        if (vibeCardPreview === preview) {
+          document.getElementById('vibe-card-quote').disabled = false;
+          const canExport = Boolean(preview.blob);
+          document.getElementById('vibe-card-download').disabled = !canExport;
+          document.getElementById('vibe-card-share').disabled = !canExport;
+        }
+      }
+    }
+
+    async function createVibeCardBlob(cardData, metadata, quote, cardNumber) {
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
       const context = canvas.getContext('2d');
@@ -7518,7 +7906,7 @@
       const quoteHeight = quoteLines.length ? Math.max(100, quoteLines.length * 35 + 46) : 0;
       if (quoteHeight) contentY += quoteHeight + 28;
       const footerY = contentY + 62;
-      canvas.height = Math.max(760, footerY + 62);
+      canvas.height = Math.max(760, footerY + 190);
 
       context.fillStyle = '#181513';
       context.fillRect(0, 0, canvas.width, canvas.height);
@@ -7642,31 +8030,51 @@
         y += quoteHeight + 28;
       }
 
-      context.fillStyle = 'rgba(232, 224, 213, 0.58)';
-      context.font = '19px Arial, sans-serif';
-      context.textAlign = 'center';
-      const siteAddress = window.location.host ||
-        (window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'DeBug_');
-      context.fillText(siteAddress, 540, canvas.height - 78, 840);
+      const localHostnames = ['', 'localhost', '127.0.0.1'];
+      const useProductionSite = localHostnames.includes(window.location.hostname);
+      const siteAddress = useProductionSite
+        ? 'debug-mind-nine.vercel.app' : window.location.host;
+      const siteUrl = useProductionSite
+        ? 'https://debug-mind-nine.vercel.app' : window.location.origin;
+      context.fillStyle = '#e8b17f';
+      context.font = '700 25px Arial, sans-serif';
+      context.fillText(`САУНДЧЕК #${String(cardNumber).padStart(4, '0')}`, 110, canvas.height - 132);
+      context.fillStyle = 'rgba(232, 224, 213, 0.68)';
+      context.font = '18px Arial, sans-serif';
+      context.fillText(siteAddress, 110, canvas.height - 94, 650);
+
+      if (typeof window.QRious === 'function') {
+        const qr = new window.QRious({
+          value: siteUrl,
+          size: 120,
+          background: '#f3eee9',
+          foreground: '#181513',
+          level: 'M'
+        });
+        const qrFrameSize = 160;
+        const qrQuietZone = (qrFrameSize - 120) / 2;
+        const qrFrameX = canvas.width - 108 - qrFrameSize;
+        const qrFrameY = canvas.height - 108 - qrFrameSize;
+        drawCanvasRoundedRect(context, qrFrameX, qrFrameY, qrFrameSize, qrFrameSize, 16);
+        context.fillStyle = '#f3eee9';
+        context.fill();
+        context.strokeStyle = 'rgba(217, 155, 102, 0.72)';
+        context.lineWidth = 2;
+        context.stroke();
+        context.save();
+        context.imageSmoothingEnabled = false;
+        context.drawImage(qr.canvas, qrFrameX + qrQuietZone, qrFrameY + qrQuietZone);
+        context.restore();
+      }
       context.textAlign = 'left';
-      return new Promise((resolve, reject) => {
+      const dataUrl = canvas.toDataURL('image/png');
+      const blob = await new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
           if (blob) resolve(blob);
           else reject(new Error('Не удалось сформировать PNG-картинку.'));
         }, 'image/png');
       });
-    }
-
-    function blobToDataUrl(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === 'string') resolve(reader.result);
-          else reject(new Error('Не удалось подготовить предпросмотр PNG.'));
-        };
-        reader.onerror = () => reject(reader.error || new Error('Не удалось подготовить предпросмотр PNG.'));
-        reader.readAsDataURL(blob);
-      });
+      return { blob, dataUrl };
     }
 
     async function renderVibeCardPreview() {
@@ -7680,32 +8088,37 @@
       status.textContent = t('Обновляем предпросмотр...');
       downloadButton.disabled = true;
       shareButton.disabled = true;
+      preview.blob = null;
+      image.style.opacity = '0.6';
       try {
         const metadata = {
           ...preview.trackMetadata,
           coverImage: preview.coverImage
         };
-        const blob = await createVibeCardBlob(preview.cardData, metadata, preview.quote);
-        const dataUrl = await blobToDataUrl(blob);
+        const { blob, dataUrl } = await createVibeCardBlob(
+          preview.cardData, metadata, preview.quote, preview.cardNumber
+        );
         if (vibeCardPreview !== preview || preview.renderId !== renderId) return;
         preview.blob = blob;
         image.src = dataUrl;
         image.hidden = false;
+        image.style.opacity = '1';
         downloadButton.disabled = false;
         shareButton.disabled = false;
         status.textContent = preview.cardData.track && !preview.coverImage
           ? preview.trackMetadata.lookupFailed
             ? t('Метаданные недоступны; показаны ссылка и заглушка обложки.')
-            : t('Обложка недоступна — на карточке показана заглушка.')
+            : t('Обложка недоступна — на саундчек-карте показана заглушка.')
           : preview.trackMetadata.lookupFailed
             ? t('Не удалось получить метаданные трека; показана указанная ссылка.')
             : '';
       } catch (error) {
         if (vibeCardPreview !== preview || preview.renderId !== renderId) return;
-        console.error('Не удалось обновить предпросмотр карточки:', error);
+        image.style.opacity = '1';
+        console.error('Не удалось обновить предпросмотр саундчек-карты:', error);
         status.textContent = error && error.message
           ? `Не удалось создать предпросмотр: ${error.message}`
-          : 'Не удалось создать предпросмотр карточки.';
+          : 'Не удалось создать предпросмотр саундчек-карты.';
       }
     }
 
@@ -7730,21 +8143,31 @@
         trackMetadata: { title: '', author: '', thumbnailUrl: '', lookupFailed: false },
         coverImage: null,
         quote: '',
+        cardNumber: vibeCardCount + 1,
         blob: null,
+        exporting: false,
+        counted: false,
         trigger,
         metadataLoading: true
       };
       vibeCardPreview = preview;
       overlay.hidden = false;
       image.hidden = true;
+      image.style.opacity = '1';
       image.removeAttribute('src');
       quoteInput.value = '';
-      status.textContent = t('Подготавливаем карточку...');
+      quoteInput.disabled = false;
+      status.textContent = t('Подготавливаем саундчек-карту...');
       downloadButton.disabled = true;
       shareButton.disabled = true;
+      updateVibeCardCounter();
       quoteInput.focus();
 
       try {
+        await refreshVibeCardCount();
+        if (vibeCardPreview !== preview || preview.requestId !== vibeCardPreviewRequestId) return;
+        preview.cardNumber = vibeCardCount + 1;
+        updateVibeCardCounter();
         preview.trackMetadata = await getTrackMetadata(preview.cardData.track);
         if (vibeCardPreview !== preview || preview.requestId !== vibeCardPreviewRequestId) return;
         preview.coverImage = await getTrackCover(preview.trackMetadata, preview.cardData.track);
@@ -7757,10 +8180,10 @@
       } catch (error) {
         if (vibeCardPreview !== preview) return;
         preview.metadataLoading = false;
-        console.error('Не удалось подготовить карточку настроения:', error);
+        console.error('Не удалось подготовить саундчек-карту:', error);
         status.textContent = error && error.message
-          ? `Не удалось подготовить карточку: ${error.message}`
-          : 'Не удалось подготовить карточку.';
+          ? `Не удалось подготовить саундчек-карту: ${error.message}`
+          : 'Не удалось подготовить саундчек-карту.';
       }
     }
 
@@ -7775,7 +8198,6 @@
       overlay.hidden = true;
       const image = document.getElementById('vibe-card-preview-image');
       image.removeAttribute('src');
-      image.hidden = true;
       if (trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
     }
 
@@ -7783,7 +8205,7 @@
       const url = URL.createObjectURL(blob);
       const download = document.createElement('a');
       download.href = url;
-      download.download = 'debug-vibe.png';
+      download.download = 'debug-soundcheck.png';
       document.body.appendChild(download);
       download.click();
       download.remove();
@@ -7796,7 +8218,7 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'save-vibe-card-button';
-      button.textContent = t('🖼 Сохранить карточку');
+      button.textContent = t('🖼 Сделать саундчек-карту');
       const status = document.createElement('p');
       status.className = 'vibe-card-status';
       status.setAttribute('role', 'status');
@@ -7820,7 +8242,7 @@
     );
 
     document.getElementById('vibe-card-quote').addEventListener('input', (event) => {
-      if (!vibeCardPreview) return;
+      if (!vibeCardPreview || vibeCardPreview.exporting) return;
       vibeCardPreview.quote = event.target.value.slice(0, 220);
       window.clearTimeout(vibeCardRenderTimer);
       vibeCardRenderTimer = window.setTimeout(() => {
@@ -7833,70 +8255,82 @@
     document.getElementById('vibe-card-preview-overlay').addEventListener('click', (event) => {
       if (event.target === event.currentTarget) closeVibeCardPreview();
     });
-    document.getElementById('vibe-card-download').addEventListener('click', () => {
+    document.getElementById('vibe-card-download').addEventListener('click', async (event) => {
       const status = document.getElementById('vibe-card-preview-status');
-      if (!vibeCardPreview || !vibeCardPreview.blob) return;
+      const button = event.currentTarget;
+      const preview = vibeCardPreview;
+      if (!preview || !preview.blob || button.disabled) return;
+      button.disabled = true;
       try {
-        downloadVibeCard(vibeCardPreview.blob);
-        status.textContent = t('PNG-карточка скачивается.');
+        const blob = await prepareVibeCardExport(preview);
+        if (!blob) return;
+        downloadVibeCard(blob);
+        status.textContent = t('PNG-саундчек скачивается.');
       } catch (error) {
-        console.error('Не удалось скачать PNG-карточку:', error);
+        console.error('Не удалось скачать PNG-саундчек:', error);
         status.textContent = error && error.message
-          ? `Не удалось скачать карточку: ${error.message}`
-          : 'Не удалось скачать карточку.';
+          ? `Не удалось скачать саундчек-карту: ${error.message}`
+          : 'Не удалось скачать саундчек-карту.';
+      } finally {
+        if (vibeCardPreview === preview) button.disabled = !preview.blob;
       }
     });
     document.getElementById('vibe-card-share').addEventListener('click', async (event) => {
       const status = document.getElementById('vibe-card-preview-status');
       const button = event.currentTarget;
-      if (!vibeCardPreview || !vibeCardPreview.blob || button.disabled) return;
-      const file = typeof File === 'undefined'
-        ? null : new File([vibeCardPreview.blob], 'debug-vibe.png', { type: 'image/png' });
+      const preview = vibeCardPreview;
+      if (!preview || !preview.blob || button.disabled) return;
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
       const shareText = currentLanguage === 'uk'
-        ? `Мій вайб прямо зараз. Зібрати свою картку та послухати нічний ефір: ${window.location.origin}`
-        : `Мой вайб прямо сейчас. Собрать свою карточку и послушать ночной эфир: ${window.location.origin}`;
-      let canShareFile = false;
-      if (file && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-        try {
-          canShareFile = navigator.canShare({ files: [file] });
-        } catch (error) {
-          console.warn('Проверка отправки PNG не удалась:', error);
+        ? `Мій вайб прямо зараз. Зробити саундчек-картку та послухати нічний ефір: ${window.location.origin}`
+        : `Мой вайб прямо сейчас. Сделать саундчек-карту и послушать ночной эфир: ${window.location.origin}`;
+      try {
+        const blob = await prepareVibeCardExport(preview);
+        if (!blob) return;
+        const file = typeof File === 'undefined'
+          ? null : new File([blob], 'debug-soundcheck.png', { type: 'image/png' });
+        let canShareFile = false;
+        if (file && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
+          try {
+            canShareFile = navigator.canShare({ files: [file] });
+          } catch (error) {
+            console.warn('Проверка отправки PNG не удалась:', error);
+          }
         }
-      }
-      if (!canShareFile) {
-        try {
-          downloadVibeCard(vibeCardPreview.blob);
-        } catch (error) {
-          console.error('Не удалось скачать PNG-карточку:', error);
-          status.textContent = t('Не удалось скачать карточку:') +
-            ` ${error && error.message ? error.message : t('ошибка браузера.')}`;
+        if (!canShareFile) {
+          downloadVibeCard(blob);
+          try {
+            if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+              throw new Error(t('Буфер обмена недоступен в этом браузере.'));
+            }
+            await navigator.clipboard.writeText(shareText);
+            status.textContent = t('Картинка скачана, текст со ссылкой скопирован.');
+          } catch (error) {
+            console.error('Не удалось скопировать подпись саундчек-карты:', error);
+            status.textContent = t('Картинка скачана, но текст со ссылкой не скопирован:') +
+              ` ${error && error.message ? error.message : t('ошибка буфера обмена.')}`;
+          }
           return;
         }
         try {
-          if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-            throw new Error(t('Буфер обмена недоступен в этом браузере.'));
-          }
-          await navigator.clipboard.writeText(shareText);
-          status.textContent = t('Картинка скачана, текст со ссылкой скопирован.');
+          await navigator.share({ files: [file], title: 'DeBug_', text: shareText });
+          status.textContent = t('Саундчек-карта отправлена.');
         } catch (error) {
-          console.error('Не удалось скопировать подпись карточки:', error);
-          status.textContent = t('Картинка скачана, но текст со ссылкой не скопирован:') +
-            ` ${error && error.message ? error.message : t('ошибка буфера обмена.')}`;
+          status.textContent = error && error.name === 'AbortError'
+            ? t('Публикация отменена.')
+            : `${t('Не удалось поделиться саундчек-картой:')} ${error.message || t('ошибка браузера.')}`;
         }
-        return;
-      }
-      try {
-        button.disabled = true;
-        button.setAttribute('aria-busy', 'true');
-        await navigator.share({ files: [file], title: 'DeBug_', text: shareText });
-        status.textContent = t('Карточка отправлена.');
       } catch (error) {
-        status.textContent = error && error.name === 'AbortError'
-          ? t('Публикация отменена.')
-          : `${t('Не удалось поделиться карточкой:')} ${error.message || t('ошибка браузера.')}`;
+        console.error('Не удалось подготовить саундчек-карту для отправки:', error);
+        status.textContent = error && error.message
+          ? `Не удалось поделиться саундчек-картой: ${error.message}`
+          : 'Не удалось поделиться саундчек-картой.';
       } finally {
-        button.disabled = false;
-        button.removeAttribute('aria-busy');
+        if (vibeCardPreview === preview) {
+          button.disabled = !preview.blob;
+          button.removeAttribute('aria-busy');
+        }
       }
     });
 
@@ -7991,10 +8425,7 @@
         setNotice('Для ссылки используй только корректный адрес, начинающийся с http:// или https://.');
         return false;
       }
-      if (containsDangerWords(text)) {
-        setNotice('Текст содержит фразу, требующую дополнительной поддержки. Измени сообщение перед отправкой.');
-        return false;
-      }
+      if (containsDangerWords(text)) showCrisisSupportNotice();
       if (!checkCooldown(FIX_COOLDOWN_KEY, 10, setNotice)) return false;
 
       const cards = getStoredCards();
@@ -8213,8 +8644,7 @@
       }
 
       if (containsDangerWords(message)) {
-        alert(t('Похоже, тебе сейчас очень тяжело. Пожалуйста, не оставайся с этим один — обратись на круглосуточную горячую линию психологической помощи или к врачу.'));
-        return;
+        showCrisisSupportNotice();
       }
 
       if (!checkCooldown(POST_COOLDOWN_KEY, 30, setMixerHint)) return;
@@ -8509,6 +8939,8 @@
       characterData: true
     });
     localizeDocument();
+    updateVibeCardCounter();
+    refreshVibeCardCount();
     initializeOnboarding();
     updateProfileUI();
     syncMixer();
