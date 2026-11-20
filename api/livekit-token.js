@@ -13,7 +13,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { identity, nickname, avatar, hostPassword } = req.body || {};
+  const { nickname, avatar, hostPassword } = req.body || {};
   const apiKey = process.env.LIVEKIT_API_KEY;
   const apiSecret = process.env.LIVEKIT_API_SECRET;
   const livekitUrl = process.env.LIVEKIT_URL;
@@ -23,19 +23,20 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'LiveKit не настроен на сервере' });
   }
 
-  if (typeof hostPassword === 'string' && hostPassword.trim() !== '') {
-    if (!expectedPassword || hostPassword.trim() !== expectedPassword) {
+  const providedHostPassword = typeof hostPassword === 'string' ? hostPassword.trim() : '';
+  if (providedHostPassword) {
+    const providedPasswordBytes = Buffer.from(providedHostPassword);
+    const expectedPasswordBytes = Buffer.from(expectedPassword || '');
+    if (!expectedPassword ||
+        Buffer.byteLength(providedHostPassword) !== Buffer.byteLength(expectedPassword) ||
+        !crypto.timingSafeEqual(providedPasswordBytes, expectedPasswordBytes)) {
       return res.status(403).json({ error: 'Неверный пароль ведущего' });
     }
   }
 
-  const isHost = Boolean(
-    expectedPassword &&
-    typeof hostPassword === 'string' &&
-    hostPassword.trim() === expectedPassword
-  );
+  const isHost = Boolean(expectedPassword && providedHostPassword);
 
-  const safeIdentity = String(identity || `guest-${Date.now()}`).slice(0, 64);
+  const safeIdentity = `${isHost ? 'host' : 'guest'}-${crypto.randomUUID()}`;
   const safeName = String(nickname || 'Аноним').slice(0, 24);
   const safeAvatar = String(avatar || '').slice(0, 64);
   const now = Math.floor(Date.now() / 1000);
@@ -52,7 +53,7 @@ module.exports = async function handler(req, res) {
       room: 'debug-night-air',
       roomJoin: true,
       canPublish: isHost,
-      canPublishData: true,
+      canPublishData: isHost,
       canSubscribe: true
     }
   }));
